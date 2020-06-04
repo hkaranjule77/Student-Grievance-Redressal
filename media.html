@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Media Center</title>
+	<style type="text/css">
+		nav{
+ 			 background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
+  			justify-content: space-around;
+  			width:100%;
+  			display: inline-flex;
+  			align-items: center;
+  			height:10%;
+			}
+        body{
+        	  background:linear-gradient(-45deg,#43cea2,#185a9d);
+        }
+        h2{
+			color: red
+		}
+		h3{
+			color: #000080
+		}
+        ul {
+			margin: 0;
+			padding: 0;
+			color: #000080;
+			list-style: none;
+		}
+
+
+
+		li {
+			float: left;
+		}
+
+			li a {
+				display: inline-block;
+				color: white;
+padding: 10px 30px;		
+  margin: 5px;
+  border: 2px solid white;
+  margin-left: 80px;
+  border-radius: 14px;
+  border-spacing: 30px;
+  display: inline-block;
+
+
+
+				text-align: center;
+				text-decoration: none;
+			
+	
+			}
+
+				li a:hover {
+					background: linear-gradient(to right, #009fff, #ec2f4b);
+					text-decoration: underline;
+				}
+				
+
+	</style>
+
+
+
+	</style>
+</head>
+<body>
+    <br />
+	<nav>
+    <ul>
+        <li><a href="{% url 'lhome' %}">Home</a></li>
+        <li><a href="{% url 'lsignup' %}">Signup</a></li>
+        <li><a href="{% url 'lnotification' %}">Notification</a></li>
+        <li><a href="{% url 'lcontacts' %}">Contact Us</a></li>
+        <li><a>Media Center</a></li>
+
+    </ul>
+</nav>
+    <br />
+    <fieldset>
+        <legend>
+            <h3><b>ABSTRACT ABOUT OUR WEBSITE</b></h3>
+        </legend>
+
+
+
+        <U><center><h2>Student Grevience Support System</h2></center></U><br>
+        <h4>
+            <p><b>Main Purpose is to develop the application portal for students to assist them in study. We provide them a way to interact with faculty and get required information.</b></p>
+            <p>
+                <b>
+                    This will definitely help student in study and keeping in touch with our institute.
+                    We have provided a way to get one click help!
+                    Please support us and rate us on our official site
+                </b>
+            </p>
+        </h4>
+        <h4><center>All the Best!!!:)</center></h4>
+        </b>
+
+
+
+    </fieldset>
+</body>
+</html>
+
+

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Notifications</title>
+	<style>
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+		nav{
+ 			 background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
+  			justify-content: space-around;
+  			width:100%;
+  			display: inline-flex;
+  			align-items: center;
+  			height:10%;
+			}
+        body{
+        	  background:linear-gradient(-45deg,#43cea2,#185a9d);
+        }
+
+        ul {
+			margin: 0;
+			padding: 0;
+			color: #000080;
+			list-style: none;
+		}
+
+
+
+		li {
+			float: left;
+		}
+
+			li a {
+				display: inline-block;
+				color: white;
+padding: 10px 30px;		
+  margin: 5px;
+  border: 2px solid white;
+  margin-left: 80px;
+  border-radius: 14px;
+  border-spacing: 30px;
+  display: inline-block;
+
+
+
+				text-align: center;
+				text-decoration: none;
+			
+	
+			}
+
+				li a:hover {
+					background: linear-gradient(to right, #009fff, #ec2f4b);
+					text-decoration: underline;
+				}
+				
+
+	</style>
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="{% url 'lhome' %}">Home</a></li>
+        <li><a href="{% url 'lsignup' %}">Signup</a></li>
+        <li><a>Notification</a></li>
+        <li><a href="{% url 'lcontacts' %}">Contact Us</a></li>
+        <li><a href="{% url 'lmedia' %}">Media Center</a></li>
+
+    </ul>
+	</nav>
+    <h1>Notifications</h1>
+</body>
+</html>

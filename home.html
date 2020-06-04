@@ -1,0 +1,196 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Home</title>
+	<img src="{% static 'logo.jpeg' %}" width="200" height="100" />
+
+
+	<marquee>
+		<img src="{% static 'image1.jpeg' %}" height="100" width="200">
+		<img src="{% static 'image2.jpeg' %}" height="100" width="200">
+		<img src="{% static 'image3.jpeg' %}" height="100" width="200">
+		<img src="{% static 'image4.jpeg' %}" height="100" width="200">
+		<img src="{% static 'image5.jpeg' %}" height="100" width="200">
+		<img src="{% static 'image7.jpeg' %}" height="100" width="200">
+		<img src="{% static 'image8.jpeg' %}" height="100" width="200">
+		<img src="{% static 'image9.jpeg' %}" height="100" width="200">
+	</marquee>
+
+	<script type="text/javascript">
+		function generateCaptcha() {
+			var alpha = new Array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@', '#', '$', '%', '^', '&', '*', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+			var i;
+			for (i = 0; i < 4; i++) {
+				var a = alpha[Math.floor(Math.random() * alpha.length)];
+				var b = alpha[Math.floor(Math.random() * alpha.length)];
+				var c = alpha[Math.floor(Math.random() * alpha.length)];
+				var d = alpha[Math.floor(Math.random() * alpha.length)];
+				var e = alpha[Math.floor(Math.random() * alpha.length)];
+				var f = alpha[Math.floor(Math.random() * alpha.length)];
+			}
+			var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f;
+			document.getElementById("capcode").value = "Captcha Code =" + code
+		}
+	</script>
+	<style>
+		nav{
+ 			 background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
+  			justify-content: space-around;
+  			width:100%;
+  			display: inline-flex;
+  			align-items: center;
+  			height:10%;
+			}
+        body{
+        	  background:linear-gradient(-45deg,#43cea2,#185a9d);
+        }
+
+		ul {
+			margin: 0;
+			padding: 0;
+			color: #000080;
+			list-style: none;
+		}
+
+
+
+		li {
+			float: left;
+		}
+
+			li a {
+				display: inline-block;
+				color: white;
+padding: 10px 30px;		
+  margin: 5px;
+  border: 2px solid white;
+  margin-left: 80px;
+  border-radius: 14px;
+  border-spacing: 30px;
+  display: inline-block;
+
+
+
+				text-align: center;
+				text-decoration: none;
+			
+	
+			}
+
+				li a:hover {
+					background: linear-gradient(to right, #009fff, #ec2f4b);
+					text-decoration: underline;
+				}
+
+
+         .wrap{
+  				background-color: rgba(0,0,0,0.5);
+ 				 max-width: 350px;
+  				border-radius: 20px;
+  				margin: auto;
+  				box-sizing: border-box;
+  				margin-top: 20px;
+  				padding: 40px;
+  				color: #fff;
+  				margin-top: 100px;
+        }
+            
+        input[type=text],input[type=password]{
+			width: 100%;
+			box-sizing: border-box;
+			padding: 12px 5px;
+			background:rgba(0,0,0,0.1);
+			outline:none;
+			border:none;
+			border-bottom:2px solid #fff;
+			color: #fff;
+			border-radius: 15px;
+			margin: 8px;
+			font-weight: bold;
+			}
+
+		input[type=button]{
+			height: 20px;
+  width: 90px;
+  color: white;
+  font-family: 'Chivo';
+  border-radius: 40px;
+  display: inline-block;
+  line-height: normal;
+  padding: 5px,5px;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: bold;
+  background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+}
+		input[type=submit]{
+			height: 30px;
+  width: 100px;
+  color: white;
+  font-family: 'Chivo';
+  border-radius: 40px;
+  display: inline-block;
+  margin-top: 30px;
+  line-height: normal;
+  padding: 5px,5px;
+  box-sizing: border-box;
+  font-size: 20px;
+  font-weight: bold;
+  background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+}
+
+		
+			
+		input[type=submit]:hover{
+			background: linear-gradient(to left, #f64f59, #c471ed, #12c2e9);
+			color: black;
+			text-decoration: none;
+		}
+
+
+
+
+		
+
+        	
+
+		
+
+			</style>
+</head>
+<body onload="generateCaptcha()">
+<nav>
+	<ul>
+		<li><a>Home</a></li>
+		<li><a href="{% url 'lsignup' %}">Signup</a></li>
+		<li><a href="{% url 'lnotification' %}">Notification</a></li>
+		<li><a href="{% url 'lcontacts' %}">Contact Us</a></li>
+		<li><a href="{% url 'lmedia' %}">Media Center</a></li>
+
+	</ul>
+</nav>
+	<div class="wrap">
+		<form>
+			<input type="text" id="uname" placeholder="enter user name" size="50"><br>
+			<input type="text" id="uid" placeholder="enter user id" size="50"><br>
+			<input type="text" id="uemail" placeholder="enter user's email id" size="50"><br>
+			<input type="password" id="upawd" placeholder="enter password" size="50"><br>
+			<a href="{% url 'lforgpasw' %}">Forgot Passord</a><br />
+			<input type="radio" id="rhod" name="rlgn">HOD<br />
+			<input type="radio" id="rteacher" name="rlgn">Teacher<br />
+			<input type="radio" id="rstudent" name="rlgn">Student<br />
+			<input type="text" id="capcode" size="30">
+			<input type="button" id="ref" value="refresh" backgroud="green" onclick="generateCaptcha()"><br>
+			<input type="text" id="ucap" placeholder="enter captcha" size="50"><br>
+			<input type="submit" id="lformsub" value="submit"><br>
+		</form>
+	</div>
+
+
+
+	
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Contact Us</title>
+<style type="text/css">
+
+    * {
+        padding: 0px;
+        margin: 0px;
+    }
+	nav{
+ 			 background: linear-gradient(-90deg, rgb(252, 0, 255, 0.7), rgb(0, 219, 222, 0.9));
+  			justify-content: space-around;
+  			width:100%;
+  			display: inline-flex;
+  			align-items: center;
+  			height:10%;
+			}
+        body{
+        	  background:linear-gradient(-45deg,#43cea2,#185a9d);
+        }
+	div.floatBox1{
+	float:left;
+	border:3px solid black;
+	padding:20px;
+	heigth:50%;
+}
+div.floatBox2{
+	float:Right;
+	border:3px solid black;
+	padding:20px;
+	heigth:50%;
+}
+h2{
+	color: red
+}
+h3{
+	color: #000080
+}
+
+		ul {
+			margin: 0;
+			padding: 0;
+			color: #000080;
+			list-style: none;
+		}
+
+
+
+		li {
+			float: left;
+		}
+
+			li a {
+				display: inline-block;
+				color: white;
+padding: 10px 30px;		
+  margin: 5px;
+  border: 2px solid white;
+  margin-left: 80px;
+  border-radius: 14px;
+  border-spacing: 30px;
+  display: inline-block;
+
+
+
+				text-align: center;
+				text-decoration: none;
+			
+	
+			}
+
+				li a:hover {
+					background: linear-gradient(to right, #009fff, #ec2f4b);
+					text-decoration: underline;
+				}
+				
+				
+				
+				
+
+</style>
+</head>
+<body>
+	<br />
+	<nav>
+	<ul>
+		<li><a href="{% url 'lhome' %}">Home</a></li>
+		<li><a href="{% url 'lsignup' %}">Signup</a></li>
+		<li><a href="{% url 'lnotification' %}">Notification</a></li>
+		<li><a>Contact Us</a></li>
+		<li><a href="{% url 'lmedia' %}">Media Center</a></li>
+
+	</ul>
+	</nav>
+	<br />
+
+	<h2><center>*ABOUT DEVELOPERS*</center></h2>
+	</div>
+	<fieldset>
+		<legend>
+			<h3><center>Developed and Designed By</center></h3>
+		</legend>
+		<div class='floatBox1'>
+			<h3>Develporer 1:</h3><br><h4>
+				<b>
+					<u>Name      :</u> Harshal<br>
+					<u>Profile   :</u> Engineering Student<br>
+					<u>Institute :</u> Datta Meghe College of Engineering<br>
+					<u>Stream    :</u> Computer Engineering<br>
+					<u>Contact   :</u> 0000000000
+
+				</b>
+			</h4>
+		</div>
+		<div class='floatBox2'>
+			<h3>Developer 2:</h3><br>
+			<h4>
+				<b>
+					<u>Name      :</u> Sanket Tukaram Dhake<br>
+					<u>Profile   :</u> Engineering Student<br>
+					<u>Institute :</u> Datta Meghe College of Engineering<br>
+					<u>Stream    :</u> Computer Engineering<br>
+					<u>Contact   :</u> 0000000000
+				</b>
+			</h4>
+		</div><br><br><br><br><br><br><br><br><br><br><br>
+		<div class='floatBox2'>
+			<h3>Developer 4:</h3><br>
+			<h4>
+				<b>
+					<u>Name      :</u> <br>
+					<u>Profile   :</u> Engineering Student<br>
+					<u>Institute :</u> Datta Meghe College of Engineering<br>
+					<u>Stream    :</u> Computer Engineering<br>
+					<u>Contact   :</u>
+				</b>
+			</h4>
+		</div>
+		<div class='floatBox1'>
+			<h3>Develporer 3:</h3><br><h4>
+				<b>
+					<u>Name      :</u> <br>
+					<u>Profile   :</u> Engineering Student<br>
+					<u>Institute :</u> Datta Meghe College of Engineering<br>
+					<u>Stream    :</u> Computer Engineering<br>
+					<u>Contact   :</u>
+
+				</b>
+			</h4>
+		</div><br><br><br><br><br><br><br><br><br><br><br>
+		<div class='floatBox2'>
+			<h3>Developer 6:</h3><br>
+			<h4>
+				<b>
+					<u>Name      :</u> <br>
+					<u>Profile   :</u> Engineering Student<br>
+					<u>Institute :</u> Datta Meghe College of Engineering<br>
+					<u>Stream    :</u> Computer Engineering<br>
+					<u>Contact   :</u>
+				</b>
+			</h4>
+		</div>
+		<div class='floatBox1'>
+			<h3>Develporer 5:</h3><br><h4>
+				<b>
+					<u>Name      :</u> <br>
+					<u>Profile   :</u> Engineering Student<br>
+					<u>Institute :</u> Datta Meghe College of Engineering<br>
+					<u>Stream    :</u> Computer Engineering<br>
+					<u>Contact   :</u>
+
+				</b>
+			</h4>
+		</div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+	</fieldset>
+
+</body>
+</html>
