@@ -5,7 +5,11 @@
 {% endblock %}
 
 {% block content %}
-	<p>
-		<h1><b> Welcome to Student Grievance and Redressal Portal </b></h1>
-	</p>
+    <p>
+        <h4> <i> Welcome </i> </h4>
+        {% if user.is_authenticated %}
+            <p> <a href = '/user/'> User </a> </p>
+            <p> <a href = '/complain'> Complain </a> </p>
+        {% endif %}
+    </p>
 {% endblock %}

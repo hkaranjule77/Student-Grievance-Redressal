@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Complain List
+{% endblock %}
+
+{% block content %}
+    <br>
+    <h3> <i> {{complain.subject}} </i> </h3>
+    <p>
+         <p>Complain ID : <i>{{complain.id}}</i></p>
+         <p>Subject : <i>{{complain.subject}}</i></p>
+         <p>Category : <i>{{complain.category}}</i></p>
+         <p>Sub-category : <i>{{complain.sub_category}}</i></p>
+         <p>Brief : <i>{{complain.brief}}</i></p>
+         <p align = "right">Registered at <i>{{complain.reg_datetime}}</i> </p>
+         <hr>
+         {% if user.is_staff %}
+             {% if button %}
+                 <a href = "/complain/{{complain.id}}/select/"> Select to Solve </a> | 
+             {% else %}
+                 {% if complain.solver.user == user %}
+                      <a href = '/complain/{{complain.id}}/deselect/'> Deselect </a> | 
+                 {% else %}
+                     <p fgcolor = "red">
+                         This complain already selected by other member.<br>
+                         Please try to select other complain.
+                    </p>
+                {% endif %}
+             {% endif %}
+          {% endif %}
+         <a href = "/complain/"> Back </a>
+    </p>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Seach a Complain
+{% endblock %}
+
+{% block content %}
+    <form method = "post" action = "/complain/search/">
+    {% csrf_token %}
+        <p>
+            <input type = "text" name = "query" value = "{{query}}">
+            <button type = "submit"> Search </button>
+        </p>
+    </form>
+    {% if queryset %}
+        {% for complain in queryset %}
+            <p>
+                <b><h3>
+                    <a href = "/complain/{{complain.id}}/">
+                        {{complain.id}} | {{complain.subject}}
+                    </a>
+                </b></h3>
+                {{complain.category}} | {{complain.sub_category}}
+                <br>
+                {{complain.brief}}
+                <br>
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

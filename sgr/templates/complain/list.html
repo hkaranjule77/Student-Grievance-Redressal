@@ -5,5 +5,9 @@ Complain List
 {% endblock %}
 
 {% block content %}
-Add Complain list here.
+<a href = "/complain/search"> Search a complain</a> |
+<h1>Complain List</h1>
+{% for complain in all_complain %}
+    <a href='{{complain.id}}/'> {{complain.id}} {{complain.subject}} </a>
+{% endfor %}
 {% endblock %}

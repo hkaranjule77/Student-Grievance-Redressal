@@ -22,5 +22,6 @@ urlpatterns = [
 	path('', views.home, name = 'Home'),
 	path('complain/', include('complain.urls'), name = 'Complain'),
 	path('user/', include('user.urls'), name = 'User'),
-    path('admin/', admin.site.urls),
+        path('admin/', admin.site.urls),
+        path('permission-denied/', views.perm_denied, name = 'Pemission Denied'),
 ]
