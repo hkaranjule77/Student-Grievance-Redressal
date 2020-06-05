@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import QuerySet
 #from django.db.models.exceptions import DoesNotExist
 
 from .models import Complain
@@ -68,13 +69,43 @@ def deselect(request, id_no):
             
 def search(request):
     if request.user.is_staff:
+        options = ('all','id', 'subject', 'category', 'sub_category', 'brief')
         query = request.POST.get('query')
-        if query == None or query =="":
+        opt = request.POST.get('opt')
+        if query == None:
+            query = ""
+        if query =="":
             queryset = Complain.objects.all()
+            print('hi')
         else:
-            queryset = Complain.objects.filter(subject = query)
-            queryset2 = Complain.objects.filter(id = query)
-            queryset = queryset.union(queryset2)
-        context = {'queryset' : queryset, 'query' : query }
+            print('filter',opt, options[0])
+            queryset = Complain.objects.none()
+            #queryset.delete()
+##            queryset.delete()
+            #print(queryset)
+            if opt == options[0] or opt == options[1]:
+                q1 = Complain.search_id(query = query)
+                q1 = Complain.objects.filter(q1)
+                queryset = queryset.union(q1)
+            if opt == options[0] or opt == options[2]:
+                q2 = Complain.search_subject(query = query)
+                q2 = Complain.objects.filter(q2)
+                queryset = queryset.union(q2)
+            if opt == options[0] or opt == options[3]:
+                q3 = Complain.search_category(query = query)
+                q3 = Complain.objects.filter(q3)
+                queryset = queryset.union(q3)
+            if opt == options[0] or opt == options[4]:
+                q4 = Complain.search_sub_category(query = query)
+                q4 = Complain.objects.filter(q4)
+                queryset = queryset.union(q4)
+            if opt == options[0] or opt == options[5]:
+                q5 = Complain.search_brief(query = query)
+                q5 = Complain.objects.filter(q5)
+                queryset = queryset.union(q5)
+        print(queryset,'aalk')
+        queryset.distinct()
+        message = f' search count : {len(queryset)}'
+        context = {'queryset' : queryset, 'query' : query, 'options' : options, 'message' : message }
         return render(request, 'complain/search.html', context)
     return redirect('/permission-denied/')
