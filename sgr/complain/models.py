@@ -13,10 +13,16 @@ class Complain(models.Model):
     category = models.CharField(max_length = 30)
     sub_category = models.CharField(max_length = 30)
     brief = models.TextField()
-    complainee = models.ForeignKey(Student, on_delete = models.CASCADE)
+    complainer = models.ForeignKey(Student, on_delete = models.CASCADE)
+    file = models.FileField(upload_to = 'complain/', blank = True, null = True)
     reg_datetime = models.DateTimeField(default = timezone.now)
+    solved = models.BooleanField(default = False)
+    approved = models.BooleanField(default = False)
     solver = models.ForeignKey(Member, on_delete =  models.CASCADE, blank = True, null = True)
     solve_date = models.DateField(blank = True, null = True)
+    
+    def get_filename(self):
+        return self.file.name[9:]
     
     def search_id(query):
         return Q(id__icontains = query)
@@ -33,3 +39,11 @@ class Complain(models.Model):
     def search_brief(query):
         return Q(brief__icontains = query)
 	
+	
+	
+class Note(models.Model):
+    note = models.TextField()
+    file = models.FileField(upload_to = 'note/', blank = True, null = True)
+    complain = models.ForeignKey(Complain, on_delete = models.CASCADE)
+    reg_datetime = models.DateTimeField(default = timezone.now)
+    solver = models.ForeignKey(Member, on_delete = models.CASCADE)

@@ -9,5 +9,6 @@ Complain List
 <h1>Complain List</h1>
 {% for complain in all_complain %}
     <a href='{{complain.id}}/'> {{complain.id}} {{complain.subject}} </a>
+    <br>
 {% endfor %}
 {% endblock %}

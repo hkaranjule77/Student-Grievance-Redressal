@@ -80,9 +80,6 @@ def search(request):
         else:
             print('filter',opt, options[0])
             queryset = Complain.objects.none()
-            #queryset.delete()
-##            queryset.delete()
-            #print(queryset)
             if opt == options[0] or opt == options[1]:
                 q1 = Complain.search_id(query = query)
                 q1 = Complain.objects.filter(q1)

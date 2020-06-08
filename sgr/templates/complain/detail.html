@@ -13,6 +13,13 @@ Complain List
          <p>Category : <i>{{complain.category}}</i></p>
          <p>Sub-category : <i>{{complain.sub_category}}</i></p>
          <p>Brief : <i>{{complain.brief}}</i></p>
+         <p>File :
+             {% if complain.file %}
+                 <a href = "{{complain.file}}"> {{complain.get_filename}}</i></a>
+             {% else %}
+                 None
+             {% endif %}
+         </p>
          <p align = "right">Registered at <i>{{complain.reg_datetime}}</i> </p>
          <hr>
          {% if user.is_staff %}

@@ -1,0 +1,31 @@
+{% extends 'user/dashboard.html' %}
+
+{% block title %}
+    Profile
+{% endblock %}
+
+{% block dashboard %}
+    <p>
+        <br>
+        <h1>{{student.user.first_name}} {{student.user.last_name}}</h1>
+        <hr width = "70%" align = "left">
+        <i>Student</i>
+        <br>
+        <p><i> username : </i> {{student.user.username}}</p>
+        <br>
+        
+        <p><h3> Academics details: </h3></p>
+        <hr width = "50%" align = "left">
+        <p> <i>Student UID : </i> {{student.uid}}</p>
+        <p> <i>Year : </i> {{student.year}} </p>
+        <p> <i>Branch : </i> {{student.branch}} </p>
+        <br>
+        
+        <p><h3> Contact details: </h3></p>
+        <hr width = "50%" align = "left" >
+        <p> <i>Contact No : </i> {{student.contact_no}}</p>
+        <p> <i>Email : </i> {{student.user.email}} </p>
+        <br>
+        
+    </p>
+{% endblock %}

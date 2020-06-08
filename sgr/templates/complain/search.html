@@ -11,13 +11,15 @@
             <input type = "text" name = "query" value = "{{query}}">
             <button type = "submit"> Search </button>
         </p>
+        Filter : 
         <select name = "opt" value = {{opt}}>
             {% for op in options %}
                 <option> {{op}} </option>
             {% endfor %}
         </select>
     </form>
-    <br>
+    <a href = "/complain/"> Back </a>
+    <br><br>
     {% if queryset %}
         {% for complain in queryset %}
             <p>
