@@ -5,8 +5,9 @@
 {% endblock %}
 
 {% block content %}
-    <h3> Security details </h3>
-    <form>
+    <form method = "post" action = "/user/security-detail/">
+    {% csrf_token %}
+        <h3> check out the details</h3>
         <p>
             First Name :
             <input type = "text" name = "first_name" value = "{{student.user.first_name}}" readonly>
@@ -26,14 +27,16 @@
             <input type = "text" name = "year" value = "{{student.year}}" readonly>
         </p>
         <p> Admission Type : 
-            <input type = "text" name = "admission_type" value = "{{student.admission_typer}}" read-only>
+            <input type = "text" name = "admission_type" value = "{{student.admission_type}}" readonly>
         </p>
         <p> Contact No :
-            <input type = "text" name = "contact_no">
+            <input type = "text" name = "contact_no" value = "{{student.contact_no}}" readonly>
         </p>
         <p> Email :
-            <input type = "email" name = "email" value = "{{student.user.email}}" readon>
+            <input type = "email" name = "email" value = "{{student.user.email}}" readonly>
         </p>
+        <br>
+        <h3> Security details </h3>
         <p> Security Question : 
             <select name = "security_question">
                 {% for question in questions %}

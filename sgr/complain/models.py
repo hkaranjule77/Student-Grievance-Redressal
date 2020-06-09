@@ -41,9 +41,9 @@ class Complain(models.Model):
 	
 	
 	
-class Note(models.Model):
-    note = models.TextField()
-    file = models.FileField(upload_to = 'note/', blank = True, null = True)
-    complain = models.ForeignKey(Complain, on_delete = models.CASCADE)
-    reg_datetime = models.DateTimeField(default = timezone.now)
-    solver = models.ForeignKey(Member, on_delete = models.CASCADE)
+##class Note(models.Model):
+##    note = models.TextField()
+##    file = models.FileField(upload_to = 'note/', blank = True, null = True)
+##    complain = models.ForeignKey(Complain, on_delete = models.CASCADE)
+##    reg_datetime = models.DateTimeField(default = timezone.now)
+##    solver = models.ForeignKey(Member, on_delete = models.CASCADE)

@@ -5,6 +5,16 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Student, Member
 
+### GLOBAL_VAR ###
+
+branches = ( 'Chemical', 'Civil', 'Computer', 'Electrical', 'Mechanical', 'IT' )
+years = ('First', 'Second', 'Third', 'Fourth')
+admission = ( 'First year', 'Direct Second year')
+questions = ( 'In which town your mom/dad was born?',
+              'What is name of your grand mother/grand father?',
+              'What was your childhood nickname?',
+              'which sports do you like most?',) 
+
 ### Not mapped ###
 
 def get_user(user):
@@ -55,14 +65,14 @@ def log_out(request):
 
 def register(request):
     if not request.user.is_authenticated:
-        branches = ( 'Chemical', 'Civil', 'Computer', 'Electrical', 'Mechanical', 'IT' )
-        years = ('First', 'Second', 'Third', 'Fourth')
-        admission = ( 'First year', 'Direct Second year')
+        global branches
+        global years
+        global admission
+        global questions
         student = Student.init(request)
         if student.is_valid():
-            print('valid', student.is_valid(), student.user.username)
+            print('valid', student.is_valid(), student.admission_type)
             ### add verification if verified continue or redirect to register again.
-            questions = ( 'In which town your mom/dad was born?',) 
             context = { 'student' : student , 'questions' : questions }
             return render(request, 'user/security-detail.html', context)
         else:
@@ -74,19 +84,24 @@ def register(request):
 
 def security(request):
     if not request.user.is_authenticated:
-        student, set_password = Student.init_all(request)
+        student, valid_password = Student.init_all(request)
         if valid_password:
             password = request.POST.get('password')
             if password == request.POST.get('confirm_password'):
-                student.user.set_password(password = password)
                 student.user.save()
                 student.save()
-                return redirect('/user/dashboard/')
+                student.user.set_password(password)
+                student.user.save(update_fields = ['password'])
+                context = { 'message' :
+                            'Account created successfully. Please login to register a complain',
+                            'branches' : branches, 'years' : years, 'admission' : admission }
+                return render(request, 'user/register.html', context)
             else:
                 message = "Password doesn't match of both fields."
         else:
             message = 'Password is not valid. Please enter a valid password.'
-        context = { 'student' : student, 'message' : message }
+        global questions
+        context = { 'student' : student, 'message' : message, 'questions' : questions }
         return render(request, 'user/security-detail.html', context)
     return redirct('/permission-denied/')
 
