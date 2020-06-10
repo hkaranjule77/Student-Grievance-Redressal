@@ -71,8 +71,7 @@ def register(request):
         global questions
         student = Student.init(request)
         if student.is_valid():
-            print('valid', student.is_valid(), student.admission_type)
-            ### add verification if verified continue or redirect to register again.
+            ## add verification if verified continue or redirect to register again.
             context = { 'student' : student , 'questions' : questions }
             return render(request, 'user/security-detail.html', context)
         else:
@@ -107,13 +106,14 @@ def security(request):
 
 def profile(request):
     if request.user.is_authenticated:
-        user = Student.objects.get(user = request.user)
-        if not request.user.is_staff:
-            context = { 'student' : user }
-            return render(request, 'user/stu-profile.html', context)
-        elif request.user.is_staff:
+        if request.user.is_staff:
+            user = Member.objects.get(user = request.user)
             context = { 'member' : user }
             return render(request, 'user/mem-profile.html', context)
+        else:
+            user = Student.objects.get(user = request.user)
+            context = { 'student' : user }
+            return render(request, 'user/stu-profile.html', context)
     return redirect('/permission-denied/')
 
 def dashboard(request):

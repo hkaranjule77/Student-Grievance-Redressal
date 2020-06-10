@@ -6,4 +6,4 @@ def home(request):
 	return render(request, 'home.html')
     
 def perm_denied(request):
-    return render(request, 'perm_denied.html')
+    return render(request, 'permission_denied.html')

@@ -1,0 +1,28 @@
+ID GENERATION FOR COMPLAIN
+
+-ID Structure = (yymmdd)(initial of category)(intial of sub_category)(count)
+	where yymmdd is date format.
+		    initial of category - first letter of category name.
+		    initial of sub_category - letter stored as a value for key(sub_category).
+		    count is extracted throught file is zeros are concatenated in front to make 4 digit number.
+
+-Data Structures
+	-categories (list of category)
+	-sub_categories (tuple with nested dictionary)
+	-category (model variable)
+	-sub_category (model variable)
+
+-Data is stored in file named 'count_files/complain_id.txt'
+-First line in files is dedicated to last modified date with format(yymmdd.
+-Then each line is used for separate category.
+-A space separated values are the count(id) of sub_category for next complain.
+-Every count/id is stored serially according to sequence in categories(list) and sub_categories(tuple with nested dictionary).
+
+-Algorithm
+
+	-If date in first line match with today date, it will search for respective sub_category count(id).
+	-So. it traverse and if category and sub_category match the id is initialize to a variable called generated_id.
+	-Else if date doesn't match, it overwrites all values with zero and except for selected sub_category as 1 and initialize generated_id as 1.
+	-If Generated ID is less than 4-digits, zeros are concatenated to form a 4 digit id.
+	-Also, if generated_id is greater than 4-digit it is directly used as a id.
+	-Atlast, date, initials and zeros are concatenated in start of generated_id variable to generate (12 character) id.

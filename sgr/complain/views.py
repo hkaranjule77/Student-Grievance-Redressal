@@ -3,15 +3,41 @@ from django.db.models import QuerySet
 #from django.db.models.exceptions import DoesNotExist
 
 from .models import Complain
-from user.models import Member
+from user.models import Student, Member
 
 from datetime import date
 
+
 # Create your views here.
 def list(request):
-    all_complain = Complain.objects.all()
-    context = { 'all_complain' : all_complain }
+    if request.user.is_staff:
+        complain_list = Complain.objects.all()
+    elif request.user.is_authenticated:
+        student = Student.objects.get(user = request.user)
+        complain_list = Complain.objects.filter(complainer = student)
+    else:
+        return redirect('/permission-denied/')
+    context = { 'complain_list' : complain_list }
     return render(request, 'complain/list.html', context)
+
+def add(request):
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            context = { 'message' : 'Members are not allowed to add complain.' }
+            return render(request, 'permission-denied.html', context)
+        complain = Complain.init(request)
+        print(complain.subject, 'complain')
+        if complain.is_valid():
+            print('valid')
+            complain.save()
+            message = 'Complain registered. Track it on Complain Tab'
+            context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories,
+                        'message' : message }
+        else:
+            context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories }
+        return render(request, 'complain/add.html', context)
+    else:
+        return redirect('/permission-denied.html/')
 
 def detail(request, id_no):
     complain = Complain.objects.get(id = id_no)

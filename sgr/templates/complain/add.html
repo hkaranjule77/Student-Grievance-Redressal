@@ -1,0 +1,38 @@
+{% extends 'user/dashboard.html' %}
+
+{% block title %}
+    Add complain
+{% endblock %}
+
+{% block dashboard %}
+    <h3>Add Complain</h3>
+    <form method = "post" action = "/complain/add/" enctype = "multipart/form-data">
+    {% csrf_token %}
+        <p> Subject :
+            <input type = "text" name = "subject" value = "{{complain.subject}}">
+        </p>
+        <p> Category :
+            <select name = "category" value = "{{complain.category}}">
+                {% for category in categories %}
+                    <option> {{category}} </option>
+                {% endfor %}
+            </select>
+        </p>
+        <p> Sub-categories :
+            <select name = "sub_category" value = "{{complain.sub_category}}">
+                {% for section in sub_categories %}
+                    {% for sub_category in section %}
+                        <option> {{sub_category}} </option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+        </p>
+        <p> Brief :
+            <textarea name = "brief" value = "{{complain.brief}}"> </textarea>
+        </p>
+        <p> File :
+            <input type = "file" name = "file" value = "{{complain.file}}">
+        </p>
+        <button type = "submit">Add complain</button>  
+    </form>
+{% endblock %}

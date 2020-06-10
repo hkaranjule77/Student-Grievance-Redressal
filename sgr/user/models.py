@@ -24,7 +24,6 @@ class Student(models.Model):
             user.last_name = request.POST.get('last_name')
             user.email = request.POST.get('email')
             student = Student(user = user)
-            print(student.user.username, 'username')
             student.uid = user.username
             student.branch = request.POST.get('branch')
             student.year = request.POST.get('year')
@@ -48,7 +47,6 @@ class Student(models.Model):
 	
 	def is_valid(self):
             valid = True
-            print('uid', self.uid)
             if  self.uid == '' or self.uid == None:
                 valid = False
             if  self.branch == '' or self.branch == None:

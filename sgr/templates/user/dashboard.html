@@ -2,9 +2,11 @@
 
 {% block content %}
     <p>
+        <a href = "/user/dashboard/">Dashboard</a> |
         <a href = "/user/profile/">Profle</a> |
         <a href = "/complain/"> Complain</a> |
         <a href = "/user/logout/"> Log out </a>
+        {% block tabs %} {% endblock %}
         <hr>
     </p>
     {% block dashboard %}

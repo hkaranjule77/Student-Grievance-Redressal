@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'user/dashboard.html' %}
 
 {% block title %}
     Seach a Complain
 {% endblock %}
 
-{% block content %}
+{% block dashboard %}
     <form method = "post" action = "/complain/search/">
     {% csrf_token %}
         <p>

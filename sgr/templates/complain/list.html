@@ -1,14 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'user/dashboard.html' %}
 
 {% block title %}
 Complain List
 {% endblock %}
 
-{% block content %}
-<a href = "/complain/search"> Search a complain</a> |
-<h1>Complain List</h1>
-{% for complain in all_complain %}
-    <a href='{{complain.id}}/'> {{complain.id}} {{complain.subject}} </a>
-    <br>
-{% endfor %}
+{% block dashboard %}
+    {% if user.is_authenticated and not user.is_staff %}
+        <a href = "/complain/add/"> Add a complain</a>
+    {% endif %}
+    <a href = "/complain/search"> Search a complain</a> |
+    <h1>Complain List</h1>
+    {% for complain in complain_list %}
+        <a href='{{complain.id}}/'> {{complain.id}} {{complain.subject}} </a>
+        <br>
+    {% endfor %}
 {% endblock %}

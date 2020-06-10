@@ -4,21 +4,21 @@
     Profile
 {% endblock %}
 
-{% block dashboaed %}
+{% block dashboard %}
     <p>
         <br>
         <h1>{{member.user.firstname}} {{member.user.lastname}}</h1>
-        <hr width = "80%">
-        <i>Student</i>
+        <hr width = "80%" align = "left">
+        <i>Member</i>
         <br>
         <p><i> username : </i> {{member.user.username}}</p>
         
         <p><h3> Committee details: </h3></p>
-        <hr width = "70%">
+        <hr width = "70%" align = "left">
         <p> <i>Member UID : </i> {{member.uid}}</p>
         
         <p><h3> Contact details: </h3></p>
-        <hr width = "70%">
+        <hr width = "70%" align = "left">
         <p> <i>Contact No : </i> {{member.contact_no}}</p>
         <p> <i>Email : </i> {{member.user.email}} </p>
         
