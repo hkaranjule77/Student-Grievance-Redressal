@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Sign Up Page</title>
+    <!-- <link rel="stylesheet" href="signup trial 2.css"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/grundschrift" type="text/css"/>
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/courier-prime" type="text/css"/>
+  </head>
+  <body onload="generateCaptcha()">
+		<style >
+		body{
+font-family: 'CourierPrimeRegular';
+	 font-weight: normal;
+	 font-style: normal;
+margin: 0px;
+padding: 0px;
+background:linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('marvin-meyer-SYTO3xs06fU-unsplash.jpg');
+background-position: cover;
+background-size: 100% 100%;
+background-clip: border-box;
+background-repeat: no-repeat;
+}
+
+
+.logo{
+height: 50px;
+width: 90px;
+float: left;
+
+}
+
+li{
+color: #13479c;
+display: flex;
+flex-wrap: wrap;
+
+}
+
+li a{
+color: white;
+margin: 5px;
+padding: 50px 30px;
+float: right;
+border: 2px solid white;
+
+border-radius: 14px;
+border-spacing: 20px;
+display: block;
+}
+
+.navbar-brand{
+margin: 5px;
+font-family: 'Pacifico', cursive;
+padding: 10px 20px;
+margin: 0 0;
+
+}
+
+nav{
+background: linear-gradient(-90deg, rgb(252, 0, 255, 0.7), rgb(0, 219, 222, 0.9));
+/* justify-content: space-around; */
+width:100%;
+z-index: 0;
+margin-top: 0;
+display: inline-flex;
+align-items: center;
+height:90px;
+
+}
+
+.nav-link:hover{
+background: linear-gradient(to right, #009fff, #ec2f4b);
+color: black;
+transition: 0.6s ease-in-out;
+}
+
+.form{
+margin:auto;
+box-sizing: border-box;
+background-color: rgba(0,0,0,0.7);
+max-width: 400px;
+border-radius: 20px;
+height: 80%;
+margin-top: 30px;
+padding: 40px;
+color: #fff;
+}
+
+input[type=radio]{
+
+
+
+    margin: 10px 10px;
+    padding: 15px 15px;
+    font-family: fantasy;
+
+}
+
+.button,#suref {
+height: 45px;
+width: 130px;
+color: white;
+font-family: 'Chivo';
+border-radius: 40px;
+display: inline-block;
+margin-top: 30px;
+line-height: normal;
+padding: 5px 5px;
+box-sizing: border-box;
+font-size: 20px;
+font-weight: bold;
+background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+}
+/* #suref{
+  height: 35px;
+  width: 130px;
+  color: white;
+  font-family: 'Chivo';
+  border-radius: 40px;
+  display: inline-block;
+  margin-top: 30px;
+  line-height: normal;
+  padding: 5px 5px;
+  box-sizing: border-box;
+  font-size: 20px;
+  font-weight: bold;
+  background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1); */
+
+
+}
+
+.button,#suref:hover{
+	/* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to left, #f64f59, #c471ed, #12c2e9); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+color: black;
+}
+
+th{
+padding: 20px,20px;
+margin:auto;
+}
+
+h1{
+text-align: center;
+color: #fff;
+}
+input[type=text],input[type=email],input[type=tel],select{
+border-radius: 45px;
+width: 100%;
+box-sizing: border-box;
+height: 35px;
+background: rgba(0,0,0,.10);
+border: none;
+outline:none;
+padding:12px 5px;
+margin: 5px;
+border-bottom: 3px solid white;
+font-family: 'CourierPrimeRegular';
+font-weight: normal;
+font-style: normal;
+color:white;
+
+}
+::-webkit-input-placeholder{
+color: rgba(250,245,245,0.6);
+font-family: cursive;
+}
+
+.dropdown-menu ol{
+list-style: none;
+width: 180px;
+position: absolute;
+margin-top: 0;
+/* background: black; */
+}
+.dropdown-item {
+	display: inline-block;
+	width: 85%;
+	padding: 0.25rem 0.5rem;
+	/* clear: both; */
+	font-weight: 500;
+	color: white;
+	text-align: inherit;
+	white-space: wrap;
+	background-color: transparent;
+
+}
+.dropdown:hover> .dropdown-menu li{
+background-color: linear-gradient(to top, #fc466b, #3f5efb);
+text-align: justify;
+margin: 0px 0px;
+position: relative;
+}
+
+.dropdown:hover> .dropdown-item{
+text-align:left;
+color: black;
+margin: 0px 0px;
+padding: 0px 0px;
+box-sizing: border-box;
+}
+
+.dropdown:hover> .dropdown-menu
+{
+display: block;
+position: absolute;
+margin: 0px 0px;
+width: 175px;
+/* background: linear-gradient(90deg, rgb(252, 0, 255), rgb(0, 219, 222)); */
+border-radius: 15px;
+background-color: rgba(65, 113, 224, 0.8);
+position: absolute;
+height: 320px;
+top: 50px;
+}
+
+.dropdown{
+position: relative;
+}
+
+.dropdown-item:hover {
+	color: #16181b !important;
+	text-decoration: none!important;
+	background-color: #f8f9fa!important;
+}
+
+.nav-item
+{
+/* margin-left:80px !important; */
+margin-left: 55px;
+}
+
+#checkbox{
+display: none;
+padding: 0px 0px;
+margin: 0px 0px;
+size: 10px;
+
+}
+
+.checkbox{
+display: none;
+margin-right: 90px;
+align-items: flex-end;
+align-self: left;
+display: absolute;
+float: clear;
+margin-top: 5px;
+color: #fcfcfa;
+font-size: 35px;
+
+
+}
+
+@media (max-width:1200px)
+{
+.checkbox{
+	display: inline-block;
+	margin-right: 90px;
+	display: absolute;
+	margin-top: 5px;
+	color: #fcfcfa;
+	font-size: 35px;
+}
+
+.nav-link {
+	display: none;
+}
+
+#checkbox:checked > nav-link {
+		display:flex;
+		flex-direction: column;
+}
+
+
+.navbar-brand{
+	padding: 10px 10px;
+	margin: 20px 20px;
+}
+
+}
+
+		</style>
+		<script type="text/javascript">
+				 function generateCaptcha() {
+						 var alpha = new Array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@', '#', '$', '%', '^', '&', '*', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+						 var i;
+						 for (i = 0; i < 4; i++) {
+								 var a = alpha[Math.floor(Math.random() * alpha.length)];
+								 var b = alpha[Math.floor(Math.random() * alpha.length)];
+								 var c = alpha[Math.floor(Math.random() * alpha.length)];
+								 var d = alpha[Math.floor(Math.random() * alpha.length)];
+								 var e = alpha[Math.floor(Math.random() * alpha.length)];
+								 var f = alpha[Math.floor(Math.random() * alpha.length)];
+						 }
+						 var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f;
+						 document.getElementById("sucapcode").value = "Captcha Code =" + code;
+				 }
+		 </script>
+    <div class="headerclass">
+
+    <nav class="navbar navbar-default navbar-expand-md navbar-dark bg-dark navbar-fixed-top navbar-inverse">
+      <!-- creating navbar header -->
+      <a href="#" class="navbar-brand"><img src="logo.PNG" class="logo" alt=""></a>
+      <a href="#" class="navbar-brand"><h3><b>Welcome</b></h3></a>
+      <!-- creating button icon  -->
+      <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button> -->
+
+
+      <!-- creating collapsable navbar -->
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ol class="nav navbar-nav ">
+            <!-- creating navbar-items -->
+            <li class="nav-item"><a href="{% url 'lhome' %}" class="nav-link" style="color:white; padding: 20px, 20px;">Home</a></li>
+            <li class="nav-item"><a href="{% url 'lnotification' %}" class="nav-link" style="color:white;" >Notifications</a></li>
+            <li class="nav-item"><a href="{% url 'lcontacts' %}" class="nav-link" style="color:white;">About Us</a></li>
+
+
+            <!-- Creating Dropdown menus and submenus -->
+            <li class="nav-item dropdown">
+
+<a href="#" class="nav-link dropdown-toggle" id="NavbarDropdown"  data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="color:white">Dedicated Staff</a>
+
+ <div class="dropdown-menu" aria-labelledby="NavbarDropdown" style="margin-top:5px">
+                <ol id="m" style="padding-left: 0px !important;">
+                  <li><a href="#" class="dropdown-item">COMPUTER DEPT</a></li>
+                  <li><a href="#" class="dropdown-item">ELECTRONICS DEPT</a></li>
+                  <li><a href="#" class="dropdown-item">CIVIL DEPT</a></li>
+                  <li><a href="#" class="dropdown-item">MECHANICAL DEPT</a></li>
+                  <li><a href="#" class="dropdown-item">CHEMICAL DEPT</a></li>
+                  <li><a href="#" class="dropdown-item">IT DEPT</a></li>
+                  <li><a href="#" class="dropdown-item">HUMANITY DEPT</a></li>
+
+                </ol>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <input type="checkbox" id="checkbox">
+        <div class="toggle">
+            <label for="checkbox" class="checkbox">&#9776</label>
+        </div>
+    </nav>
+
+    </div>
+    <div class="class1">
+    <form class="form" action="index.html" method="post">
+      <div class="form1 container">
+        <h1 >Sign Up Here!!!</h1>
+        <input type="text" name="firstname" placeholder="First Name" style="border-radius:20px; border-bottom: 2px solid white;" required> <p></p>
+        <input type="text" name="Lasttname" placeholder="Last Name"  required> <p></p>
+
+
+        </select> <p></p>
+        <table>
+          <thead>
+            <th>  <label><h4> Year:</h4></label></th>
+            <th>   <select class="form-control" name="Year" value="Year" required>
+                <option value="">Year</option>
+                <option value="1">1st </option>
+                <option value="2">2nd </option>
+                <option value="3">3rd </option>
+                <option value="4">4th </option> </th>
+          </thead>
+
+          <thead>
+            <th> <label ><h4> Department: </h4></label> </th>
+            <th>  <select class="form-control" name="Department" required>
+                <option value="IT">Department</option>
+                <option value="IT">IT DEPT</option>
+                <option value="COMPUTER">COMPUTER DEPT </option>
+                <option value="ELECTRONICS">ELECTRONICS DEPT</option>
+                <option value="CIVIL">CIVIL DEPT </option>
+                <option value="CHEMICAL">CHEMICAL DEPT </option>
+                <option value="MECHANICAL">MECHANICAL DEPT </option>
+                <option value="HUMANITY">HUMANITY DEPT </option>
+              </select> <p></p></th>
+          </thead>
+        </table>
+
+
+        <input type="email" placeholder="Enter your Email Id" required ><p></p>
+        <input type="tel" placeholder="Enter your Phone number" required><p></p>
+        <label><h6> Select your Security Question</h6></label>
+        <select  name="Question" class="form-control"  required>
+          <option value="Q1" >Select your Security Question </option>
+          <option value="Q1">In which town your Dad was born? </option>
+          <option value="Q2">In which town your Mom was born? </option>
+          <option value="Q3">What is your place of your Birth></option>
+          <option value="Q4">What was your childhood Nickname? </option>
+          <option value="Q5">What was the first Vehicle you owned?</option>
+          <option value="Q6">What is your Favourite Sport</option>
+          <option value="Q7">What is your Grandpa's Name?</option>
+          <option value="Q8">What is your Grandma's Name?</option>
+          <option value="Q9">Other</option>
+        </select> <p></p>
+        <input type="text" placeholder="Enter your Answer" class="form-control" required><p></p>
+				<input type="radio" id="surhod" name="rlgn"> &nbsp HOD<br>
+									 <input type="radio" id="surteacher" name="rlgn"> &nbspTeacher<br>
+									 <input type="radio" id="surstudent" name="rlgn"> &nbspStudent<br />
+									 <!-- <input type="text" id="sucapcode" > -->
+                   <input type="text" id="suucap" placeholder="enter captcha" disabled="disabled"><br>
+                   <center><input type="button" id="suref" value="refresh" onclick="generateCaptcha()"><center/>
+								  <center><input type="submit" class="button" style="margin-right: 12px;" value="Sign Up" ></center>
+        <center><input type="reset" value="Clear" class="button" ></center>
+      </div>
+    </div>
+    </form>
+ </body>
+</html>
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+	<title>Signup</title>
+	<style>
+        * {
+            padding: 0px;
+            margin: 0px;
+						text-transform: uppercase;
+        }
+		nav{
+ 			 background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
+  			justify-content: space-around;
+  			width:100%;
+  			display: inline-flex;
+  			align-items: center;
+  			height:50px;
+			}
+        body{
+        	  background:linear-gradient(-45deg,#43cea2,#185a9d);
+        }
+        ul {
+            margin: 0;
+            padding: 0;
+            color: #000080;
+            list-style: none;
+        }
+
+
+        ul {
+			margin: 0;
+			padding: 0;,
+			color: #000080;
+			list-style: none;
+		}
+
+
+
+		li {
+			float: left;
+		}
+
+			li a {
+				display: inline-block;
+				color: white;
+padding: 10px 30px;
+  margin: 5px;
+  border: 2px solid white;
+  margin-left: 80px;
+  border-radius: 14px;
+  border-spacing: 30px;
+  display: inline-block;
+
+
+
+				text-align: center;
+				text-decoration: none;
+
+
+			}
+
+				li a:hover {
+					background: linear-gradient(to right, #009fff, #ec2f4b);
+					text-decoration: underline;
+				}
+				.wrap{
+  				background-color: rgba(0,0,0,0.5);
+ 				 max-width: 350px;
+  				border-radius: 20px;
+  				margin: auto;
+  				box-sizing: border-box;
+  				margin-top: 20px;
+  				padding: 40px;
+  				color: #fff;
+  				margin-top: 100px;
+        }
+
+        input[type=text],input[type=password]{
+			width: 100%;
+			box-sizing: border-box;
+			padding: 12px 5px;
+			background:rgba(0,0,0,0.1);
+			outline:none;
+			border:none;
+			border-bottom:2px solid #fff;
+			color: #fff;
+			border-radius: 15px;
+			margin: 8px;
+			font-weight: bold;
+			}
+
+		input[type=button]{
+			height: 20px;
+  width: 90px;
+  color: white;
+  font-family: 'Chivo';
+  border-radius: 40px;
+  display: inline-block;
+  line-height: normal;
+  padding: 5px,5px;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: bold;
+  background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+}
+		input[type=submit]{
+			height: 30px;
+  width: 100px;
+  color: white;
+  font-family: 'Chivo';
+  border-radius: 40px;
+  display: inline-block;
+  margin-top: 30px;
+  line-height: normal;
+  padding: 5px,5px;
+  box-sizing: border-box;
+  font-size: 20px;
+  font-weight: bold;
+  background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+}
+
+
+
+		input[type=submit]:hover{
+			background: linear-gradient(to left, #f64f59, #c471ed, #12c2e9);
+			color: black;
+			text-decoration: none;
+		}
+
+
+
+	</style>
+	 <script type="text/javascript">
+        function generateCaptcha() {
+            var alpha = new Array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@', '#', '$', '%', '^', '&', '*', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+            var i;
+            for (i = 0; i < 4; i++) {
+                var a = alpha[Math.floor(Math.random() * alpha.length)];
+                var b = alpha[Math.floor(Math.random() * alpha.length)];
+                var c = alpha[Math.floor(Math.random() * alpha.length)];
+                var d = alpha[Math.floor(Math.random() * alpha.length)];
+                var e = alpha[Math.floor(Math.random() * alpha.length)];
+                var f = alpha[Math.floor(Math.random() * alpha.length)];
+            }
+            var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f;
+            document.getElementById("sucapcode").value = "Captcha Code =" + code;
+        }
+    </script>
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="{% url 'lhome' %}">Home</a></li>
+        <li><a>Signup</a></li>
+        <li><a href="{% url 'lnotification' %}">Notification</a></li>
+        <li><a href="{% url 'lcontacts' %}">Contact Us</a></li>
+        <li><a href="{% url 'lmedia' %}">Media Center</a></li>
+
+    </ul>
+	</nav>
+
+</body onload="generateCaptcha()">
+<div class="wrap">
+<form name="signupform">
+<h1> Signup Here </h1>
+<input type="text" id="suname" placeholder="Enter your name"><br>
+ <input type="text" id="suuid" placeholder="enter user id" ><br>
+ <input type="text" id="" placeholder="Enter your Email Id" required ><br>
+  <input type="text" id="" placeholder="Enter your Phone number" required><br>
+
+ <select class="form-control" name="Year" value="Year" required>
+
+ <option value="">Year</option>
+ <option value="1">1st </option>
+<option value="2">2nd </option>
+<option value="3">3rd </option>
+ <option value="4">4th </option>
+</select>
+ <br>
+  <label ><h4> Department: </h4></label>
+  <select name="Department" required>
+  <option value="IT">Department</option>
+  <option value="IT">IT DEPT</option>
+  <option value="COMPUTER">COMPUTER DEPT </option>
+  <option value="ELECTRONICS">ELECTRONICS DEPT</option>
+  <option value="CIVIL">CIVIL DEPT </option>
+  <option value="CHEMICAL">CHEMICAL DEPT </option>
+  <option value="MECHANICAL">MECHANICAL DEPT </option>
+  <option value="HUMANITY">HUMANITY DEPT </option>
+  </select> <br>
+ <input type="radio" id="surhod" name="rlgn">HOD<br>
+            <input type="radio" id="surteacher" name="rlgn">Teacher<br>
+            <input type="radio" id="surstudent" name="rlgn">Student<br />
+            <input type="text" id="sucapcode" >
+            <input type="button" id="suref" value="refresh" onclick="generateCaptcha()"><br>
+            <input type="text" id="suucap" placeholder="enter captcha" ><br>
+
+
+<input type="submit" id="signupsub" value="Sign Up">
+</form>
+</div>
+</html> -->
