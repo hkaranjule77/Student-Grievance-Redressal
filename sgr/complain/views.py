@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.db.models import QuerySet
-#from django.db.models.exceptions import DoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Complain
 from user.models import Student, Member
@@ -40,7 +40,11 @@ def add(request):
         return redirect('/permission-denied.html/')
 
 def detail(request, id_no):
-    complain = Complain.objects.get(id = id_no)
+    try:
+        complain = Complain.objects.get(id = id_no)
+    except ObjectDoesNotExist:
+        context = { 'message' : 'No such complain exist' }
+        return render(request, 'error.html', context)
     curr_date = date.today()
     if complain.solve_date != curr_date:
         context = { 'complain' : complain, 'button' : True}
@@ -51,45 +55,57 @@ def detail(request, id_no):
 def select(request, id_no):
     if request.user.is_staff:
         #add code for checking for date
-        complain = Complain.objects.get(id = id_no)
-        curr_date = date.today()
-        if complain.solve_date != curr_date:
-            solver = Member.objects.get(user = request.user)
-            complain.solver = solver
-            complain.solve_date = curr_date
-            complain.save(update_fields = ['solver', 'solve_date'])
-            message = "This complain selected for solving."
-            context = { 'complain' : complain, 'button' : False, 'message' : message}
-            return render(request, 'complain/detail.html', context)
+        try:
+            complain = Complain.objects.get(id = id_no)
+        except ObjectDoesNotExist:
+            context = { 'message' : 'No such complain exist' }
+            return render(request, 'error.html', context)
+        if not complain.approved:
+            curr_date = date.today()
+            if complain.solve_date != curr_date:
+                solver = Member.objects.get(user = request.user)
+                complain.solver = solver
+                complain.solve_date = curr_date
+                complain.save(update_fields = ['solver', 'solve_date'])
+                message = "This complain selected for solving."
+            else:
+                if complain.solver.user == request.user:
+                    return redirect(f'/complain/{complain.id}/')
+                message = "This complain is already selected by other member."
         else:
-            if complain.solver.user == request.user:
-                return redirect(f'/complain/{complain.id}/')
-            message = "This complain is already selected by other member."
-            context = {'complain' : complain, 'button' : False, 'message' : message}
-            return render(request, 'complain/detail.html', context)
+            message = "Complain is approved. Now, it can't be solved"
+        context = {'complain' : complain, 'select_button' : False, 'message' : message}
+        return render(request, 'complain/detail.html', context)
     return redirect('/permission-denied/')
         
         
 def deselect(request, id_no):
     if request.user.is_staff:
-        complain = Complain.objects.get(id = id_no)
-        curr_date = date.today()
-        if complain.solver != None and complain.solver.user == request.user:
-            if complain.solve_date == curr_date:
-                complain.solve_date = None
-                complain.solver = None
-                complain.save(update_fields = ['solver', 'solve_date'])
-                message = 'Deselected the complain'
+        try:
+            complain = Complain.objects.get(id = id_no)
+        except ObjectDoesNotExist:
+            message = "No such Complain exist."
+        if not complain.approved:
+            curr_date = date.today()
+            if complain.solver != None and complain.solver.user == request.user:
+                if complain.solve_date == curr_date:
+                    complain.solve_date = None
+                    complain.solver = None
+                    complain.save(update_fields = ['solver', 'solve_date'])
+                    message = 'Deselected the complain'
+                else:
+                    message = "Currently, it's not selected by no one."
+                select_button = True
             else:
-                message = "Currently, it's not selected by no one."
-            button = True
+                message = "Currently, its selected by different user, you can't deselect it."
+                if complain.solver and complain.solve_date == curr_date:
+                    select_button = False
+                else:
+                    select_button = True
         else:
-            message = "Currently, its selected by different user, you can't deselect it."
-            if complain.solver and complain.solve_date == curr_date:
-                button = False
-            else:
-                button = True
-        context = { 'complain' : complain, 'button' : button, 'message' : message}
+            select_button = False
+            message = "Complain is already approved. Noe, it can't be solved"
+        context = { 'complain' : complain, 'select_button' : select_button, 'message' : message}
         return render(request, 'complain/detail.html', context)
     return redirect('/permisssion-denied/')
             

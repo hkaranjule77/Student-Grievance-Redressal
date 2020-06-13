@@ -23,7 +23,7 @@ Complain List
          <p align = "right">Registered at <i>{{complain.reg_datetime}}</i> </p>
          <hr>
          {% if user.is_staff %}
-             {% if button %}
+             {% if select_button %}
                  <a href = "/complain/{{complain.id}}/select/"> Select to Solve </a> | 
              {% else %}
                  {% if complain.solver.user == user %}
