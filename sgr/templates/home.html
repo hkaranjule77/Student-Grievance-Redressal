@@ -33,9 +33,6 @@
 </head>
 <body onload="generateCaptcha()">
 
-	 
-	  <br>
-
 
 <nav>
 	 <img src="{% static 'logo.jpeg' %}" width="200" height="80" />
@@ -127,17 +124,17 @@
 	<div class="wrap">
 		<form>
 			<h1><center>LOGIN HERE!!!</center></h1>
-			<input type="text" id="uname" placeholder="enter user name" size="50"><br>
-			<input type="text" id="uid" placeholder="enter user id" size="50"><br>
-			<input type="text" id="uemail" placeholder="enter user's email id" size="50"><br>
-			<input type="password" id="upawd" placeholder="enter password" size="50"><br>
+			<input type="text" id="uname" placeholder="Enter User Name" size="50" required><br>
+			<input type="text" id="uid" placeholder="Enter User ID" size="50" required><br>
+			<input type="text" id="uemail" placeholder="Enter User's Email ID" size="50" required><br>
+			<input type="password" id="upawd" placeholder="Enter Password" size="50" required><br>
 			<a href="{% url 'lforgpasw' %}">Forgot Passord</a><br />
 			<input type="radio" id="rhod" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HOD Login<br />
 			<input type="radio" id="rteacher" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Teacher Login<br />
 			<input type="radio" id="rstudent" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student Login<br />
 			<input type="text" id="capcode" size="30" disabled="disabled">
 			<input type="button" id="ref" value="refresh" backgroud="green" onclick="generateCaptcha()"><br>
-			<input type="text" id="ucap" placeholder="enter captcha" size="50"><br>
+			<input type="text" id="ucap" placeholder="Enter Captcha" size="50" required><br>
 			<input type="submit" id="lformsub" value="submit"><br>
 		</form>
 	</div>	
