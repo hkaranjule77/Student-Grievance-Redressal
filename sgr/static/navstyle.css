@@ -1,16 +1,17 @@
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
-  
-nav{
-       background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
-justify-content: space-around;       
- display: inline-flex;
-        align-items: center;
-        height:80px;
-	width: 100%;
-      }
-        body{
-            background:linear-gradient(-45deg,#43cea2,#185a9d);
-        }
+nav {
+    margin-top: 0px;
+    background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
+    justify-content: space-around;
+    display: inline-flex;
+    align-items: center;
+    height: 80px;
+    width: 100%;
+}
+body {
+    margin-top: 0;
+    background: linear-gradient(-45deg,#43cea2,#185a9d);
+}
 
     nav ul{
       list-style: none;
@@ -48,39 +49,42 @@ nav ul li:hover .menu1{
 
   display: block;
   position: absolute;
-      
+  padding: 0;    
 }
-nav ul li:hover .menu1 ul{
-display: block;
-margin: 10px;
-border-radius: 15px;
-       background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
-width: 250px;
-}
+    nav ul li:hover .menu1 ul {
+        display: block;
+        margin: 10px;
+        border-radius: 15px;
+        background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
+        width: 250px;
+        padding: 0;
+    }
 
-nav ul li:hover .menu1 ul li{
-display: block;
-margin: 10px;
-}
+
+        nav ul li:hover .menu1 ul li {
+            display: block;
+            margin: 10px;
+        }
 .menu2{
   display: none;
 }
-nav ul li ul li:hover .menu2{
-  display: block;
-  position: absolute;  
+nav ul li ul li:hover .menu2 {
+    display: block;
+    position: absolute;
 }
-nav ul li ul li:hover .menu2 ul{
-display: block;
-margin: 10px;
-border-radius: 15px;
-       background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
-width: 250px;
-}
+    nav ul li ul li:hover .menu2 ul {
+        display: block;
+        margin: 10px;
+        border-radius: 15px;
+        background: linear-gradient(-90deg, rgba(252, 0, 255, 0.7), rgba(0, 219, 222, 0.9));
+        width: 250px;
+    }
 
-nav ul li ul li:hover .menu2 ul li{
-display: block;
-margin: 10px;
-}
+        nav ul li ul li:hover .menu2 ul li {
+            display: block;
+            margin: 10px;
+            
+        }
 
 
 
