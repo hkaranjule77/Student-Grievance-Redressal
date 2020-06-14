@@ -29,7 +29,7 @@
 </head>
 <body onload="generateCaptcha()">
 <nav>
-    <img src="{% static 'logo.jpeg' %}" width="200" height="80" />
+    <img src="{% static 'logo.jpeg' %}" width="200" height="80"  />
     <input type="checkbox" id="check">
     <label for="check" class="checkbtn">
         <i class="fas fa-bars"></i>
@@ -117,10 +117,10 @@
 <div class="wrap">
     <form name="signupform">
         <h1><center> Signup Here </center></h1>
-        <input type="text" id="suname" placeholder="Enter your name"><br>
-        <input type="text" id="suuid" placeholder="enter user id"><br>
-        <input type="text" id="" placeholder="Enter your Email Id" required><br>
-        <input type="text" id="" placeholder="Enter your Phone number" required><br>
+        <input type="text" id="suname" placeholder="Enter Your Name" required><br>
+        <input type="text" id="suuid" placeholder="Enter User ID" required><br>
+        <input type="text" id="" placeholder="Enter Your Email Id" required><br>
+        <input type="text" id="" placeholder="Enter Your Phone Number" required><br>
         &nbsp;&nbsp;&nbsp;Year:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <select name="Year" value="Year" required>
 
@@ -147,7 +147,7 @@
         <input type="radio" id="surstudent" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student Signup<br />
         <input type="text" id="sucapcode" disabled="disabled">
         <input type="button" id="suref" value="refresh" onclick="generateCaptcha()"><br>
-        <input type="text" id="suucap" placeholder="enter captcha"><br>
+        <input type="text" id="suucap" placeholder="enter captcha" required><br>
 
 
         <input type="submit" id="signupsub" value="Sign Up">
