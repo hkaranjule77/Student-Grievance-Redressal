@@ -40,10 +40,10 @@ class Student(models.Model):
             student.security_question = request.POST.get('security_question')
             student.security_answer = request.POST.get('security_answer')
             password = request.POST.get('password')
-            if validate_password(password = password):
-                return (student, False)
-            else:
+            if validate_password(password) == None:
                 return (student, True)
+            else:
+                return (student, False)
 	
 	def is_valid(self):
             valid = True
@@ -66,8 +66,15 @@ class Student(models.Model):
             if self.user.email == '' or self.user.email == None:
                 valid = False
             return valid
+        
+	def verify_security_details(self, security_q, answer):
+            if self.security_question == security_q and self.security_answer == answer:
+                return True
+            else:
+                return False
             
-	
+
+
 class Member(models.Model):
 	mid = models.CharField(max_length = 15, primary_key = True)
 	user = models.ForeignKey(User, on_delete = models.CASCADE)
@@ -75,3 +82,9 @@ class Member(models.Model):
 	security_question = models.CharField(max_length = 30)
 	security_answer = models.CharField(max_length = 12)
 	reg_datetime = models.DateField(default = timezone.now)
+	
+	def verify_security_details(self, security_q, answer):
+            if self.security_question == security_q and self.security_answer == answer:
+                return True
+            else:
+                return False

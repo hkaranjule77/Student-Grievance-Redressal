@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Student, Member
@@ -30,7 +31,78 @@ def get_user(user):
         return obj
     return None
 
+    ### forgot_passwd
 
+def is_security_detail_valid(request):
+    user_type = request.POST.get('user_type')
+    username = request.POST.get('username')
+    security_q = request.POST.get('security_question')
+    answer = request.POST.get('answer')
+    valid = True
+    if user_type == '' or user_type == None:
+        valid = False
+    elif username == '' or username == None:
+        valid = False
+    elif security_q == '' or security_q == None:
+        valid = False
+    elif answer == '' or answer == None:
+        valid = False
+    return valid
+
+def verify_security_details(request):
+    user_type = request.POST.get('user_type')
+    username = request.POST.get('username')
+    security_q = request.POST.get('security_question')
+    answer = request.POST.get('answer')
+    if user_type == 'student':
+        try:
+            student = Student.objects.get(uid = username)
+        except ObjectDoesNotExist:
+            return False
+        else:
+            return student.verify_security_details(security_q, answer)
+    elif user_type == 'member':
+        try:
+            member = Member.objects.get(mid = username)
+        except ObjectDoesNotExist:
+            return False
+        else:
+            return member.verify_security_details(security_q, answer)
+    else:
+        return False
+
+def is_password_valid(request):
+    password = request.POST.get('password')
+    c_password = request.POST.get('confirm_password')
+    valid = False
+    if password == '' or password == None:
+        valid = None
+    elif c_password == '' or c_password == None:
+        valid = None
+    elif password == c_password:
+        valid = True
+    return valid
+
+def set_password(request):
+    user_type = request.POST.get('user_type')
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    if user_type == 'student':
+        try:
+            student = Student.objects.get(uid = username)
+            user = student.user
+        except ObjectDoesNotExist:
+            pass
+    elif user_type == 'member':
+        try:
+            member = Member.object.get(mid = username)
+            user = member.user
+        except ObjectDoesNotExist:
+            pass
+    if validate_password(password) == None:
+        user.set_password(password)
+        user.save( update_fields = ['password'] )
+    
 ### Mapped ###
 
 
@@ -105,7 +177,7 @@ def security(request):
     return redirct('/permission-denied/')
 
 def profile(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated:     
         if request.user.is_staff:
             user = Member.objects.get(user = request.user)
             context = { 'member' : user }
@@ -125,4 +197,43 @@ def dashboard(request):
         if request.user.is_staff:
             context = {'member' : user }
             return render(request, 'user/mem-dashboard.html', context)
+    return redirect('/permission-denied/')
+
+def forgot_passwd(request, part):
+    global questions
+    if not request.user.is_authenticated:
+        if part == 0:                             ### PART_0 - render a blank form
+            context = { 'part' : 0,
+                        'questions' : questions}
+            return render(request, 'user/forgot_passwd.html', context)
+        elif part == 1:                            ### PART_1 - verify details and render password form
+            if is_security_detail_valid(request):
+                if verify_security_details(request):
+                    context = { 'part' : 1, 'user_type' : request.POST.get('user_type'),
+                                'username' : request.POST.get('username') }
+                else:
+                    context = { 'part' : 0, 'message' : 'please enter correct details',
+                                'questions' : questions}
+            else:
+                context = { 'part' : 0,
+                            'message' : 'Please fill out full form first, then submit it.',
+                            'questions' : questions,}
+            return render(request, 'user/forgot_passwd.html', context)
+        elif part == 2:
+            valid = is_password_valid(request)
+            context = { 'user_type' : request.POST.get('user_type'),
+                        'username' : request.POST.get('username') }
+            if valid:
+                set_password(request)
+                context.update( { 'part' : 2 } )
+            elif valid == None:             ### if any password field is empty
+                context.update( { 'part' : 1,
+                                  'message' : 'Please fill out full form first, then submit it' } )
+            else:                           ### if password in both field deosn't match
+                context.update( { 'part' : 1,
+                                  'message' : "Password in both field doesn't match." } )
+            return render(request, 'user/forgot_passwd.html', context)
+        else:
+            context = { 'err_msg' : '404 : Page not found' }
+            return render(request, 'error.html', context)
     return redirect('/permission-denied/')

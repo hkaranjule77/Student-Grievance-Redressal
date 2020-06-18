@@ -2,11 +2,10 @@ from django.db import models
 from django.utils import timezone
 from django.db.models import Q
 
+import os
+
 from user.models import Student, Member
 from sgr.settings import BASE_DIR
-
-from datetime import date
-import os
 
 class Complain(models.Model):
     id = models.CharField(max_length = 12, primary_key = True)
@@ -58,10 +57,7 @@ class Complain(models.Model):
             generated_id = '0'
         else:
             for index in range(len(count_data)):
-                print('b',count_data[index])
                 count_data[index] = count_data[index].split(' ')
-                print('a',count_data[index])
-            print(count_data)
             cat_index = 1
             count_file.write(curr_date+'\n')
             for cat in Complain.categories:
@@ -70,12 +66,6 @@ class Complain(models.Model):
                     if (sub == sub_category and cat == category):
                         generated_id = count_data[cat_index][sub_index]
                         count_data[cat_index][sub_index] = str( int(generated_id) + 1 )
-                        print('generated_id', generated_id)
-                    print()
-                    print('count data', count_data)
-                    print('cat_index', cat_index)
-                    print('sub_index', sub_index)
-                    print()
                     count_file.write(count_data[cat_index][sub_index]+' ')
                     sub_index += 1
                 count_file.write('\n')
@@ -100,21 +90,15 @@ class Complain(models.Model):
     def is_valid(self):
         valid = True
         if self.subject == '' or self.subject == None:
-            print(1)
             valid = False
         elif self.category == '' or self.category == None:
             valid = False
-            print(2)
         elif self.sub_category == '' or self.sub_category == None:
             valid = False
-            print(3)
         elif self.brief == '' or self.brief == None:
             valid = False
-            print(4)
         elif self.complainer == None:
             valid = False
-            print(5)
-        print('valid or not', valid)
         if valid:
             self.id = Complain.generate_id(self.category, self.sub_category)
         return valid
@@ -141,9 +125,23 @@ class Complain(models.Model):
 	
 	
 	
-##class Note(models.Model):
-##    note = models.TextField()
-##    file = models.FileField(upload_to = 'note/', blank = True, null = True)
-##    complain = models.ForeignKey(Complain, on_delete = models.CASCADE)
-##    reg_datetime = models.DateTimeField(default = timezone.now)
-##    solver = models.ForeignKey(Member, on_delete = models.CASCADE)
+class Note(models.Model):
+    note = models.TextField()
+    file = models.FileField(upload_to = 'note/', blank = True, null = True)
+    complain = models.ForeignKey(Complain, on_delete = models.CASCADE)
+    reg_datetime = models.DateTimeField(default = timezone.now)
+    solver = models.ForeignKey(Member, on_delete = models.CASCADE)
+    
+    def init_all(self, request):
+        self.note = request.POST.get('note')
+        self.file = request.POST.get('file')
+        id = request.POST.get('complain_id')
+        if id != None and id != '':
+            self.complain = Complain.objects.get(id = id)
+        self.solver = Member.objects.get(user = request.user)
+    
+    def is_valid(self):
+        valid = True
+        if self.note == '' or self.note == None:
+            valid = False
+        return valid

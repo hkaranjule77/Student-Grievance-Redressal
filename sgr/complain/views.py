@@ -2,11 +2,10 @@ from django.shortcuts import render, redirect
 from django.db.models import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Complain
+from .models import Complain, Note
 from user.models import Student, Member
 
 from datetime import date
-
 
 # Create your views here.
 def list(request):
@@ -26,9 +25,7 @@ def add(request):
             context = { 'message' : 'Members are not allowed to add complain.' }
             return render(request, 'permission-denied.html', context)
         complain = Complain.init(request)
-        print(complain.subject, 'complain')
         if complain.is_valid():
-            print('valid')
             complain.save()
             message = 'Complain registered. Track it on Complain Tab'
             context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories,
@@ -43,13 +40,28 @@ def detail(request, id_no):
     try:
         complain = Complain.objects.get(id = id_no)
     except ObjectDoesNotExist:
-        context = { 'message' : 'No such complain exist' }
+        context = { 'err_msg' : 'No such complain exist' }
         return render(request, 'error.html', context)
-    curr_date = date.today()
-    if complain.solve_date != curr_date:
-        context = { 'complain' : complain, 'button' : True}
-        return render(request, 'complain/detail.html', context)
-    context = {'complain' : complain, 'button' : False}
+    if request.user.is_staff:
+        curr_date = date.today()
+        if complain.solve_date != curr_date:
+            context = { 'complain' : complain, 'select_button' : True}
+            return render(request, 'complain/detail.html', context)
+        notes = Note.objects.filter(complain = complain)
+        context = {'complain' : complain, 'select_button' : False, 'notes' : notes }
+    elif user.is_authenticated:
+        try:
+            student = Student.objects.get(user = request.user)
+        except:
+            context = { 'err_msg' : 'Error code : 1\n Please Contact Student Grievance Cell or report bug in Help section' }
+            return render(request, 'error.html', context)
+        if complain.complainer == student:
+            context = { 'complain' : complain }
+        else:
+            cotext = { 'message' : 'This complain is reqistered by other student, it cannot be accessed.' }
+            return render(request, 'permisssion_denied.html', context)
+    else:
+        return redirect('/permission-denied/')
     return render(request, 'complain/detail.html', context)
 
 def select(request, id_no):
@@ -58,7 +70,7 @@ def select(request, id_no):
         try:
             complain = Complain.objects.get(id = id_no)
         except ObjectDoesNotExist:
-            context = { 'message' : 'No such complain exist' }
+            context = { 'err_msg' : 'No such complain exist' }
             return render(request, 'error.html', context)
         if not complain.approved:
             curr_date = date.today()
@@ -84,7 +96,8 @@ def deselect(request, id_no):
         try:
             complain = Complain.objects.get(id = id_no)
         except ObjectDoesNotExist:
-            message = "No such Complain exist."
+            context = { 'err_msg' : "No such Complain exist." }
+            return render(request, 'error.html', context)
         if not complain.approved:
             curr_date = date.today()
             if complain.solver != None and complain.solver.user == request.user:
@@ -118,9 +131,7 @@ def search(request):
             query = ""
         if query =="":
             queryset = Complain.objects.all()
-            print('hi')
         else:
-            print('filter',opt, options[0])
             queryset = Complain.objects.none()
             if opt == options[0] or opt == options[1]:
                 q1 = Complain.search_id(query = query)
@@ -142,9 +153,40 @@ def search(request):
                 q5 = Complain.search_brief(query = query)
                 q5 = Complain.objects.filter(q5)
                 queryset = queryset.union(q5)
-        print(queryset,'aalk')
         queryset.distinct()
         message = f' search count : {len(queryset)}'
         context = {'queryset' : queryset, 'query' : query, 'options' : options, 'message' : message }
         return render(request, 'complain/search.html', context)
     return redirect('/permission-denied/')
+
+
+
+   ### NOTES ###
+
+def add_note(request, id_no):
+    if request.user.is_staff:                                      # checking if user if member
+        try:
+            complain = Complain.objects.get(id = id_no)    # Fetching complain object
+        except ObjectDoesNotExist:                         # If required complain doesn't exist.
+            context = { 'err_msg' : 'No such complaint exist' }
+            return render(request, 'error.html', context)
+        member = Member.objects.get(user = request.user)
+        if member != complain.solver :                # verifying if user is solver
+            context = { 'message' :
+                        'This complaint is already selected by other member. So, note cannot be added.'
+                        }
+            return render(request, 'permission_denied.html', context)
+        else:
+            note = Note()
+            note.init_all(request)
+            if note.is_valid():
+                note.save()
+                context = { 'message' : 'Note is added in complain',
+                            'select_button' : False ,
+                            'complain' : complain }
+                return render(request, 'complain/detail.html', context)
+            else:
+                context = { 'message' : 'Please fill out required(*) columns, before submitting it.',
+                            'complain' : complain }
+                return render(request, 'complain/add_note.html', context)
+    return redirect('/permission-denited/')

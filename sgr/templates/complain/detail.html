@@ -4,7 +4,7 @@
 Complain List
 {% endblock %}
 
-{% block dashboard %}
+{% block section %}
     <br>
     <h3> <i> {{complain.subject}} </i> </h3>
     <p>
@@ -27,9 +27,10 @@ Complain List
                  <a href = "/complain/{{complain.id}}/select/"> Select to Solve </a> | 
              {% else %}
                  {% if complain.solver.user == user %}
-                      <a href = '/complain/{{complain.id}}/deselect/'> Deselect </a> | 
+                     <a href = '/complain/{{complain.id}}/add-note/'> Add note </a> |
+                     <a href = '/complain/{{complain.id}}/deselect/'> Deselect </a> | 
                  {% else %}
-                     <p fgcolor = "red">
+                     <p>
                          This complain already selected by other member.<br>
                          Please try to select other complain.
                     </p>
@@ -37,5 +38,20 @@ Complain List
              {% endif %}
           {% endif %}
          <a href = "/complain/"> Back </a>
+         {% if user.is_staff %}
+             <br><br>
+             {% for note in notes %}
+                 <br>
+                 Note : {{ note.note }} <br>
+                 {% if note.file %}
+                     File : {{ note.file }} <br>
+                 {% endif %}
+                 Added by : {{ note.solver.user.username }}<br>
+                 <div align = "right">
+                     Added at {{ note.reg_datetime }}
+                 </div>
+                 <hr>
+             {% endfor %}
+         {% endif %}
     </p>
 {% endblock %}

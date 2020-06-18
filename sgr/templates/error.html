@@ -6,4 +6,7 @@
 
 {% block content %}
     <h1>Error!!!</h1>
+    {% if err_msg %}
+        <h2><i>{{ err_msg }}</i></h2>
+    {% endif %}
 {% endblock %}

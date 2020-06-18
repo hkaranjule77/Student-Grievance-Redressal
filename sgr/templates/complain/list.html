@@ -4,7 +4,7 @@
 Complain List
 {% endblock %}
 
-{% block dashboard %}
+{% block section %}
     {% if user.is_authenticated and not user.is_staff %}
         <a href = "/complain/add/"> Add a complain</a>
     {% endif %}
