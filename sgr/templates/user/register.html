@@ -22,21 +22,21 @@
         </p>
         <p>  Branch :
             <select name = "branch">
-                {% for branch in branches %}
+                {% for code, branch in branches %}
                     <option> {{branch}} </option>
                 {% endfor %}
             </select>
         </p>
         <p> Year :
             <select name = "year">
-                {% for year in years %}
+                {% for code, year in years %}
                     <option> {{year}} </option>
                 {% endfor %}
             </select>
         </p>
         <p> Admission Type : 
             <select name = "admission_type">
-                {% for type in admission %}
+                {% for code, type in admission %}
                     <option> {{type}} </option>
                 {% endfor %}
             </select>

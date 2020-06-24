@@ -4,6 +4,13 @@
     Dashboard
 {% endblock %}
 
+{% block tabs %}
+    <a href = "/user/"> User </a> |
+{% endblock %}
+
 {% block section %}
-    <a href = "/complain/search/">Search Complain</a>
+    <ul>
+    <li><a href = "/complain/search/">Search Complain</a></li>
+    <li><a href = "/user/add-member/"> Add Member </a></li>
+    </ul>
 {% endblock %}

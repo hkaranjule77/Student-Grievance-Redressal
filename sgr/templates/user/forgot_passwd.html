@@ -30,7 +30,7 @@ Forgot Password
     {% if part == 0 %}
         <p> Security Question :
             <select name = "security_question">
-                {% for question in questions %}
+                {% for code, question in questions %}
                     <option>
                         {{question}}
                     </option>

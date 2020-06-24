@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Activate Member
+{% endblock %}
+
+{% block content %}
+    <form method = "post" action = "/user/activate-member/">
+    {% csrf_token %}
+        <p> MID :
+            <input type = "text" name = "mid" value = "{{member.mid}}">
+        </p>
+        <p> Security questions :
+            <select name = "security_question">
+                {% for code, question in questions %}
+                    <option> {{question}}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p> Security answer:
+            <input type = "password" name = "answer">
+            <i> (max length 12) </i>
+        </p>
+        <p> Activation code:
+            <input type = "password" name = "activation_code">
+            <i> (8 digit-code) </i>
+        </p>
+        <p> Password:
+            <input type = "password" name = "password">
+        </p>
+        <p> Confirm Password:
+            <input type = "password" name = "confirm_password">
+        </p>
+        <button type = "submit"> Activate </button>
+    </form>
+{% endblock %}

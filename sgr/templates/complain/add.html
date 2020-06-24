@@ -13,7 +13,7 @@
         </p>
         <p> Category :
             <select name = "category" value = "{{complain.category}}">
-                {% for category in categories %}
+                {% for code, category in categories %}
                     <option> {{category}} </option>
                 {% endfor %}
             </select>
@@ -21,7 +21,7 @@
         <p> Sub-categories :
             <select name = "sub_category" value = "{{complain.sub_category}}">
                 {% for section in sub_categories %}
-                    {% for sub_category in section %}
+                    {% for code, sub_category in section %}
                         <option> {{sub_category}} </option>
                     {% endfor %}
                 {% endfor %}

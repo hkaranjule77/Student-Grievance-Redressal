@@ -49,7 +49,7 @@ def detail(request, id_no):
             return render(request, 'complain/detail.html', context)
         notes = Note.objects.filter(complain = complain)
         context = {'complain' : complain, 'select_button' : False, 'notes' : notes }
-    elif user.is_authenticated:
+    elif request.user.is_authenticated:
         try:
             student = Student.objects.get(user = request.user)
         except:

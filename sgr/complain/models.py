@@ -2,12 +2,34 @@ from django.db import models
 from django.utils import timezone
 from django.db.models import Q
 
+from datetime import date
 import os
 
 from user.models import Student, Member
 from sgr.settings import BASE_DIR
 
 class Complain(models.Model):
+    
+    ### CONSTANTS
+    categories = ( ('A','Administrative Office'),
+                   ('I', 'Infrastructure'),
+                   ('C', 'Committee/Teacher'),
+                   ('M', 'Management activites'),
+                   ('O', 'Other' )
+                   )
+    sub_categories = ( ( ('A', 'Admission'), ('C', 'Concession'), ('S', 'Scholarship/Freeship'),
+                         ('O', 'Other') ),
+                       ( ('C', 'Canteen'), ('A', 'Classroom'), ('G', 'Gymnasium'), ('L', 'Library'),
+                         ('L', 'Lift'), ('P', 'Parking'), ('Y', 'Playground'),
+                         ('R', 'Practical Lab'), ('T', 'Toilets/Washrooms'), ('W', 'Workshop'),
+                         ('X', 'Xerox Office'), ('O', 'Other') ),
+                       ( ('B', 'Branch Committees'), ('E', 'E-Cell'), ('N', 'NSS'), ('W', 'Women Development'),
+                         ('O', 'Other') ),
+                       ( ('A', 'Attendance'), ('C', 'Cleanliness'), ('T', 'Timetable'),
+                         ('O', 'Other') ),
+                       ( ('O', 'Other'), )
+                     )
+    
     id = models.CharField(max_length = 12, primary_key = True)
     subject = models.CharField(max_length = 35)
     category = models.CharField(max_length = 30)
@@ -21,18 +43,6 @@ class Complain(models.Model):
     solver = models.ForeignKey(Member, on_delete =  models.CASCADE, blank = True, null = True)
     solve_date = models.DateField(blank = True, null = True)
     
-    ### VARIABLE_CONSTANTS
-    
-    categories = ( 'Administrative Office', 'Infrastructure', 'Committee/Teacher', 'Management activites', 'Other' )
-    sub_categories = ( { 'Admission' : 'A', 'Concession' : 'C', 'Scholarship/Freeship' : 'S', 'Other' : 'O' },
-                       { 'Canteen' : 'C', 'Classroom' : 'A', 'Gymnasium' : 'G','Library' : 'L', 'Lift' : 'L',
-                         'Parking' : 'P', 'Playground' : 'Y', 'Practical Lab' : 'R', 'Toilets/Washrooms' : 'T',
-                         'Workshop' : 'W', 'Xerox Office' : 'X', 'Other' : 'O' },
-                       { 'Branch Committees' : 'B', 'E-Cell' : 'E', 'NSS' : 'N', 'Women Development' : 'W', 'Other' : 'O' },
-                       { 'Attendance' : 'A', 'Cleanliness' : 'C', 'Timetable' : 'T', 'Other' : 'O'},
-                       { 'Other' : 'O', }
-                     )
-    
     ### Adding methods
     
     def generate_id(category, sub_category):
@@ -44,8 +54,8 @@ class Complain(models.Model):
         count_file = open(os.path.join(BASE_DIR, 'count_files/complain_id.txt'), 'w')
         if curr_date != count_data[0]:
             data = ''
-            for section in Complain.sub_categories:
-                for sub_cat in section:
+            for category_wise in Complain.sub_categories:
+                for code, sub_cat in category_wise:
                     if sub_cat == sub_category:
                         data+='1 '
                     else:
@@ -60,12 +70,13 @@ class Complain(models.Model):
                 count_data[index] = count_data[index].split(' ')
             cat_index = 1
             count_file.write(curr_date+'\n')
-            for cat in Complain.categories:
+            for cat_code, cat in Complain.categories:
                 sub_index = 0
-                for sub in Complain.sub_categories[cat_index-1].keys():
+                for sub_cat_code, sub in Complain.sub_categories[cat_index-1]:
                     if (sub == sub_category and cat == category):
                         generated_id = count_data[cat_index][sub_index]
                         count_data[cat_index][sub_index] = str( int(generated_id) + 1 )
+                        code = cat_code + sub_cat_code
                     count_file.write(count_data[cat_index][sub_index]+' ')
                     sub_index += 1
                 count_file.write('\n')
@@ -73,7 +84,7 @@ class Complain(models.Model):
             count_file.close()
         while len(generated_id) < 4:
             generated_id = '0' + generated_id
-        generated_id = curr_date + category[0] + Complain.sub_categories[Complain.categories.index(category)][sub_category] + generated_id
+        generated_id = curr_date + code + generated_id
         return generated_id
         
     

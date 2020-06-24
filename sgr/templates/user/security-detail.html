@@ -39,7 +39,7 @@
         <h3> Security details </h3>
         <p> Security Question : 
             <select name = "security_question">
-                {% for question in questions %}
+                {% for code, question in questions %}
                     <option> {{question}}</option>
                 {% endfor %}
             </select>
