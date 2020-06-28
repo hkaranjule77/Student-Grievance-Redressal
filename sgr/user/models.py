@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 import random
 from datetime import date
@@ -48,6 +49,7 @@ class Student(models.Model):
     
     
     def init(request):
+        ''' Initialize a student object with form data. '''
         user = User()
         user.username = request.POST.get('uid')
         user.first_name = request.POST.get('first_name')
@@ -112,6 +114,43 @@ class MemberIDCount (models.Model):
     next_sorter_id = models.IntegerField()
     next_db_admin_id = models.IntegerField()
     next_hod_id = models.IntegerField()
+    next_principal_id = models.IntegerField()
+    count_date = models.DateField(default = timezone.now)
+        
+    def initialize():
+        ''' For initializing new object, if no object is present. '''
+        id_count_obj = MemberIDCount()
+        id_count_obj.next_solver_id = 0
+        id_count_obj.next_sorter_id = 0
+        id_count_obj.next_db_admin_id = 0
+        id_count_obj.next_hod_id = 0
+        id_count_obj.next_principal_id = 0
+        id_count_obj.count_date = date.today()
+        id_count_obj.save(update_fields = ['next_solver_id',
+                                           'next_sorter_id',
+                                           'next_hod_id',
+                                           'next_principal_id',
+                                           'count_date', ])
+        return id_count_obj
+    
+    def reinitialize():
+        ''' If new year starts, call this function to initialize all value to zero. '''
+        try:
+            id_count_obj = MemberIDCount.objects.first()
+        except ObjectDoesNotExist:
+            id_count_obj = MemberIDCount()
+        id_count_obj.next_solver_id = 0
+        id_count_obj.next_sorter_id = 0
+        id_count_obj.next_db_admin_id = 0
+        id_count_obj.next_hod_id = 0
+        id_count_obj.next_principal_id = 0
+        id_count_obj.count_date = date.today()
+        id_count_obj.save(update_fields = ['next_solver_id',
+                                           'next_sorter_id',
+                                           'next_hod_id',
+                                           'next_principal_id',
+                                           'count_date', ])
+    
 
 class Member(models.Model):
     ### CONTSTANTS
@@ -119,7 +158,8 @@ class Member(models.Model):
     roles = (('L', 'Solver'),
              ('R', 'Sorter'),
              ('D', 'DB Admin'),
-             ('H', 'HOD')
+             ('H', 'HOD'),
+             ('P', 'Principal'),
              )
     global questions
     
@@ -134,13 +174,8 @@ class Member(models.Model):
     activation_code = models.CharField(max_length = 8)
     activated_datetime = models.DateTimeField(default = timezone.now, null = True, blank = True)
         
-    def verify_security_details(self, security_q, answer):
-        if self.security_question == security_q and self.security_answer == answer:
-            return True
-        else:
-            return False
-        
     def init(self, request):
+        ''' Assigns data from form to object for creating a non_active account. '''
         user = User()
         user.first_name = request.POST.get('first_name')
         user.last_name = request.POST.get('last_name')
@@ -152,15 +187,15 @@ class Member(models.Model):
         self.activation_code = request.POST.get('activation_code')
         
     def init_for_active(self, request):
+        ''' Assigns data from form to object for activation of account. '''
         self.security_question = request.POST.get('security_question')
         self.security_answer = request.POST.get('answer')
         password = request.POST.get('password')
         if validate_password(password = password) == None:
             self.user.set_password(password)
     
-    ### methods for creating non active account
-    
     def is_non_activable(self):
+        ''' Checks data assigned to object is not empty string('')/None, while creating new account '''
         valid = True
         if self.user.first_name == '' or self.user.first_name == None:
             valid = False
@@ -175,6 +210,7 @@ class Member(models.Model):
         return valid
     
     def is_non_activable_empty(self):
+        ''' Checks data assigned to object is not empty string('')/None, while activating new account '''
         empty = True
         if self.user.first_name != '' and self.user.first_name != None:
             empty = False
@@ -190,51 +226,74 @@ class Member(models.Model):
         return empty
     
     def generate_mid(self):
+        ''' Generates Member ID while creation of account. '''
         curr_date = date.today()
         curr_year = curr_date.strftime('%y')
-        count_obj = MemberIDCount.objects.first()
+        try:
+            count_obj = MemberIDCount.objects.first()
+        except ObjectDoesNotExist:
+            count_obj = MemberIDCount.initialize()
+        # If year changes, reinitialize the Count
+        if curr_year != count_obj.count_date.strftime('%y'):
+            count_obj = MemberIDCount.reinitialze()
+        # Getting role_code and count of roles of member
         if self.role == 'HOD':
             next_id = count_obj.next_hod_id
             count_obj.next_hod_id += 1
+            role_code = 'H'
         elif self.role == 'DB Admin':
             next_id = count_obj.next_db_admin_id
             count_obj.next_db_admin_id += 1
+            role_code = 'D'
         elif self.role == 'Sorter':
             next_id = count_obj.next_sorter_id
             count_obj.next_sorter_id += 1
+            role_code = 'R'
         elif self.role == 'Solver':
             next_id = count_obj.next_solver_id
             count_obj.next_solver_id += 1
-        id = str(next_id) 
-        id_len = len(id)
-        for index in range(len(Member.roles)):
-            if self.role == Member.roles[index][1]:
-                role_code = Member.roles[index][0]
-        for count in range(3-id_len):
-            id = '0' + id
-        mid = curr_year + role_code + id
-        self.mid = mid
-        self.user.username = mid
+            role_code = 'L'
+        elif self.role == 'Principal':
+            next_id = count_obj.next_principal_id
+            count_obj.next_principal_id += 1
+            role_code = 'P'
         count_obj.save( update_fields = ['next_solver_id',
                                          'next_sorter_id',
                                          'next_db_admin_id',
-                                         'next_hod_id'] )
-    
-    #generates activaton code
+                                         'next_hod_id',
+                                         'next_principal_id'] )
+        id = str(next_id) 
+        id_len = len(id)
+        for count in range(3-id_len):
+            id = '0' + id
+        mid = curr_year + role_code + id   # final addition of mid 
+        self.mid = mid                     # mid assigned to object
+        self.user.username = mid 
+        
+    # generates activaton code 
     def generate_code(self):
+        ''' Generates random ACTIVATION CODE. '''
         code = ''
         for count in range(8):
             code += str(random.randint(0,9))
         self.activation_code = code
-        
-    ### FOR ACTIVATING THE ACCOUNT
-        
+    
+    # verifies activation code
     def verify_activation_code(self, request):
+        ''' Verifies 8 digit ACTIVATION CODE '''
         if self.activation_code == request.POST.get('activation_code'):
             return True
         return False
     
+    def verify_security_details(self, security_q, answer):
+        ''' Verifies security question for forgot password feature'''
+        if self.security_question == security_q and self.security_answer == answer:
+            return True
+        else:
+            return False
+    
     def is_activating_valid(self):
+        ''' Validates data at time of activation of account. '''
         if self.security_answer == '' or self.security_answer == None:
             return False
         return True

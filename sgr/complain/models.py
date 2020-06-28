@@ -6,6 +6,7 @@ from datetime import date
 import os
 
 from user.models import Student, Member
+from thread.models import Thread
 from sgr.settings import BASE_DIR
 
 class Complain(models.Model):
@@ -35,13 +36,16 @@ class Complain(models.Model):
     category = models.CharField(max_length = 30)
     sub_category = models.CharField(max_length = 30)
     brief = models.TextField()
-    complainer = models.ForeignKey(Student, on_delete = models.CASCADE)
     file = models.FileField(upload_to = 'complain/', blank = True, null = True)
+    complainer = models.ForeignKey(Student, on_delete = models.CASCADE)
     reg_datetime = models.DateTimeField(default = timezone.now)
-    solved = models.BooleanField(default = False)
-    approved = models.BooleanField(default = False)
-    solver = models.ForeignKey(Member, on_delete =  models.CASCADE, blank = True, null = True)
-    solve_date = models.DateField(blank = True, null = True)
+    sorted = models.BooleanField(default = False)
+    rejected = models.BooleanField(default = False)
+    rejeced_msg = models.TextField(null = True, blank = True)
+    thread = models.ForeignKey(Thread, on_delete = models.CASCADE, null = True, blank = True)
+    pinned_in_thread = models.BooleanField(default = False)
+    threaded_by = models.ForeignKey(Member, on_delete = models.CASCADE, null = True, blank = True)
+    threaded_at = models.DateTimeField(null = True, blank = True)
     
     ### Adding methods
     
@@ -133,14 +137,16 @@ class Complain(models.Model):
     
     def search_brief(query):
         return Q(brief__icontains = query)
-	
-	
-	
+
+
+
 class Note(models.Model):
     note = models.TextField()
     file = models.FileField(upload_to = 'note/', blank = True, null = True)
     complain = models.ForeignKey(Complain, on_delete = models.CASCADE)
     reg_datetime = models.DateTimeField(default = timezone.now)
+    thread = models.ForeignKey(Thread, on_delete = models.CASCADE)
+    pinned_in_thread = models.BooleanField(default = False)
     solver = models.ForeignKey(Member, on_delete = models.CASCADE)
     
     def init_all(self, request):
