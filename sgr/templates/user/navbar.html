@@ -9,18 +9,11 @@
         <a href = "/user/logout/"> Log out </a>
         {% if user.is_staff %}
             <a href = "/user/"> User </a>
-            <a href = "/verificaton/>
+            <a href = "/verificaton/add-table"> Add Table </a>
         {% endif %}
         <hr>
     </p>
     {% block section %}
-        {% if user.is_staff %}
-            <ul>
-                <li><a href = "/complain/search/">Search Complain</a></li>
-                <li><a href = "/user/add-member/"> Add Member </a></li>
-            </ul>
-        {% else %}
-            <a href = "/complain/add">Add Complain</a>
-        {% endif %}
+        
     {% endblock %}
 {% endblock %}
