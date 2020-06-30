@@ -8,37 +8,51 @@
     <!--------------- PAGE AUTHOR : Yogesh Kadam --------------->
     <style>
 	div {text-align: center;}
-    .hidd1
+    .a1
     {
         display:none
     }
   
-    .hidd2
+    .a2
     {
         display:none
     }
-    .hidd3
+    .a3
     {
         display:none
     }
-    .ahidd1
+    .a4
     {
         display:none
     }
   
-    .ahidd2
+    .a5
     {
         display:none
     }
-    .aahidd3
+    .a6
     {
         display:none
     }
+    .a7
+    {
+        display:none
+    }
+  
+    .a8
+    {
+        display:none
+    }
+    .a9
+    {
+        display:none
+    }
+    
     </style>
 {% endblock %}
 
 {% block content %}
-    <div><br>
+   <br>
         <h2>Add Table Form</h2>
         <div id ="head">
             <h4>Please select Table type from following options</h4>
@@ -49,84 +63,21 @@
                         <option id = "{{type}}"> {{type}} </option>
                     {% endfor %}
                 </select><br>
-                <button type="button" onclick="fun1()"> 
-                    Continue
-                </button> 
+                
              </form>
         </div><br>
     
-        <div class="hidd1">
-            <h4>Please enter given data</h4>
-            <form action="#">
-                <div class="form-group">
-                    <label class="hid"> Table name:</label><br>
-                    <input class="hid" type="text" name="table_name"  id="BranchTablename" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="hid"> Year Column name:</label><br>
-                    <input class="hid" type="text" name="year_col_name"  id="BranchTablename" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="hid"> Branch Column name:</label><br>
-                    <input class="hid" type="text" name="branch_col_name"  id="Yearcolumnname" autocomplete="off">
-                </div>
-            </form><br><br>
-        </div>
-
-        <div class="hidd2">
-            <h4>Please enter given data</h4>
-		 <form action="#" onsubmit="return validation()" class="bg-light">	   
-                    <div class="form-group">
-                        <label>Year:</label>
-                        <select name = "year">
-                            {% for year in years %}
-                                <option> {{ year.0 }} </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-		    <div class="form-group">
-			<label> Table name: </label><br>
-                        <input type="text" name="table_name" autocomplete="off">			
-		    </div>
-                    <div class="form-group">
-                        <label > Year column name:</label><br>
-                        <input type="text" name="year_col_name"  id="Branchcolumnname" autocomplete="off">
-                    </div>
-            </form><br><br>
-        </div>
-                  
-        <div class="hidd3">
-            <h4>Please enter given data</h4>
-            <form action="#" onsubmit="return validation()" class="bg-light">
-                <div class="form-group">
-                    <label >Select Branch:</label>
-                    <select name="branch">
-                        {% for branch in branches %}
-                            <option> {{ branch.0 }} </option>
-                        {% endfor %}
-                    </select><br>
-                </div>
-                <div class="form-group">
-                    <label >Table name:</label><br>
-                    <input type="text" name="YearTablename" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label > Year column name:</label><br>
-                    <input type="text" name="year_col_name" autocomplete="off">
-                </div>
-            </form><br><br>    
-        </div>
-   
     
     
     
-    <div id ="head1">
+    
+     <div id ="head1">
           <h4>Please Select Student name storage type in Database from following options</h4>
           <form action="#" onsubmit="return validation()" class="bg-light">
                       
               <!-- <label for="Year">Select Year:</label> -->
               <select name="Year">
-                  {% for storage_type in name_storage_types %}
+                   {% for storage_type in name_storage_types %}
                       <option id = "{{ storage_type }}"> {{ storage_type }}</option>
                   {% endfor %}
               </select><br>
@@ -134,138 +85,529 @@
                   Continue
               </button> 
            </form>
-        </div>
-    
-    <div class="ahidd1">
-        <h4>Please enter given data</h4>
-            <form action="/verification/add-table/" onsubmit="return validation()" class="bg-light">
-                <div class="form-group">
-                    <label class="ahid"> Student ID Column name:</label><br>
-                    <input class="ahid" type="text" name="student_id_col_name"  id="a1" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="ahid"> Firstname Column name:</label><br>
-                    <input class="ahid" type="text" name="firstname_col_name"  id="b1" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="ahid"> Lastname Colun name:</label><br>
-                    <input class="ahid" type="text" name="lastname_col_name"  id="c1" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="ahid"> Email Column name:</label><br>
-                    <input class="ahid" type="text" name="email_col_name"  id="d1" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="ahid"> Contact number Column name:</label><br>
-                    <input class="ahid" type="text" name="contact_no_col_name"  id="e1" autocomplete="off">
-                </div>
-                
-                <input class="ahid" type="submit" name="submit" value="submit"  	autocomplete="off">
-          </form><br><br>
-    </div>
-    <div class="ahidd2">
-        <h4>Please enter given data</h4>
-            <form action="/verification/add-table/" onsubmit="return validation()" class="bg-light">
-                <div class="form-group">
-                    <label class="ahid"> Student ID Column name:</label><br>
-                    <input class="ahid" type="text" name="student_id_col_name"  id="a2" autocomplete="off">
-                </div>
-                <div class="form-group">
-                     <label >Fullname Column name: </label><br>
-                     <input type="text" name="fullname_col_name"  id="b2" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="ahid"> Email Column name:</label><br>
-                    <input class="ahid" type="text" name="email_col_name"  id="c2" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="ahid"> Contact Number Column name:</label><br>
-                    <input class="ahid" type="text" name="contact_no_col_name"  id="d2" autocomplete="off">
-                </div>
-                <input type="submit" name="submit" value="submit"  	autocomplete="off">
-            </form><br><br>
-        </div>
-        
-        <div class="aahidd3">
-            <h4>Please enter given data</h4>
-            <form action="/verification/add-table/" onsubmit="return validation()" class="bg-light">
-                <div class="form-group">
-                    <label class="ahid"> Student ID Column name:</label><br>
-                    <input class="ahid" type="text" name="student_id_col_name"  id="a3" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="ahid"> Fullname Column name:</label><br>
-                    <input class="ahid" type="text" name="fullname_col_name"  id="d3" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label > Email Column name:</label><br>
-                    <input type="text" name="email_col_name"  id="b3" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label > Contact Number Column name:</label><br>
-                    <input type="text" name="contact_no_col_name"  id="c3" autocomplete="off">
-                </div>
-                <input type="submit" name="submit" value="submit"  	autocomplete="off">
-            </form><br><br>
-        </div>
-    </div>
+      </div>
 
-    <script type="text/javascript">
-        var hid1=document.getElementsByClassName("hidd1");
-        var hid2=document.getElementsByClassName("hidd2");
-        var hid3=document.getElementsByClassName("hidd3");
-        var ahid1=document.getElementsByClassName("ahidd1");
-        var ahid2=document.getElementsByClassName("ahidd2");
-        var ahid3=document.getElementsByClassName("aahidd3");
-        function  fun1()
+
+
+
+      <div class="a1">11
+        <form>
+             <div class="form-group">
+                         <label class="hid"> Table name:</label><br>
+                         <input class="hid" type="text" name="table_name"  id="BranchTablename" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label class="hid"> Year Column name:</label><br>
+                         <input class="hid" type="text" name="year_col_name"  id="BranchTablename" autocomplete="off">
+         </div>
+          <div class="form-group">
+                         <label class="hid"> Branch Column name:</label><br>
+                         <input class="hid" type="text" name="branch_col_name"  id="Yearcolumnname" autocomplete="off">
+         </div>
+              <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a1" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label class="ahid"> Firstname Column name:</label><br>
+                         <input class="ahid" type="text" name="firstname_col_name"  id="b1" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label class="ahid"> Lastname Colun name:</label><br>
+                         <input class="ahid" type="text" name="lastname_col_name"  id="c1" autocomplete="off">
+          </div>
+          <div class="form-group">
+                         <label class="ahid"> Email Column name:</label><br>
+                         <input class="ahid" type="text" name="email_col_name"  id="d1" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label class="ahid"> Contact number Column name:</label><br>
+                         <input class="ahid" type="text" name="contact_no_col_name"  id="e1" autocomplete="off">
+         </div>
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+     
+        </form>
+       
+     </div>
+     
+     
+     <div class="a2">
+            <form>
+               
+               <div class="form-group">
+                         <label class="hid"> Table name:</label><br>
+                         <input class="hid" type="text" name="table_name"  id="BranchTablename" autocomplete="off">
+               </div>
+               <div class="form-group">
+                         <label class="hid"> Year Column name:</label><br>
+                         <input class="hid" type="text" name="year_col_name"  id="BranchTablename" autocomplete="off">
+                </div>
+                <div class="form-group">
+                         <label class="hid"> Branch Column name:</label><br>
+                         <input class="hid" type="text" name="branch_col_name"  id="Yearcolumnname" autocomplete="off">
+                 </div>
+         <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a2" autocomplete="off">
+         </div>
+         <div class="form-group">
+                          <label >Fullname Column name: </label><br>
+                          <input type="text" name="fullname_col_name"  id="b2" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label class="ahid"> Email Column name:</label><br>
+                         <input class="ahid" type="text" name="email_col_name"  id="c2" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label class="ahid"> Contact Number Column name:</label><br>
+                         <input class="ahid" type="text" name="contact_no_col_name"  id="d2" autocomplete="off">
+         </div>
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+                     
+     
+        </form>
+     
+     
+     </div>
+     
+     <div class="a3">
+         <form>
+               <div class="form-group">
+                         <label class="hid"> Table name:</label><br>
+                         <input class="hid" type="text" name="table_name"  id="BranchTablename" autocomplete="off">
+               </div>
+               <div class="form-group">
+                         <label class="hid"> Year Column name:</label><br>
+                         <input class="hid" type="text" name="year_col_name"  id="BranchTablename" autocomplete="off">
+                </div>
+                <div class="form-group">
+                         <label class="hid"> Branch Column name:</label><br>
+                         <input class="hid" type="text" name="branch_col_name"  id="Yearcolumnname" autocomplete="off">
+                </div>
+         <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a3" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label class="ahid"> Fullname Column name:</label><br>
+                         <input class="ahid" type="text" name="fullname_col_name"  id="d3" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label > Email Column name:</label><br>
+                         <input type="text" name="email_col_name"  id="b3" autocomplete="off">
+         </div>
+         <div class="form-group">
+                         <label > Contact Number Column name:</label><br>
+                         <input type="text" name="contact_no_col_name"  id="c3" autocomplete="off">
+         </div>
+     
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+     
+         </form>
+     
+     
+     </div>
+     
+     
+     
+     <div class="a4">
+         <form>
+     
+                         <div class="form-group">
+                             <label>Year:</label>
+                             <select name = "year">
+                                 {% for year in years %}
+                                     <option> {{ year.0 }} </option>
+                                 {% endfor %}
+                             </select>
+                         </div>
+                 <div class="form-group">
+                 <label> Table name: </label><br>
+                             <input type="text" name="table_name" autocomplete="off">			
+                 </div>
+                         <div class="form-group">
+                             <label > Year column name:</label><br>
+                             <input type="text" name="year_col_name"  id="Branchcolumnname" autocomplete="off">
+                         </div>
+               <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a1" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Firstname Column name:</label><br>
+                         <input class="ahid" type="text" name="firstname_col_name"  id="b1" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Lastname Colun name:</label><br>
+                         <input class="ahid" type="text" name="lastname_col_name"  id="c1" autocomplete="off">
+              </div>
+              <div class="form-group">
+                         <label class="ahid"> Email Column name:</label><br>
+                         <input class="ahid" type="text" name="email_col_name"  id="d1" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Contact number Column name:</label><br>
+                         <input class="ahid" type="text" name="contact_no_col_name"  id="e1" autocomplete="off">
+             </div>
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+         </form>
+     
+     
+     </div>
+         
+     
+     
+     <div class="a5">
+         <form>
+     
+                         <div class="form-group">
+                             <label>Year:</label>
+                             <select name = "year">
+                                 {% for year in years %}
+                                     <option> {{ year.0 }} </option>
+                                 {% endfor %}
+                             </select>
+                         </div>
+                 <div class="form-group">
+                 <label> Table name: </label><br>
+                             <input type="text" name="table_name" autocomplete="off">			
+                 </div>
+                         <div class="form-group">
+                             <label > Year column name:</label><br>
+                             <input type="text" name="year_col_name"  id="Branchcolumnname" autocomplete="off">
+                         </div>
+             <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a2" autocomplete="off">
+             </div>
+             <div class="form-group">
+                          <label >Fullname Column name: </label><br>
+                          <input type="text" name="fullname_col_name"  id="b2" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Email Column name:</label><br>
+                         <input class="ahid" type="text" name="email_col_name"  id="c2" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Contact Number Column name:</label><br>
+                         <input class="ahid" type="text" name="contact_no_col_name"  id="d2" autocomplete="off">
+             </div>
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+     
+     
+         </form>
+     
+     
+     </div>
+         
+     
+     <div class="a6">
+         <form>
+     
+                         <div class="form-group">
+                             <label>Year:</label>
+                             <select name = "year">
+                                 {% for year in years %}
+                                     <option> {{ year.0 }} </option>
+                                 {% endfor %}
+                             </select>
+                         </div>
+                 <div class="form-group">
+                 <label> Table name: </label><br>
+                             <input type="text" name="table_name" autocomplete="off">			
+                 </div>
+                         <div class="form-group">
+                             <label > Year column name:</label><br>
+                             <input type="text" name="year_col_name"  id="Branchcolumnname" autocomplete="off">
+                         </div>
+             <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a3" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Fullname Column name:</label><br>
+                         <input class="ahid" type="text" name="fullname_col_name"  id="d3" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label > Email Column name:</label><br>
+                         <input type="text" name="email_col_name"  id="b3" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label > Contact Number Column name:</label><br>
+                         <input type="text" name="contact_no_col_name"  id="c3" autocomplete="off">
+             </div>
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+     
+         </form>
+     
+     
+     </div>
+     
+     <div class="a7">
+        <form>
+                 <div class="form-group">
+                         <label >Select Branch:</label>
+                         <select name="branch">
+                             {% for branch in branches %}
+                                 <option> {{ branch.0 }} </option>
+                             {% endfor %}
+                         </select><br>
+                </div>
+                <div class="form-group">
+                         <label >Table name:</label><br>
+                         <input type="text" name="YearTablename" autocomplete="off">
+                    </div>
+                <div class="form-group">
+                         <label > Year column name:</label><br>
+                         <input type="text" name="year_col_name" autocomplete="off">
+                  </div>
+               <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a1" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Firstname Column name:</label><br>
+                         <input class="ahid" type="text" name="firstname_col_name"  id="b1" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Lastname Colun name:</label><br>
+                         <input class="ahid" type="text" name="lastname_col_name"  id="c1" autocomplete="off">
+              </div>
+              <div class="form-group">
+                         <label class="ahid"> Email Column name:</label><br>
+                         <input class="ahid" type="text" name="email_col_name"  id="d1" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Contact number Column name:</label><br>
+                         <input class="ahid" type="text" name="contact_no_col_name"  id="e1" autocomplete="off">
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+     
+        </form>
+     
+     
+     </div>
+     
+     <div class="a8">
+         <form>
+                 <div class="form-group">
+                         <label >Select Branch:</label>
+                         <select name="branch">
+                             {% for branch in branches %}
+                                 <option> {{ branch.0 }} </option>
+                             {% endfor %}
+                         </select><br>
+                </div>
+                <div class="form-group">
+                         <label >Table name:</label><br>
+                         <input type="text" name="YearTablename" autocomplete="off">
+                    </div>
+                <div class="form-group">
+                         <label > Year column name:</label><br>
+                         <input type="text" name="year_col_name" autocomplete="off">
+                  </div>
+             <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a2" autocomplete="off">
+             </div>
+             <div class="form-group">
+                          <label >Fullname Column name: </label><br>
+                          <input type="text" name="fullname_col_name"  id="b2" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Email Column name:</label><br>
+                         <input class="ahid" type="text" name="email_col_name"  id="c2" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Contact Number Column name:</label><br>
+                         <input class="ahid" type="text" name="contact_no_col_name"  id="d2" autocomplete="off">
+             </div>
+     
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+     
+         </form>
+     
+     </div>
+     
+     <div class="a9">
+         <form>
+                 <div class="form-group">
+                         <label >Select Branch:</label>
+                         <select name="branch">
+                             {% for branch in branches %}
+                                 <option> {{ branch.0 }} </option>
+                             {% endfor %}
+                         </select><br>
+                </div>
+                <div class="form-group">
+                         <label >Table name:</label><br>
+                         <input type="text" name="YearTablename" autocomplete="off">
+                    </div>
+                <div class="form-group">
+                         <label > Year column name:</label><br>
+                         <input type="text" name="year_col_name" autocomplete="off">
+                  </div>
+             <div class="form-group">
+                         <label class="ahid"> Student ID Column name:</label><br>
+                         <input class="ahid" type="text" name="student_id_col_name"  id="a3" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label class="ahid"> Fullname Column name:</label><br>
+                         <input class="ahid" type="text" name="fullname_col_name"  id="d3" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label > Email Column name:</label><br>
+                         <input type="text" name="email_col_name"  id="b3" autocomplete="off">
+             </div>
+             <div class="form-group">
+                         <label > Contact Number Column name:</label><br>
+                         <input type="text" name="contact_no_col_name"  id="c3" autocomplete="off">
+             </div>
+     <input type="submit" name="submit" value="submit" 	autocomplete="off">
+     
+         </form>
+     
+     
+     </div>
+
+
+    
+   
+
+     <script type="text/javascript">
+        var hid1=document.getElementsByClassName("a1");
+        var hid2=document.getElementsByClassName("a2");
+        var hid3=document.getElementsByClassName("a3");
+        var hid4=document.getElementsByClassName("a4");
+        var hid5=document.getElementsByClassName("a5");
+        var hid6=document.getElementsByClassName("a6");
+        var hid7=document.getElementsByClassName("a7");
+        var hid8=document.getElementsByClassName("a8");
+        var hid9=document.getElementsByClassName("a9");
+        
+        function fun2()
         {
-            if(document.getElementById('{{ table_types.0 }}').selected==true)
+            if((document.getElementById('{{ table_types.0 }}').selected==true)&&(document.getElementById('{{ name_storage_types.0 }}').selected==true))
             {
-                hid1[0].style.display="block";
-                hid2[0].style.display="none";
-                hid3[0].style.display="none";
+               hid1[0].style.display="block";
+               hid2[0].style.display="none";
+               hid3[0].style.display="none";
+               hid4[0].style.display="none";
+               hid5[0].style.display="none";
+               hid6[0].style.display="none";
+               hid7[0].style.display="none";
+               hid8[0].style.display="none";
+               hid9[0].style.display="none";
+
+               
             }
-            else if(document.getElementById('{{ table_types.1 }}').selected==true)
+            else if((document.getElementById('{{ table_types.0 }}').selected==true)&&(document.getElementById('{{ name_storage_types.1 }}').selected==true))
             {
                 hid1[0].style.display="none";
                 hid2[0].style.display="block";
                 hid3[0].style.display="none";
+                hid4[0].style.display="none";
+                hid5[0].style.display="none";
+                hid6[0].style.display="none";
+                hid7[0].style.display="none";
+                hid8[0].style.display="none";
+                hid9[0].style.display="none";
+             
+                
             }
-            else if(document.getElementById('{{ table_types.2 }}').selected==true)
+            else if((document.getElementById('{{ table_types.0 }}').selected==true)&&(document.getElementById('{{ name_storage_types.2 }}').selected==true))
             {
                 hid1[0].style.display="none";
                 hid2[0].style.display="none";
-                hid3[0].style.display="block"; 
+                hid3[0].style.display="block";
+                hid4[0].style.display="none";
+                hid5[0].style.display="none";
+                hid6[0].style.display="none";
+                hid7[0].style.display="none";
+                hid8[0].style.display="none";
+                hid9[0].style.display="none";
+               
             }
-            else
+            else if((document.getElementById('{{ table_types.1 }}').selected==true)&&(document.getElementById('{{ name_storage_types.0 }}').selected==true))
             {
                 hid1[0].style.display="none";
                 hid2[0].style.display="none";
                 hid3[0].style.display="none";
+                hid4[0].style.display="block";
+                hid5[0].style.display="none";
+                hid6[0].style.display="none";
+                hid7[0].style.display="none";
+                hid8[0].style.display="none";
+                hid9[0].style.display="none";
+                
             }
-         }
-         function fun2()
-         {
-             if(document.getElementById('{{ name_storage_types.0 }}').selected==true)
-             {
-                 ahid1[0].style.display="block";
-                 ahid2[0].style.display="none";
-                 ahid3[0].style.display="none";
-                }
-             else if(document.getElementById('{{ name_storage_types.1 }}').selected==true)
-             {
-                 ahid1[0].style.display="none";
-                 ahid2[0].style.display="block";
-                 ahid3[0].style.display="none";
+            else if((document.getElementById('{{ table_types.1 }}').selected==true)&&(document.getElementById('{{ name_storage_types.1 }}').selected==true))
+            {
+                hid1[0].style.display="none";
+                hid2[0].style.display="none";
+                hid3[0].style.display="none";
+                hid4[0].style.display="none";
+                hid5[0].style.display="block";
+                hid6[0].style.display="none";
+                hid7[0].style.display="none";
+                hid8[0].style.display="none";
+                hid9[0].style.display="none";
+                
+            }
+            else if((document.getElementById('{{ table_types.1 }}').selected==true)&&(document.getElementById('{{ name_storage_types.2 }}').selected==true))
+            {
+                hid1[0].style.display="none";
+                hid2[0].style.display="none";
+                hid3[0].style.display="none";
+                hid4[0].style.display="none";
+                hid5[0].style.display="none";
+                hid6[0].style.display="block";
+                hid7[0].style.display="none";
+                hid8[0].style.display="none";
+                hid9[0].style.display="none";
                
-                 }
-            
-             else
-             {
-                 ahid1[0].style.display="none";
-                  ahid2[0].style.display="none";
-                  ahid3[0].style.display="block";
-                 }
             }
+            else if((document.getElementById('{{ table_types.2 }}').selected==true)&&(document.getElementById('{{ name_storage_types.0 }}').selected==true))
+            {
+                hid1[0].style.display="none";
+                hid2[0].style.display="none";
+                hid3[0].style.display="none";
+                hid4[0].style.display="none";
+                hid5[0].style.display="none";
+                hid6[0].style.display="none";
+                hid7[0].style.display="block";
+                hid8[0].style.display="none";
+                hid9[0].style.display="none";
+               
+            }
+            else if((document.getElementById('{{ table_types.2 }}').selected==true)&&(document.getElementById('{{ name_storage_types.1 }}').selected==true))
+            {  
+                hid1[0].style.display="none";
+                hid2[0].style.display="none";
+                hid3[0].style.display="none";
+                hid4[0].style.display="none";
+                hid5[0].style.display="none";
+                hid6[0].style.display="none";
+                hid7[0].style.display="none";
+                hid8[0].style.display="block";
+                hid9[0].style.display="none";
+                
+                
+            }
+            else if((document.getElementById('{{ table_types.2 }}').selected==true)&&(document.getElementById('{{ name_storage_types.2 }}').selected==true))
+            {
+                hid1[0].style.display="none";
+                hid2[0].style.display="none";
+                hid3[0].style.display="none";
+                hid4[0].style.display="none";
+                hid5[0].style.display="none";
+                hid6[0].style.display="none";
+                hid7[0].style.display="none";
+                hid8[0].style.display="none";
+                hid9[0].style.display="block";
+               
+            }
+
+        }
+       
     </script>
 {% endblock %}
