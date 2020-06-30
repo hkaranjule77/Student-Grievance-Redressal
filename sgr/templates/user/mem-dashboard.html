@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block tabs %}
-    <a href = "/user/"> User </a> |
+     |
 {% endblock %}
 
 {% block section %}
-    <ul>
-    <li><a href = "/complain/search/">Search Complain</a></li>
-    <li><a href = "/user/add-member/"> Add Member </a></li>
+    {% if member.role == 'DB Admin' %}
+        
+    {% endif %}
     </ul>
 {% endblock %}

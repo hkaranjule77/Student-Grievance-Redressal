@@ -41,8 +41,8 @@ class TableDetail(models.Model):
                     'Branch-Wise Table' )
     
     name_storage_types = ( 'Firstname, Lastname in separate column',
-                   "Full name in one column of format 'Lastname Firstname Middlename'",
-                   "Full name in one column of format 'Firstname Middlename Lastname'")
+                   "Full name in one column of format  (Lastname Firstname Middlename)",
+                   "Full name in one column of format (Firstname Middlename Lastname)")
     
     def init(request):
         '''Creates a TableDetail object and initializes it with form data from post method.'''

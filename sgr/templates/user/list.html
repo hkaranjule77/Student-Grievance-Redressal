@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'navbar.html' %}
 
 {% block title %}
 User List
 {% endblock %}
 
-{% block content %}
+{% block section %}
     <p> Username First name Last name </p>
     {% for user in user_list %}
         <p>

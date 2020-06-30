@@ -211,10 +211,10 @@ def dashboard(request):
         if not request.user.is_staff:
             print(user.branch, user.year)
             context = { 'student' : user }
-            return render(request, 'user/stu-dashboard.html', context )
+            return render(request, 'user/dashboard.html', context )
         if request.user.is_staff:
             context = {'member' : user }
-            return render(request, 'user/mem-dashboard.html', context)
+            return render(request, 'user/dashboard.html', context)
     return redirect('/permission-denied/')
 
 def forgot_passwd(request, part):
