@@ -46,6 +46,7 @@ class Student(models.Model):
     reg_datetime = models.DateField(default = timezone.now)
     complain_count = models.IntegerField(blank = True, null = True)
     count_date = models.DateField(blank = True, null = True)
+    deactivation_request = models.BooleanField(default = False)
     
     
     def init(request):
@@ -173,6 +174,7 @@ class Member(models.Model):
     activated = models.BooleanField(default = False)
     activation_code = models.CharField(max_length = 8)
     activated_datetime = models.DateTimeField(default = timezone.now, null = True, blank = True)
+    deactivation_request = models.BooleanField(default = False)
         
     def init(self, request):
         ''' Assigns data from form to object for creating a non_active account. '''
