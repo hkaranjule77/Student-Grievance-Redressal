@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import DBDetail, TableDetail
+
+admin.site.register(DBDetail)
+admin.site.register(TableDetail)

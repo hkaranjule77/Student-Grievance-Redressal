@@ -216,6 +216,13 @@ def dashboard(request):
             context = {'member' : user }
             return render(request, 'user/dashboard.html', context)
     return redirect('/permission-denied/')
+  
+  
+def deactivate(request, id_no):
+	pass
+	
+def deactivation_request(request, id_no):
+	pass
 
 def forgot_passwd(request, part):
     if not request.user.is_authenticated:
