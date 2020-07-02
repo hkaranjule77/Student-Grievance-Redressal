@@ -5,6 +5,7 @@
     <title>Signup</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/formstyle.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/navstyle.css' %}">
+
     <!--
          <link rel="stylesheet" type="text/css" href="formstyle.css">
          <link rel="stylesheet" type="text/css" href="navstyle.css">
@@ -24,6 +25,17 @@
             }
             var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f;
             document.getElementById("sucapcode").value = "Captcha Code =" + code;
+        }
+        function appear() {
+            document.getElementById("signupdept").style.display = "block";
+            document.getElementById("signupselectype").style.display = "block";
+
+        }
+        function dissappear() {
+
+            document.getElementById("signupdept").style.display = "none";
+            document.getElementById("signupselectype").style.display = "none";
+
         }
     </script>
 </head>
@@ -117,23 +129,17 @@
 <div class="wrap">
     <form name="signupform">
         <h1><center> Signup Here </center></h1>
-        <input type="text" id="suname" placeholder="Enter Your Name" required><br>
+        <input type="text" id="suname" placeholder="Enter User Name" required><br>
         <input type="text" id="suuid" placeholder="Enter User ID" required><br>
-        <input type="text" id="" placeholder="Enter Your Email Id" required><br>
-        <input type="text" id="" placeholder="Enter Your Phone Number" required><br>
-        &nbsp;&nbsp;&nbsp;Year:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <select name="Year" value="Year" required>
-
-            <option value="">Year</option>
-            <option value="1">1st </option>
-            <option value="2">2nd </option>
-            <option value="3">3rd </option>
-            <option value="4">4th </option>
-        </select>
+        <input type="text" id="semil" placeholder="Enter User's Email Id" required><br>
+        <input type="text" id="sphno" placeholder="Enter User's Phone Number" required><br>
         <br>
-        &nbsp;&nbsp;&nbsp;Department:
-        <select name="Department" required>
-            <option value="IT">Department</option>
+            
+        <input type="radio" id="surhod" name="rlgn" onclick="dissappear()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HOD Signup<br>
+        <input type="radio" id="surteacher" name="rlgn" onclick="dissappear()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Teacher Signup<br>
+        <input type="radio" id="surstudent" name="rlgn" onclick="appear()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student Signup<br />
+         <select id="signupdept" hidden="true" required>
+            <option selected="">Department</option>
             <option value="IT">IT DEPT</option>
             <option value="COMPUTER">COMPUTER DEPT </option>
             <option value="ELECTRONICS">ELECTRONICS DEPT</option>
@@ -142,12 +148,25 @@
             <option value="MECHANICAL">MECHANICAL DEPT </option>
             <option value="HUMANITY">HUMANITY DEPT </option>
         </select> <br>
-        <input type="radio" id="surhod" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HOD Signup<br>
-        <input type="radio" id="surteacher" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Teacher Signup<br>
-        <input type="radio" id="surstudent" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student Signup<br />
+        <select id="signupselectype" hidden="true" required>
+                <option>Admission Type</option>
+                <option value="12th Pass">12th Pass</option>
+                <option value="Diploma Pass">Diploma Pass</option>
+         </select>  
         <input type="text" id="sucapcode" disabled="disabled">
         <input type="button" id="suref" value="refresh" onclick="generateCaptcha()"><br>
         <input type="text" id="suucap" placeholder="enter captcha" required><br>
+          &nbsp;&nbsp;<b>Select Question</b><select>
+                <option value="0">Select Question</option>
+                <option value="1">Enter your SSC SchoolName</option>
+                <option value="2">Enter your mother's name</option>
+                <option value="3">Enter your mother tongue language</option>
+                <option value="4">Enter your blood group</option>
+                <option value="5">Enter your childhood nickname</option>
+            </select>
+            <input type="text" placeholder="Enter Your Answer" id="signupans"  required/>
+            <input type="text" id="signuppswd" placeholder="Enter New Password" required>
+            <input type="text" id="signupcpswd" placeholder="Confirm Password" required>
 
 
         <input type="submit" id="signupsub" value="Sign Up">

@@ -1,0 +1,32 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>chatbot</title>
+
+	<link rel="stylesheet" type="text/css" href="{% static 'css/userview.css' %}">
+	<!--
+	<link rel="stylesheet" type="text/css" href="userview.css">
+		-->
+	<script type="text/javascript">
+		function create() {
+			var c1 = document.getElementById("crt");
+			var msg = document.getElementById("typed");
+			c1.innerHTML = c1.innerHTML + "<br><br><input type='text' class='alignr' value= 'student: " + msg.value + "' ><br><br>";
+			msg.value = " ";
+		}
+	</script>
+
+</head>
+<body>
+	<div class="wrap">
+		<h2><p>Feel Free To Ask Any Queries...</p></h2>
+		<div id="crt">
+			<input type="text" value="Committee: Hiee">
+		</div>
+		<br><br><br><br><center><input type="text" class="typer" placeholder="Type Here..." " id="typed"><input type="button" id="crtbtn" value="Send" onclick="create()"></center>
+		<br><br><br>
+	</div>
+</body>
+</html>

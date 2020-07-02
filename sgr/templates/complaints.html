@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Compaints</title>
+
+	<link rel="stylesheet" type="text/css" href="{% static 'css/userview.css' %}">
+	<!--
+	<link rel="stylesheet" type="text/css" href="userview.css">
+		-->
+
+	<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+	<script>
+
+
+		function populate(s1, s2) {
+			var s1 = document.getElementById(s1);
+			document.getElementById("selec").value = s1.value;
+			var s2 = document.getElementById(s2);
+			s2.innerHTML = "";
+			if (s1.value == "Admission") {
+				var optionArray = ["|", "Admission Dates|Admission Dates", "Documentation Issue|Documentation Issue"];
+			} else if (s1.value == "Exam Section") {
+				var optionArray = ["|", "Rechecking|Rechecking", "Result Publishment Delay|Result Publishment Delay", "Checking Mistakes|Checking Mistakes", "Exam Timetable Mistakes|Exam Timetable Mistakes"];
+			} else if (s1.value == "College Infrastructure") {
+				var optionArray = ["|", "Parking|Parking", "Canteen|Canteen", "WaterFilters|WaterFilters", "Washroom|Washroom", "Lift|Lift", "Playground|Playground", "Workshop|Workshop", "Xerox Center|Xerox Center"];
+			} else if (s1.value == "Classroom Issues") {
+				var optionArray = ["|", "Classroom Cleanliness|Classroom Cleanliness", "Projector|Projector", "Ragging|Ragging", "Teacher Regarding Issue|Teacher Regarding Issue", "Attendence Issue|Attendence Issue", "Timetable Issue|Timetable Issue", "Fest and Other Activities|Fest and Other Activities"];
+			} else if (s1.value == "Office Setion") {
+				var optionArray = ["|", "Concession Pass|Concession Pass", "Fees Concession|Fees Concession", "Scolership Issues|Scolership Issues"];
+			}
+
+			for (var option in optionArray) {
+				var pair = optionArray[option].split("|");
+				var newOption = document.createElement("option");
+				newOption.value = pair[0];
+				newOption.innerHTML = pair[1];
+				s2.options.add(newOption);
+			}
+		}
+		function togbar() {
+			document.getElementById("sidebar").style.left = "0";
+		}
+		function clse() {
+			document.getElementById("sidebar").style.left = "-200";
+
+		}
+		function compln(s3) {
+			var c1 = document.getElementById("selec");
+			var c2 = document.getElementById(s3);
+			var ans = c1.value + "(" + c2.value + ")";
+			document.getElementById("selec").value = ans;
+			document.getElementById("desc").disabled = false;
+
+		}
+		function chked() {
+
+			if (document.getElementById("diffcmpl")) {
+				document.getElementById("desc").disabled = false;
+			}
+		}
+	</script>
+
+
+
+</head>
+<body>
+
+	<div class="top">
+		<center><h1>Students Grivence Readdressal System</h1></center>
+		<form action="back"><input type="button" class="alinr" value="logout" id="cmlogout" onclick="back()"></form><br>
+		<div id="sidebar">
+			<div class="toggle" onclick="togbar()">
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+			<ul>
+				<li>
+					<div class="closing" onclick="clse()">
+						<span class="close1"></span>
+						<span class="close2"></span>
+					</div>
+				</li>
+				<li><a href="{% url 'luser_tracker' %}">Tracker</a></li>
+				<li><a href="{% url 'luser_help' %}">Help</a></li>
+				<li><a href="{% url 'lhome' %}">Logout</a></li>
+			</ul>
+		</div>
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<div class="wrap">
+		<center><h2>HID</h2></center><br>
+		<fieldset width="300px">
+			<legend><i><h3>Select Complaint here</h3></i></legend>
+			<select id="slct1" onchange="populate(this.id,'slct2')">
+				<option>Select Complaint...</option>
+				<option value="Admission">Admission</option>
+				<option value="Exam Section">Exam Section</option>
+				<option value="College Infrastructure">College Infrastructure</option>
+				<option value="Classroom Issues">Classroom Issues</option>
+				<option value="Office Setion">Office Setion</option>
+			</select>
+			<select id="slct2" onchange="compln(this.id)"></select><br>
+
+
+
+			<input type="text" id="selec"><br>
+			&nbsp; &nbsp; &nbsp;<input type="checkbox" id="diffcmpl" onclick="chked()"><b>Any Other Complaint</b><br>
+			<p>Enter Complaint Description Here...</p>
+			<textarea disabled="true" id="desc" cols="30" rows="5" onclick="chkemty()"></textarea><br>
+			<input type="submit" id="complaintsub" value="submit">
+		</fieldset>
+	</div>
+</body>
+</html>

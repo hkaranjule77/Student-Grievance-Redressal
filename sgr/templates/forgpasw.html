@@ -4,12 +4,14 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/formstyle.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/navstyle.css' %}">
     <!--
-         <link rel="stylesheet" type="text/css" href="formstyle.css">
-         <link rel="stylesheet" type="text/css" href="navstyle.css">
-        -->
-        <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+          <link rel="stylesheet" type="text/css" href="formstyle.css">
+          <link rel="stylesheet" type="text/css" href="navstyle.css">
+     -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script type="text/javascript">
         function generateCaptcha() {
+
+
             var alpha = new Array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@', '#', '$', '%', '^', '&', '*', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
             var i;
             for (i = 0; i < 4; i++) {
@@ -106,13 +108,12 @@
     <div class="wrap">
         <form class="form" name="fpaswform">
 
-            <input type="text" id="fpuname" placeholder="Enter User Name" required>
             <input type="text" id="fpuid" placeholder="Enter User ID" required>
             <input type="text" id="fpmail" placeholder="Enter User's Email ID" required><br />
-            <input type="radio" id="fprhod" name="rlgn">HOD<br />
-            <input type="radio" id="fprteacher" name="rlgn">Teacher<br />
-            <input type="radio" id="fprstudent" name="rlgn">Student<br />
-            <input type="text" id="fpcapcode" disabled="disabled">
+            <input type="radio" id="fprhod" name="rlgn"> &nbsp;&nbsp; HOD<br />
+            <input type="radio" id="fprteacher" name="rlgn"> &nbsp;&nbsp; Teacher<br />
+            <input type="radio" id="fprstudent" name="rlgn"> &nbsp;&nbsp; Student<br />
+            <input type="text" id="fpcapcode" disabled="true">
             <input type="button" id="fpref" value="refresh" onclick="generateCaptcha()"><br>
             <input type="text" id="fpucap" placeholder="Enter Captcha" required><br>
             &nbsp;&nbsp;<b>Select Question</b><select>
@@ -124,7 +125,10 @@
                 <option value="5">Enter your childhood nickname</option>
             </select>
             <input type="text" placeholder="Enter Your Answer" id="fpans"  required/>
-            <input type="submit" value="Change" />
+            <input type="text" id="fpswd" placeholder="Enter New Password" required>
+            <input type="text" id="fcpswd" placeholder="Confirm Password" required>
+            <input type="submit" value="Change" onclick="fn()"/>
+            
         </form>
     </div>
 

@@ -10,8 +10,8 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'css/formstyle.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/navstyle.css' %}">
 	<!--
-		 <link rel="stylesheet" type="text/css" href="formstyle.css">
-		 <link rel="stylesheet" type="text/css" href="navstyle.css">
+			 <link rel="stylesheet" type="text/css" href="formstyle.css">
+			 <link rel="stylesheet" type="text/css" href="navstyle.css">
 		-->
 	<script src="https://kit.fontawesome.com/a076d05399.js"></script>
 	<script type="text/javascript">
@@ -28,6 +28,17 @@
 			}
 			var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f;
 			document.getElementById("capcode").value = "Captcha Code =" + code
+		}
+		function appear() {
+			document.getElementById("logindept").style.display = "block";
+			document.getElementById("loginselectype").style.display = "block";
+
+		}
+		function dissappear() {
+
+			document.getElementById("logindept").style.display = "none";
+			document.getElementById("loginselectype").style.display = "none";
+
 		}
 	</script>
 </head>
@@ -124,14 +135,27 @@
 	<div class="wrap">
 		<form>
 			<h1><center>LOGIN HERE!!!</center></h1>
-			<input type="text" id="uname" placeholder="Enter User Name" size="50" required><br>
 			<input type="text" id="uid" placeholder="Enter User ID" size="50" required><br>
-			<input type="text" id="uemail" placeholder="Enter User's Email ID" size="50" required><br>
 			<input type="password" id="upawd" placeholder="Enter Password" size="50" required><br>
-			<a href="{% url 'lforgpasw' %}">Forgot Passord</a><br />
-			<input type="radio" id="rhod" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HOD Login<br />
-			<input type="radio" id="rteacher" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Teacher Login<br />
-			<input type="radio" id="rstudent" name="rlgn">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student Login<br />
+			
+			<a href="{% url 'lforgpasw' %}"><i>Forgot Passord</i></a><br />
+			<input type="radio" id="rhod" name="rlgn" onclick="dissappear()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HOD Login<br />
+			<input type="radio" id="rteacher" name="rlgn"  onclick="dissappear()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Teacher Login<br />
+			<input type="radio" id="rstudent" name="rlgn" onclick="appear()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student Login</>
+			<select id="logindept" hidden="true" required>
+				<option selected>Department</option>
+				<option value="Computer">Computer</option>
+				<option value="Mechanical">Mechanical</option>
+				<option value="Electrical">Electrical</option>
+				<option value="Civil">Civil</option>
+				<option value="IT">IT</option>
+			</select>
+			<select id="loginselectype" hidden="true" required>
+				<option>Admission Type</option>
+				<option value="12th Pass">12th Pass</option>
+				<option value="Diploma Pass">Diploma Pass</option>
+				
+			</select>
 			<input type="text" id="capcode" size="30" disabled="disabled">
 			<input type="button" id="ref" value="refresh" backgroud="green" onclick="generateCaptcha()"><br>
 			<input type="text" id="ucap" placeholder="Enter Captcha" size="50" required><br>
