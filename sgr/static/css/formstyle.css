@@ -93,3 +93,6 @@ input[type=submit]{
 			color: black;
 			text-decoration: none;
 		}
+        i{
+            color: orange;
+        }
