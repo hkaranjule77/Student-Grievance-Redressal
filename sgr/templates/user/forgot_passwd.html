@@ -25,12 +25,12 @@ Forgot Password
                 readonly
             {% endif %}
         >
-        <i> (Student UID) </i>
+        <i> ( Student ID / Member ID ) </i>
     </p>
     {% if part == 0 %}
         <p> Security Question :
             <select name = "security_question">
-                {% for code, question in questions %}
+                {% for question in questions %}
                     <option>
                         {{question}}
                     </option>

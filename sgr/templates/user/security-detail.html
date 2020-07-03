@@ -17,8 +17,8 @@
             <input type = "text" name ="last_name" value = "{{student.user.last_name}}" readonly>
         </p>
         <p>
-            UID :
-            <input type = "text" name = "uid" value = "{{student.uid}}" readonly>
+            Student ID :
+            <input type = "text" name = "sid" value = "{{student.sid}}" readonly>
         </p>
         <p>  Branch :
             <input type = "text" name = "branch" value = "{{student.branch}}" readonly>
@@ -39,7 +39,7 @@
         <h3> Security details </h3>
         <p> Security Question : 
             <select name = "security_question">
-                {% for code, question in questions %}
+                {% for question in questions %}
                     <option> {{question}}</option>
                 {% endfor %}
             </select>

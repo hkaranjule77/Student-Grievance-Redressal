@@ -12,7 +12,7 @@
         </p>
         <p> Security questions :
             <select name = "security_question">
-                {% for code, question in questions %}
+                {% for question in questions %}
                     <option> {{question}}</option>
                 {% endfor %}
             </select>

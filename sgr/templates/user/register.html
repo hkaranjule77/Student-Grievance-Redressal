@@ -17,26 +17,26 @@
             <input type = "text" name ="last_name" value = "{{student.user.last_name}}">
         </p>
         <p>
-            UID :
-            <input type = "text" name = "uid" value = "{{student.uid}}">
+            Student ID :
+            <input type = "text" name = "sid" value = "{{student.sid}}">
         </p>
         <p>  Branch :
             <select name = "branch">
-                {% for code, branch in branches %}
+                {% for branch in branches %}
                     <option> {{branch}} </option>
                 {% endfor %}
             </select>
         </p>
         <p> Year :
             <select name = "year">
-                {% for code, year in years %}
+                {% for year in years %}
                     <option> {{year}} </option>
                 {% endfor %}
             </select>
         </p>
         <p> Admission Type : 
             <select name = "admission_type">
-                {% for code, type in admission %}
+                {% for type in admission %}
                     <option> {{type}} </option>
                 {% endfor %}
             </select>

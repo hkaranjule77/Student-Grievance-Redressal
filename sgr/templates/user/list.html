@@ -1,16 +1,88 @@
-{% extends 'navbar.html' %}
+{% extends 'user/navbar.html' %}
 
 {% block title %}
 User List
 {% endblock %}
 
 {% block section %}
-    <p> Username First name Last name </p>
-    {% for user in user_list %}
-        <p>
-            <a href = "/user/profile/{{user.username}}/"> {{user.username}}</a>
-            {{user.first_name}}
-            {{user.last_name}}
-        </p>
-    {% endfor %}
+    
+    {% if member_list %}
+		<h4>Member user list: </h4>
+		<p> 
+			Username &nbsp;&nbsp;
+			First name &nbsp;&nbsp;
+			Last name &nbsp;&nbsp;
+			Role
+			<br>
+			Actions
+		</p>
+		{% for membr in member_list %}
+			<p>
+				<a href = "/user/profile/{{membr.mid}}/"> {{membr.mid}}</a>&nbsp;&nbsp;
+				{{membr.user.first_name}} &nbsp;&nbsp;
+				{{membr.user.last_name}} &nbsp;&nbsp;
+				{{membr.role}}
+				<br>
+				{% if member.role == 'HOD' and not stu.deactivation_request and not membr.role == 'HOD' and not membr.role == 'Principal' %}
+					<a href = "/user/deactivation-request-form/{{membr.mid}}/">
+						Add Deactivation request
+					</a>
+				{% elif member.role == 'Principal' and membr.user.is_active %}
+					{% if membr.deactivation_reason %}
+						Deactivation reason : {{ membr.deactivation_reason }} &nbsp;&nbsp;
+					{% endif %}
+					<a href = "/user/deactivate/{{membr.mid}}/">
+						Deactivate
+					</a>
+				{% elif not membr.user.is_active %}
+					Deactived by {{membr.deactivated_by}}
+				{% elif membr.deactivation_request %}
+					Deactivation request added
+				{% else %}
+					No action
+				{% endif %}
+			</p>
+		{% endfor %}
+	{% endif %}
+    
+    {% if student_list %}
+		<h4>Student user list: </h4>
+		<p> 
+			Username &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			Firstname &nbsp;&nbsp;&nbsp;
+			Lastname &nbsp;&nbsp;&nbsp;
+			Branch &nbsp;&nbsp;&nbsp;
+			 Year
+			 <br>
+			Actions 
+		</p>
+		{% for stu in student_list %}
+			<p>
+				<a href = "/user/profile/{{stu.sid}}/"> {{stu.sid}}</a> &nbsp;
+				{{stu.user.first_name}} &nbsp;&nbsp;
+				{{stu.user.last_name}} &nbsp;&nbsp;
+				{{stu.branch}} &nbsp;&nbsp;
+				{{stu.year}}
+				<br>
+				{% if member.role == 'Sorter' and not stu.deactivation_request %}
+					<a href = "/user/deactivation-request-form/{{stu.sid}}/">
+						Add Deactivation request
+					</a>
+				{% elif member.role == 'HOD' and stu.user.is_active %}
+					{% if stu.deactivation_request %}
+						Deactivation reason : {{ stu.deactivation_reason }} &nbsp;&nbsp;
+					{% endif %}
+					<a href = "/user/deactivate/{{stu.sid}}/">
+						Deactivate
+					</a>
+				{% elif not stu.user.is_active %}
+					Deactived by {{stu.deactivated_by}}
+				{% elif stu.deactivation_request %}
+					Deactivation request added
+				{% else %}
+					No action
+				{% endif %}
+			</p>
+		{% endfor %}
+	{% endif %}
 {% endblock %}
