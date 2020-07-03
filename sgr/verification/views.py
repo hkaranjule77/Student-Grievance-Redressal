@@ -29,3 +29,26 @@ def add_table(request):
 								  'Please fill out full form then Submit it.' } )
 			return render(request, 'verification/add_table.html', context)
 	return render(request, 'pemission_denied.html')
+
+
+def db_details(request) :
+    if (request.method =='POST') :
+        username=request.POST['USERNAME']
+        password1=request.POST['pass']
+        password2=request.POST['conpass']
+        dbname=request.POST['DBName']
+        hostname1=request.POST['HOSTNAME']
+        dbtype=request.POST['DBtype']
+
+        if password1==password2 :
+            user=DBDetail.objects.create(username=username,password=password1,hostname=hostname1,db_name=dbname,db_type=dbtype)
+            user.save();
+            messages.info(request,'DBdetails Saved Succesfully')
+            return render (request,'dbdetails.html')
+      
+           
+        else :
+            messages.info(request,'Passwords not matched ')
+            return render (request,'dbdetails.html')
+            
+    return  render (request,'dbdetails.html')
