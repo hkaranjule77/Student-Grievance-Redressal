@@ -1,7 +1,9 @@
 from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 
 from user.models import Member, Student
-from .models import TableDetail
+from .models import TableDetail, DBDetail
 
 def add_table(request):
 	if request.user.is_staff:
@@ -32,23 +34,37 @@ def add_table(request):
 
 
 def db_details(request) :
-    if (request.method =='POST') :
-        username=request.POST['USERNAME']
-        password1=request.POST['pass']
-        password2=request.POST['conpass']
-        dbname=request.POST['DBName']
-        hostname1=request.POST['HOSTNAME']
-        dbtype=request.POST['DBtype']
+	if request.user.is_staff:
+		try:
+			member = Member.objects.get(user = request.user)
+		except ObjectDoesNotExist:
+			context = { 'err_msg' : 'No such Member exist'}
+			return render(request, 'error.html', context)
+			
+		print(member.role=='DB Admin')
+		if member.role == 'DB Admin':
+			context = { 'db_types' : DBDetail.db_types }
+			if (request.method =='POST') :
+				username=request.POST['USERNAME']
+				password1=request.POST['pass']
+				password2=request.POST['conpass']
+				dbname=request.POST['DBName']
+				hostname1=request.POST['HOSTNAME']
+				dbtype=request.POST['DBtype']
 
-        if password1==password2 :
-            user=DBDetail.objects.create(username=username,password=password1,hostname=hostname1,db_name=dbname,db_type=dbtype)
-            user.save();
-            messages.info(request,'DBdetails Saved Succesfully')
-            return render (request,'dbdetails.html')
-      
-           
-        else :
-            messages.info(request,'Passwords not matched ')
-            return render (request,'dbdetails.html')
-            
-    return  render (request,'dbdetails.html')
+				if password1==password2 :
+					db=DBDetail.objects.create(username=username,hostname=hostname1,db_name=dbname,db_type=dbtype)
+					db.set_password(password1)
+					db.save();
+					
+					messages.info(request,'DBdetails Saved Succesfully')
+					return render (request,'verification/dbdetails.html', context)
+			  
+				   
+				else :
+					messages.info(request,'Passwords not matched ')
+					return render (request,'verification/dbdetails.html', context)
+						
+			return  render (request,'verification/dbdetails.html',context)
+			
+	return render( request, 'permission_denied.html')

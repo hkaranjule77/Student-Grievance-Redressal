@@ -1,18 +1,9 @@
-<!DOCTYPE html>
+{% extends 'user/navbar.html' %}
 
 {% block title %}
 DBDetails
 {% endblock %}
-{% block content %}
-<html>
-<head>
-	<title>DBDetails
-    </title>
-	<
-</head>
-
-<body>
-
+{% block section %}
 	<div><br>
 		
 		<div >
@@ -51,7 +42,11 @@ DBDetails
 				</div>
                 	<div class="form-group">
 					<label class="font-weight-bold"> DB type: </label><br>
-					<input type="text" name="DBtype" class="form-control" id="DBtype" autocomplete="off">
+					<select name="DBtype" class="form-control">
+						{% for db in db_types %}
+							<option> {{ db }} </option>
+						{% endfor %}
+					</select>
 					
 				</div>
 				
@@ -73,8 +68,4 @@ DBDetails
 		</div>
 	</div>
 
-
-
-</body>
-</html>
 {% endblock %}
