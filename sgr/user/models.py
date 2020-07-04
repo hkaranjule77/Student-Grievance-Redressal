@@ -59,6 +59,7 @@ class MemberIDCount (models.Model):
                                            'count_date', ])
     
 
+
 class Member(models.Model):
 	mid = models.CharField(max_length = 15, primary_key = True)
 	user = models.ForeignKey(User, on_delete = models.CASCADE)
@@ -67,22 +68,35 @@ class Member(models.Model):
 	security_question = models.CharField(max_length = 40)
 	security_answer = models.CharField(max_length = 100)
 	reg_datetime = models.DateField(default = timezone.now)
+	# Activation of account
 	activated = models.BooleanField(default = False)
 	activation_code = models.CharField(max_length = 8)
 	activated_datetime = models.DateTimeField(default = timezone.now, null = True, blank = True)
+	# Approval of account
+	approved = models.BooleanField( default = False )
+	approved_by = models.ForeignKey(
+		'self',
+		related_name = 'member approved by member+',
+		on_delete = models.SET_NULL,
+		null = True,
+		blank = True
+	)
+	approved_at = models.DateTimeField(null = True, blank = True)
+	# Deactivation request
 	deactivation_request = models.BooleanField(default = False)
 	deact_requested_mem = models.ForeignKey(
 		'self',
-		on_delete = models.CASCADE,
+		on_delete = models.SET_NULL,
 		null = True,
 		blank = True
 	)
 	deactivation_reason = models.TextField(null = True, blank = True)
-	deact_req_datetime = models.DateTimeField(null = True, blank = True)
+	deact_req_at = models.DateTimeField(null = True, blank = True)
+	# Deactivation
 	deactivated_by = models.ForeignKey(
 		'self',
 		related_name = 'member_deactivated_by',
-		on_delete = models.CASCADE, 
+		on_delete = models.SET_NULL, 
 		null = True,
 		blank = True
 	)
@@ -201,6 +215,18 @@ class Member(models.Model):
 		for count in range(8):
 			code += str(random.randint(0,9))
 		self.activation_code = code
+		
+	def approve(self, member):
+		''' Approves added Member account in models. '''
+		self.approved = True
+		self.approved_by = member
+		self.approved_at = timezone.now()
+		self.save( update_fields = [
+				'approved',
+				'approved_at',
+				'approved_by',
+			]
+		)
 
 	# verifies activation code
 	def verify_activation_code(self, request):
@@ -240,12 +266,12 @@ class Member(models.Model):
 		self.deactivation_request = True
 		self.deact_requested_mem = member
 		self.deactivation_reason = deactivation_reason
-		self.deact_req_datetime = datetime.now()
+		self.deact_req_at = datetime.now()
 		self.save( update_fields = [
 				'deactivation_request',
 				'deact_requested_mem',
 				'deactivation_reason',
-				'deact_req_datetime',] 
+				'deact_req_at',] 
 		)
 		
 	def deactivate(self, member):
@@ -278,17 +304,17 @@ class Student(models.Model):
 	deact_requested_mem = models.ForeignKey(
 		Member,
 		related_name = 'deactivation_requested_member',
-		on_delete = models.CASCADE,
+		on_delete = models.SET_NULL,
 		null = True,
 		blank = True
 	)
 	deactivation_reason = models.TextField(null = True, blank = True)
-	deact_req_datetime = models.DateTimeField(null = True, blank = True)
+	deact_req_at = models.DateTimeField(null = True, blank = True)
 	# Deactivation
 	deactivated_by = models.ForeignKey(
 		Member,
 		related_name = 'account_deactivated_by',
-		on_delete = models.CASCADE,
+		on_delete = models.SET_NULL,
 		null = True, 
 		blank = True
 	)
@@ -380,12 +406,12 @@ class Student(models.Model):
 		self.deactivation_request = True
 		self.deact_requested_mem = member
 		self.deactivation_reason = deactivation_reason
-		self.deact_req_datetime = datetime.now()
+		self.deact_req_at = datetime.now()
 		self.save( update_fields = [
 				'deactivation_request',
 				'deact_requested_mem',
 				'deactivation_reason',
-				'deact_req_datetime',] 
+				'deact_req_at',] 
 		)
 	
 	def deactivate(self, member):

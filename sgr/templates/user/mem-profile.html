@@ -7,7 +7,7 @@
 {% block section %}
     <p>
         <br>
-        <h1>{{member.user.firstname}} {{member.user.lastname}}</h1>
+        <h1>{{member.user.first_name}} {{member.user.last_name}}</h1>
         <hr width = "80%" align = "left">
         <i>Member</i>
         <br>
@@ -15,7 +15,8 @@
         
         <p><h3> Committee details: </h3></p>
         <hr width = "70%" align = "left">
-        <p> <i>Member UID : </i> {{member.uid}}</p>
+        <p> <i>Member UID : </i> {{member.mid}}</p>
+        <p><i>Role : </i> {{member.role}}</p>
         
         <p><h3> Contact details: </h3></p>
         <hr width = "70%" align = "left">

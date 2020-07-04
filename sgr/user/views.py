@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
 
 from .models import Student, Member, questions
 
@@ -98,6 +99,28 @@ def set_password(request):
 
 
 ### Mapped ###
+
+def approve(request, id_no):
+	if request.user.is_staff:
+		try:
+			member = Member.objects.get(user = request.user)
+		except ObjectDoesNotExist:
+			messages.error(request, 'Your account details doesnot exist.')
+			return render(request, 'error.html')
+		if member.role == 'Principal':
+			try:
+				approve_member = Member.objects.get(mid = id_no)
+			except ObjectDoesNotExist:
+				messages.error(request, f'Member account {id_no} to be approved does not exist.')
+				return render(request, 'error.html')
+			if not approve_member.approved:
+				approve_member.approve(member)
+				messages.success(request, f'Member account {id_no} is approved.')
+			else:
+				messaged.info(request, f'Member account {id_no} is already approved.')
+			return redirect( '/user/')
+		messages.info(request, 'Access Denied to "approve a member". Only Principal can "approve a member".')
+	return render(request, 'permission_denied.html', context)
 
 def list(request):
     if request.user.is_staff:
@@ -234,40 +257,35 @@ def deactivate(request, id_no):
 		try:
 			member = Member.objects.get(user = request.user)
 		except ObjectDoesNotExist:
-			context = { 'err_msg' : 'DEACTIVATION FAILED\n' +
+			messages.error( request, 'DEACTIVATION FAILED\n' +
 				'There was some error in fetching your Member account permission.' +
 				' Please report it on the website'
-			}
-			return render(request, 'error.html', context)
+			)
 		try:
 			user = User.objects.get(username = id_no)        # user to which deactivation is to addef
 		except ObjectDoesNotExist:
-			context = { 'err_msg' : 'No such user exist. '}
-			return render(request, 'error.html', context)
+			messages.error( request, 'No such user exist. ' )
 		if user.is_staff:
 			if member.role == 'Principal':
 				try:
 					deact_mem = Member.objects.get(mid = id_no)
 				except ObjectDoesNotExist:
-					context = { 'err_msg' : 'DEACTIVATION FAILED\n' +
+					messages.error(request, 'DEACTIVATION FAILED\n' +
 						'No such Member account exist'
-					}
-					return render(request, 'error.html', context)
+					)
 				deact_mem.deactivate(member)
-				context = { 'message' : f'Member {user.username} is DEACTIVATED.'}
-				return render(request, 'user/list.html', context)
+				messages.success( f'Member {user.username} is DEACTIVATED.' )
 		else:
 			if member.role == 'HOD' or member.role == 'Principal':
 				try:
 					student = Student.objects.get(sid = id_no)
 				except ObjectDoesNotExist:
-					context = { 'err_msg' : 'DEACTIVATION FAILED\n' +
+					messages.error(request, 'DEACTIVATION FAILED\n' +
 						'No such Student account exist.'
-					}
-					return render(request, 'error.html', context)
+					)
 				student.deactivate(member)
-				context = { 'message' : f'Student {user.username} is DEACTIVATED.'}
-				return render(request, 'user/list.html', context)
+				messages.success( request, f'Student {user.username} is DEACTIVATED.' )
+		return redirect('/user/')
 	return render(request, 'permission-denied,html')
 	
 def deactivation_request(request):
@@ -431,30 +449,38 @@ def add_member(request):
     return redirect('/permission-denied/')
 
 def activate_member(request):
-    if not request.user.is_authenticated:
-        mid = request.POST.get('mid')
-        context = { 'questions' : questions }
-        if mid != '' and mid != None:
-            try:
-                member = Member.objects.get(mid = mid)
-            except ObjectDoesNotExist:
-                context = { 'err_msg' : 'No such user exist. Please communicate to Committee' }
-                return render(request, 'error.html', context)
-            if not member.activated:
-                member.init_for_active(request)
-                if member.is_activating_valid():
-                    if member.verify_activation_code(request):
-                        if request.POST.get('password') == request.POST.get('confirm_password'):
-                            member.activate()                     ### saves Member
-                            context.update({'message' : 'Your account is activated. Please log in to start with your work' })
-                        else:
-                            context.update({ 'message' : "Password in both input fields doesn't match." })
-                    else:
-                        context.update({ 'message' : 'Wrong Activation code. Please enter right activation code' })
-                else:
-                    context.update({ 'message' : 'Please fill out full form then submit it.' })
-            else:
-                context = { 'info_msg' : 'This accout is already activated. Please <a href = "/user/login/">login</a> here.' }
-                return render(request, 'info.html', context)
-        return render(request, 'user/activate_mem.html', context)
-    return redirect('/permission-denied/')
+	if not request.user.is_authenticated:
+		mid = request.POST.get('mid')
+		context = { 'questions' : questions }
+		if mid != '' and mid != None:
+			try:
+				member = Member.objects.get(mid = mid)
+			except ObjectDoesNotExist:
+				context = { 'err_msg' : 'No such user exist. Please communicate to Committee' }
+				return render(request, 'error.html', context)
+			if not member.activated:
+				if member.approved:
+					if member.user.is_active: 
+						member.init_for_active(request)
+						if member.is_activating_valid():
+							if member.verify_activation_code(request):
+								if request.POST.get('password') == request.POST.get('confirm_password'):
+									member.activate()                     ### saves Member
+									context.update({'message' : 'Your account is activated. Please log in to start with your work' })
+								else:
+									context.update({ 'message' : "Password in both input fields doesn't match." })
+							else:
+								context.update({ 'message' : 'Wrong Activation code. Please enter right activation code' })
+						else:
+							context.update({ 'message' : 'Please fill out full form then submit it.' })
+					else:
+						messages.error(request, 'Your account has been deactivated. So you cannot activate now')
+				else:
+					context.update( { 'message' : 'Your is not approved yet. Please try again later or ' + 
+						'communicate to committee.'
+					} )
+			else:
+				context = { 'info_msg' : 'This accout is already activated. Please <a href = "/user/login/">login</a> here.' }
+				return render(request, 'info.html', context)
+		return render(request, 'user/activate_mem.html', context)
+	return redirect('/permission-denied/')

@@ -6,6 +6,7 @@ urlpatterns = [
 		path('', views.list, name = 'List'),
 		path('add-member/', views.add_member, name = 'Add Member'),
 		path('activate-member/', views.activate_member, name = 'Activate Member'),
+		path('approve/<str:id_no>/', views.approve, name = 'Approve Member'),
         path('dashboard/', views.dashboard, name = 'Dashboard'),
         path('deactivate/<str:id_no>/', views.deactivate, name = 'Deactivate'),
         path('deactivation-request/', views.deactivation_request, name = 'Deactivation Request'),

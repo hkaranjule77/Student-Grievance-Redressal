@@ -32,6 +32,15 @@
 		</p>
 		<h1> <b> Student Grievance Portal </b> </h1>
 		<hr>
+		{% if messages %}
+			<ul class = "messages">
+			{% for msg in messages %}
+				<li {% if  msg.tags %} class = "{{ msg.tags}}" {% endif %}>
+					{{ msg }}
+				</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
 		{% if message %}
                     <p> Message : <i>{{ message }} </i> </p>
 		{% endif %}
