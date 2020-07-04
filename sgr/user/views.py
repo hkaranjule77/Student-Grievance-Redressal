@@ -4,7 +4,6 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 
 from .models import Student, Member, questions
@@ -112,7 +111,6 @@ def approve(request, id_no):
 				approve_member = Member.objects.get(mid = id_no)
 			except ObjectDoesNotExist:
 				messages.error(request, f'Member account {id_no} to be approved does not exist.')
-				return render(request, 'error.html')
 			if not approve_member.approved:
 				approve_member.approve(member)
 				messages.success(request, f'Member account {id_no} is approved.')
@@ -144,12 +142,8 @@ def log_in(request):
 		password = request.POST.get('password')
 		if username == None and password==None:
 			return render(request, 'user/login.html')
-		elif username == None or password == None:
-			context = {
-				'message' :
-				'username/password is empty. Please fill full login form and then login'
-			}
-			return render(reques, 'user/login.html', context)
+		elif username == '' or password == '':
+			message.info(request, 'username/password is empty. Please fill full login form and then login.' )
 		user = authenticate(request, username = username, password = password)
 		if user is not None:
 			login(request, user)
@@ -157,13 +151,13 @@ def log_in(request):
 		try:
 			temp_user = User.objects.get(username = username)
 			if not temp_user.is_active:
-				context = { 'message' : 'Your account is deactivated.' +
-					'Please communicate to committee member for information regarding it.'
-				}
+				message.info( request, 'Your account is deactivated.' +
+					'For futher information, please communicate to committee.'
+				)
 		except ObjectDoesNotExist:
-			pass
+			messages.error(request, 'No such user exist' )
 		except AttributeError:
-			context = { 'message' : 'usename or passwors is wrong' }
+			message.error( request, 'usename or passwors is wrong' )
 		return render(request, 'user/login.html', context)
 	return redirect('/permission-denied/')
 
@@ -172,6 +166,45 @@ def log_out(request):
         logout(request)
         return render(request, 'user/logout.html')
     return redirect('/permission-denied/')
+    
+def reactivate(request, id_no):
+	if request.user.is_staff:
+		try:
+			react_user = User.objects.get(username = id_no)
+		except ObjectDoesNotExist:
+			print('hi')
+			messages.error( request, f'No user with the id {id_no}.')
+		if not react_user.is_active:
+			try:
+				member = Member.objects.get( user = request.user )
+			except ObjectDoesNotExist:
+				messages.error( request, 'Your account details does not exist.' )
+			if react_user.is_staff:
+				if member.role == 'Principal':
+					try:
+						react_mem = Member.objects.get(user = react_user)
+					except ObjectDoesNotExist:
+						messages.error( request, f'No Member account exist with ID { id_no }.')
+					else:
+						react_mem.reactivate( member )
+						messages.success( request, f'Reactivated Member account with ID { id_no }')
+				else:
+					messages.info( 'Only Principal have access to reactivate Member accounts ')
+			else:
+				if member.role == 'HOD' or member.role == 'Principal':
+					try:
+						react_stu = Student.objects.get(user = react_user)
+					except ObjectDoesNotExist:
+						messages.error( request, f'No Student account exist with id {id_no}.' )
+					else:
+						react_stu.reactivate( member )
+						messages.success( request, f'Reactivated Student account with id { id_no }')
+				else:
+					messages.info( 'Only HOD have access to reactivate Student accounts ')
+		else:
+			messages.error( request, f'User with id { id_no } is already active.')
+		return redirect( '/user/' )
+	return redirect('/permission-denied/')
 
 def register(request):
     if not request.user.is_authenticated:

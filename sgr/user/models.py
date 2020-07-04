@@ -82,6 +82,15 @@ class Member(models.Model):
 		blank = True
 	)
 	approved_at = models.DateTimeField(null = True, blank = True)
+	# Reactivation
+	reactivated_by = models.ForeignKey( 
+		'self',
+		related_name = 'reactivated by member+',
+		on_delete = models.SET_NULL,
+		null = True,
+		blank = True
+	)
+	reativated_at = models.DateTimeField( null = True, blank = True )
 	# Deactivation request
 	deactivation_request = models.BooleanField(default = False)
 	deact_requested_mem = models.ForeignKey(
@@ -261,6 +270,20 @@ class Member(models.Model):
 	def set_security_answer(self, answer):
 		self.security_answer = make_password(answer)
 		
+	def reactivate( self, member ):
+		''' Make changes in model for reactivation. '''
+		self.user.is_active = True
+		self.user.save( update_fields = [ 'is_active' ] )
+		self.deactivation_request = False
+		self.reactivated_by = member
+		self.reactivated_at = timezone.now()
+		self.save( update_fields = [
+				'deactivation_request',
+				'reactivated_by',
+				'reactivated_at',
+			]
+		)
+		
 	def add_deactivation_request(self, member, deactivation_reason):
 		''' Adds and save deactivation request details in model '''
 		self.deactivation_request = True
@@ -299,6 +322,15 @@ class Student(models.Model):
 	# for limiting the complain registration
 	complain_count = models.IntegerField(blank = True, null = True)
 	count_date = models.DateField(blank = True, null = True)
+	# Reactivation
+	reactivated_by = models.ForeignKey( 
+		Member,
+		related_name = 'student reactivated by member+',
+		on_delete = models.SET_NULL,
+		null = True,
+		blank = True
+	)
+	reactivated_at = models.DateTimeField( null = True, blank = True )
 	# Deactivation request
 	deactivation_request = models.BooleanField(default = False)
 	deact_requested_mem = models.ForeignKey(
@@ -400,6 +432,20 @@ class Student(models.Model):
 
 	def set_security_answer(self, answer):
 		self.security_answer = make_password(answer)
+		
+	def reactivate( self, member ):
+		''' Make changes in model for reactivation. '''
+		self.user.is_active = True
+		self.user.save( update_fields = [ 'is_active' ] )
+		self.deactivation_request = False
+		self.reactivated_by = member
+		self.reactivated_at = timezone.now()
+		self.save( update_fields = [
+				'deactivation_request',
+				'reactivated_by',
+				'reactivated_at',
+			]
+		)
 		
 	def add_deactivation_request(self, member, deactivation_reason):
 		''' Adds and save deactivation request details in model '''
