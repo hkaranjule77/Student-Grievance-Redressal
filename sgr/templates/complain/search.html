@@ -5,19 +5,23 @@
 {% endblock %}
 
 {% block section %}
-    <form method = "post" action = "/complain/search/">
-    {% csrf_token %}
-        <p>
-            <input type = "text" name = "query" value = "{{query}}">
-            <button type = "submit"> Search </button>
-        </p>
-        Filter : 
-        <select name = "opt" value = {{opt}}>
-            {% for op in options %}
-                <option> {{op}} </option>
-            {% endfor %}
-        </select>
-    </form>
+	<div class="wrap">
+		<h1>Search Complain</h1>
+		<form method = "post" action = "/complain/search/">
+		{% csrf_token %}
+			<p>
+				<input type = "text" name = "query" value = "{{query}}">
+				<input type = "submit" value="Search">
+			</p>
+			Filter : 
+			<select name = "opt" value = {{opt}}>
+				{% for op in options %}
+					<option> {{op}} </option>
+				{% endfor %}
+			</select>
+		</form>
+	</div>
+		
     <a href = "/complain/"> Back </a>
     <br><br>
     {% if queryset %}

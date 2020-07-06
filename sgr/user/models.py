@@ -9,7 +9,7 @@ import random
 from datetime import date, datetime
 
 questions = ('In which town your mom/dad was born?',
-				'What is name of your grand mother/grand father?',
+				'What is name of your grand mother?',
 				'What was your childhood nickname?',
 				'Which sports do you like most?',
              )
@@ -311,9 +311,8 @@ class Student(models.Model):
 	# registration detail
 	sid = models.CharField(max_length=15, primary_key=True)
 	user = models.ForeignKey(User, on_delete = models.CASCADE)
-	branch = models.CharField(max_length = 12)
+	department = models.CharField(max_length = 12)
 	year = models.CharField(max_length = 10)
-	admission_type = models.CharField(max_length = 12)
 	contact_no = models.CharField(max_length=15)
 	reg_datetime = models.DateField(default = timezone.now)
 	# security details
@@ -353,7 +352,7 @@ class Student(models.Model):
 	deactivated_at = models.DateTimeField( null = True, blank = True)
 	
 	### CONSTANTS
-	branches = ( 'Chemical',
+	departments = ( 'Chemical',
 				 'Civil',
 				 'Computer',
 				 'Electrical',
@@ -365,8 +364,6 @@ class Student(models.Model):
 					'Third',
 					'Fourth',
 	)
-	admission = ('First year',
-							'Direct Second year')
 	global questions
 
 	def init(request):
@@ -378,9 +375,8 @@ class Student(models.Model):
 		user.email = request.POST.get('email')
 		student = Student(user = user)
 		student.sid = user.username
-		student.branch = request.POST.get('branch')
+		student.department = request.POST.get('department')
 		student.year = request.POST.get('year')
-		student.admission_type = request.POST.get('admission_type')
 		student.contact_no = request.POST.get('contact_no')
 		return student
 
@@ -396,20 +392,19 @@ class Student(models.Model):
 				student.security_question = question
 		student.security_answer = request.POST.get('security_answer')
 		password = request.POST.get('password')
-		if validate_password(password) == None:
-			return (student, True)
-		else:
-			return (student, False)
+		student.password = password
+		if password is not None:
+			if validate_password(password) == None:
+				return (student, True)
+		return (student, False)
 
 	def is_valid(self):
 		valid = True
 		if  self.sid == '' or self.sid == None:
 			valid = False
-		if  self.branch == '' or self.branch == None:
+		if  self.department == '' or self.department == None:
 			valid = False
 		if self.year == '' or self.year == None:
-			valid = False
-		if self.admission_type == '' or self.admission_type == None:
 			valid = False
 		if  self.contact_no == '' or self.contact_no == None:
 			valid = False
@@ -421,7 +416,20 @@ class Student(models.Model):
 			valid = False
 		if self.user.email == '' or self.user.email == None:
 			valid = False
+		if self.security_question == '' or self.security_question == None:
+			valid = False
+		if self.security_answer == '' or self.security_answer == None:
+			valid = False
 		return valid
+		
+	def set_security_answer(self, answer):
+		self.security_answer = make_password(answer)
+		
+	def final_save( self):
+		self.set_security_answer( self.security_answer )
+		self.user.set_password( self.password )
+		self.user.save()
+		self.save()
 
 	def verify_security_details(self, security_q, answer):
 		''' Verifies security question for forgot password feature'''
@@ -429,9 +437,6 @@ class Student(models.Model):
 			return True
 		else:
 			return False
-
-	def set_security_answer(self, answer):
-		self.security_answer = make_password(answer)
 		
 	def reactivate( self, member ):
 		''' Make changes in model for reactivation. '''

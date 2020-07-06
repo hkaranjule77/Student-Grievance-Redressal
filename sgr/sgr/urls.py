@@ -24,5 +24,9 @@ urlpatterns = [
 	path('user/', include('user.urls'), name = 'User'),
         path('verification/', include('verification.urls'), name = 'Verification'),
         path('admin/', admin.site.urls),
+        path('about-us/', views.about_us, name = 'About us'),
+        path('contact-us/', views.contact_us, name = 'Contact us'),
+        path('contact-dev/', views.contact_dev, name = 'Contact Dev'),
         path('permission-denied/', views.perm_denied, name = 'Pemission Denied'),
+        path('temp/', views.temp),
 ]

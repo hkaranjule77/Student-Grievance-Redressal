@@ -1,17 +1,66 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}
- Log In
+	Log In
+{% endblock %}
+
+{% block font_js %}
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+{% endblock %}
+
+{% block js_script %}
+	function generateCaptcha() {
+			var alpha = new Array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@', '#', '$', '%', '^', '&', '*', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+			var i;
+			for (i = 0; i < 4; i++) {
+				var a = alpha[Math.floor(Math.random() * alpha.length)];
+				var b = alpha[Math.floor(Math.random() * alpha.length)];
+				var c = alpha[Math.floor(Math.random() * alpha.length)];
+				var d = alpha[Math.floor(Math.random() * alpha.length)];
+				var e = alpha[Math.floor(Math.random() * alpha.length)];
+				var f = alpha[Math.floor(Math.random() * alpha.length)];
+			}
+			var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f;
+			document.getElementById("capcode").value = "Captcha Code =" + code
+		}
+		function appear() {
+			document.getElementById("logindept").style.display = "block";
+			document.getElementById("loginselectype").style.display = "block";
+
+		}
+		function dissappear() {
+
+			document.getElementById("logindept").style.display = "none";
+			document.getElementById("loginselectype").style.display = "none";
+
+		}
+{% endblock %}
+
+{% block body_onload %}
+	onload="generateCaptcha()"
 {% endblock %}
 
 {% block content %}
-    <form method = "post" action = "/user/login/">
-    {% csrf_token %}
-        <p>username : <input type="text" name = "username"></p>
-        <p>password : <input type = "password" name = "password"></p>
-        <p><button type = "submit"> Log In </button></p>
-    </form>
-    <p>         <a href = "/user/forgot-passwd/0/">Forgot Password?</a></p>
-    <br>
-    <p>If don't have account please <a href = "/user/register/">Register</a> first.</p>
+	
+	<link rel="stylesheet" type="text/css" href="{% static 'css/formstyle.css' %}">
+
+	<div class="wrap">
+		<form method="post">
+			{% csrf_token %}
+			<h1><center>LOGIN HERE!!!</center></h1>
+			<input type="text" name="username" id="uid" placeholder="Enter User ID" size="50" autocomplete="off" required><br>
+			<input type="password" name="password" id="upawd" placeholder="Enter Password" size="50" required><br>
+			
+			<a href="{% url 'Forgot Password' %}"><i>Forgot Passord</i></a><br />
+			
+			<input type="text" id="capcode" size="30" disabled="disabled">
+			<input type="button" id="ref" value="refresh" backgroud="green" onclick="generateCaptcha()"><br>
+			<input type="text" id="ucap" placeholder="Enter Captcha" size="50" required><br>
+			<input type="submit" id="lformsub" value="submit"><br>
+		</form>
+	</div>
+
+    <p>If don't have account please <a href = "{% url 'Sign up' %}">Register</a> first.</p>
 {% endblock %}

@@ -1,10 +1,62 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}
-Forgot Password
+	Forgot Password
+{% endblock %}
+
+{% block js_script %}
+	function generateCaptcha() {
+
+            var alpha = new Array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@', '#', '$', '%', '^', '&', '*', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+            var i;
+            for (i = 0; i < 4; i++) {
+                var a = alpha[Math.floor(Math.random() * alpha.length)];
+                var b = alpha[Math.floor(Math.random() * alpha.length)];
+                var c = alpha[Math.floor(Math.random() * alpha.length)];
+                var d = alpha[Math.floor(Math.random() * alpha.length)];
+                var e = alpha[Math.floor(Math.random() * alpha.length)];
+                var f = alpha[Math.floor(Math.random() * alpha.length)];
+            }
+            var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f;
+            document.getElementById("fpcapcode").value = "Captcha Code =" + code;
+        }
+{% endblock %}
+
+{% block body_onload %}
+	onload="generateCaptcha()"
 {% endblock %}
 
 {% block content %}
+
+	<link rel="stylesheet" type="text/css" href="{% static 'css/formstyle.css' %}">
+	
+	<div class="wrap">
+		<h1 align="center"> Forgot Password </h1>
+        <form class="form" name="fpaswform" method="post">
+			{% csrf_token %}
+            <input type="text" name='username' id="fpuid" placeholder="Enter User ID" autocomplete="on" required>
+            <input type="email" name="email" id="fpmail" placeholder="Enter User's Email ID" autocomplete="on" required><br />
+            &nbsp;&nbsp;<b>Select Question</b>
+            <select name="security_question" id="security_question" autocomplete="on" required>
+                <option value="0">Select Question</option>
+                {% for question in questions %}
+					<option> {{ question }} </option>
+                {% endfor %}
+            </select>
+            <input type="text" name="security_answer" placeholder="Enter Your Answer" id="fpans" autocomplete="on" required>
+            <input type="password" name="password" id="fpswd" placeholder="Enter New Password" required>
+            <input type="password" name="confirm_password" id="fcpswd" placeholder="Confirm Password" required>
+            <input type="text" id="fpcapcode" disabled="true">
+            <input type="button" id="fpref" value="refresh" onclick="generateCaptcha()"><br>
+            <input type="text" id="fpucap" placeholder="Enter Captcha" autocomplete="off" required><br>
+            <input type="submit" value="Change" onclick="fn()"/>
+        </form>
+    </div>
+
+
+	<!---
     <form method = "post" action = "/user/forgot-passwd/{{ part|add:"1" }}/">
     {% csrf_token %}
     <p> User type :
@@ -61,5 +113,5 @@ Forgot Password
     {% endif %}
     {% if part == 2 %}
         <h4> Password changed! Try logging in with new password.</h4>
-    {% endif %}
+    {% endif %} ---->
 {% endblock %}

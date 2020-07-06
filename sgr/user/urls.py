@@ -11,11 +11,10 @@ urlpatterns = [
         path('deactivate/<str:id_no>/', views.deactivate, name = 'Deactivate'),
         path('deactivation-request/', views.deactivation_request, name = 'Deactivation Request'),
         path('deactivation-request-form/<str:id_no>/', views.deact_request_form, name = 'Deactivation Form'),
-        path('forgot-passwd/<int:part>/', views.forgot_passwd, name = 'Forgot Password'),
+        path('forgot-passwd/', views.forgot_passwd, name = 'Forgot Password'),
         path('login/', views.log_in, name = 'Log in'),
         path('logout/', views.log_out, name = 'Log out'),
         path('profile/<str:id_no>/', views.profile, name = 'Profile'),
         path('reactivate/<str:id_no>/', views.reactivate, name = 'Reactivate'),
-        path('register/', views.register, name = 'Register'),
-        path('security-detail/', views.security, name = 'Security details'),
+        path('sign-up/', views.sign_up, name = 'Sign up'),
 ]

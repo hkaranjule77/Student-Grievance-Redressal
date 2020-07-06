@@ -1,14 +1,34 @@
 {% extends 'base.html' %}
 
+
+
+{% load static %}
+
 {% block title %}
 	Home
 {% endblock %}
 
 {% block content %}
+
+	
+	<link rel="stylesheet" type="text/css" href="{% static 'css/formstyle.css' %}">
+
+	<marquee>
+			<img src="{% static 'image1.jpeg' %}" height="100" width="200">
+			<img src="{% static 'image2.jpeg' %}" height="100" width="200">
+			<img src="{% static 'image3.jpeg' %}" height="100" width="200">
+			<img src="{% static 'image4.jpeg' %}" height="100" width="200">
+			<img src="{% static 'image5.jpeg' %}" height="100" width="200">
+			<img src="{% static 'image7.jpeg' %}" height="100" width="200">
+			<img src="{% static 'image8.jpeg' %}" height="100" width="200">
+			<img src="{% static 'image9.jpeg' %}" height="100" width="200">
+	</marquee>
+
+
+
     <p>
         <h4> <i> Welcome </i> </h4>
-            <p> <a href = '/user/'> User </a> </p>
-            <p> <a href = '/complain'> Complain </a> </p>
-            <p> <a href = '/user/activate-member/'> New Member</a>
+		<p> <a href='/user/login/'>Log in</a>
+        <p> <a href = '/user/activate-member/'> New Member? Acitvate your account here</a>
     </p>
 {% endblock %}

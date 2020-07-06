@@ -1,0 +1,120 @@
+
+body {
+    margin-top: 0;
+    background: linear-gradient(-45deg,#43cea2,#185a9d);
+}
+
+
+.wrap{
+  				background-color: rgba(0,0,0,0.5);
+ 				 max-width: 350px;
+  				border-radius: 20px;
+  				margin: auto;
+  				box-sizing: border-box;
+  				margin-top: 20px;
+  				padding: 40px;
+  				color: #fff;
+  				margin-top: 100px;
+        }
+div.floatBox1{
+	float:left;
+	border:3px solid black;
+	padding:20px;
+	height:50%;
+}
+div.floatBox2{
+	float:Right;
+	border:3px solid black;
+	padding:20px;
+	height:50%;
+}
+                
+h2 {
+    color: red
+}
+
+h3 {
+	color: #000080
+}
+
+input[type=text], input[type=password], input[type=email]{
+	width: 100%;
+	box-sizing: border-box;
+	padding: 12px 5px;
+	background:rgba(0,0,0,0.1);
+	outline:none;
+	border:none;
+	border-bottom:2px solid #fff;
+	color: #fff;
+	border-radius: 15px;
+	margin: 8px;
+	font-weight: bold;
+}
+
+#security_question {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 12px 5px;
+	background:rgba(0,0,0,0.3);
+	outline:none;
+	border:none;
+	border-bottom:2px solid #fff;
+	color: #fff;
+	border-radius: 15px;
+	margin: 8px;
+	font-weight: bold;
+}
+
+select{  	width: 50%;
+	box-sizing: border-box;
+	padding: 12px 5px;
+	background:rgba(0,0,0,0.3);
+	outline:none;
+	border:none;
+	border-bottom:2px solid #fff;
+	color: #fff;
+	border-radius: 15px;
+	margin: 8px;
+	font-weight: bold;
+}
+			
+input[type=button]{
+  height: 20px;
+  width: 90px;
+  color: white;
+  font-family: 'Chivo';
+  border-radius: 40px;
+  display: inline-block;
+  line-height: normal;
+  padding: 5px,5px;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: bold;
+  background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+}
+
+input[type=submit]{
+  height: 30px;
+  width: 100px;
+  color: white;
+  font-family: 'Chivo';
+  border-radius: 40px;
+  display: inline-block;
+  margin-top: 30px;
+  line-height: normal;
+  padding: 5px,5px;
+  box-sizing: border-box;
+  font-size: 18px;
+  font-weight: bold;
+  background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+}	
+			
+input[type=submit]:hover{
+	background: linear-gradient(to left, #f64f59, #c471ed, #12c2e9);
+	color: black;
+	text-decoration: none;
+}
+
+i{
+	color: orange;
+}

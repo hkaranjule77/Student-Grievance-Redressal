@@ -9,72 +9,87 @@ from django.contrib import messages
 from .models import Student, Member, questions
 
 
-### Not mapped ###
+### Not mapped in urls.py ###
 
-def get_user(user):
-    '''
-    NOT MAPPED IN URL
-    This method take user as input and returns instance of Student/Member
-    '''
-    if user.is_authenticated:
-        if user.is_staff:
-            obj = Member.objects.get(user = user)
-        else:
-            obj = Student.objects.get(user = user)
-        return obj
-    return None
+def get_object( request, user = None, username=None):
+	'''
+	This method take request, user(optional), username(optional) as input and returns instance of Student/Member object.
+	'''
+	if username !=None:
+		try:
+			user = User.objects.get( username = username )
+		except ObjectDoesNotExist:
+			messages.error( requset, f' User account with username {username} does no exist. ')
+			return
+	elif user == None:
+		user = request.user
+	if user.is_staff:
+		try:
+			obj = Member.objects.get(user = user)
+		except ObjectDoesNotExist:
+			messages.error( reqeust, f' Member account with id {user.username} does not exist. ')
+	elif user.is_authenticated:
+		try:
+			obj = Student.objects.get(user = user)
+		except ObjectDoesNotExist:
+			messages.error( reqeust, f' Student account with id { user.username } does not exist. ')
+	else:
+		messages.error( request, 'Please log in to get access to different services. ')
+		return None
+	return obj
 
-    ### forgot_passwd
+    ### functions required for forgot_password
 
 def is_security_detail_valid(request):
-    user_type = request.POST.get('user_type')
-    username = request.POST.get('username')
-    security_q = request.POST.get('security_question')
-    answer = request.POST.get('answer')
-    valid = True
-    if user_type == '' or user_type == None:
-        valid = False
-    elif username == '' or username == None:
-        valid = False
-    elif security_q == '' or security_q == None:
-        valid = False
-    elif answer == '' or answer == None:
-        valid = False
-    return valid
+	''' checks if forgot password form filled full. '''
+	username = request.POST.get('username')
+	email = request.POST.get('email')
+	security_q = request.POST.get('security_question')
+	answer = request.POST.get('security_answer')
+	password = request.POST.get( 'password' )
+	confirm_password = request.POST.get('confirm_password')
+	valid = True
+	if username == None:
+		valid = False
+	elif email == None:
+		valid = False
+	elif security_q == None:
+		valid = False
+	elif answer == None:
+		valid = False
+	elif password == None:
+		valid = False
+	elif confirm_password == None:
+		valid = False
+	if password != confirm_password:
+		messages.error( request, "Password in both field doesn't match. ")
+		valid = False
+	if security_q == 'Security Question':
+		messages.info( request, 'Please select Security question befor submitting.')
+		valid = False
+	return valid
 
 def verify_security_details(request):
-    user_type = request.POST.get('user_type')
-    username = request.POST.get('username')
-    security_q = request.POST.get('security_question')
-    answer = request.POST.get('answer')
-    if user_type == 'student':
-        try:
-            student = Student.objects.get(sid = username)
-        except ObjectDoesNotExist:
-            return False
-        else:
-            return student.verify_security_details(security_q, answer)
-    elif user_type == 'member':
-        try:
-            member = Member.objects.get(mid = username)
-        except ObjectDoesNotExist:
-            return False
-        else:
-            return member.verify_security_details(security_q, answer)
-    else:
-        return False
-
-def is_password_valid(request):
-    password = request.POST.get('password')
-    c_password = request.POST.get('confirm_password')
-    valid = False
-    if password == '' or password == None:
-        valid = None
-    elif c_password == '' or c_password == None:
-        valid = None
-    elif password == c_password:
-        valid = True
-    return valid
+	username = request.POST.get('username')
+	email = request.POST.get('email')
+	security_q = request.POST.get('security_question')
+	answer = request.POST.get('security_answer')
+	password = request.POST.get('password')
+	obj = get_object( request, username = username )			# Student / Member object
+	if obj == None:
+		return False
+	else:
+		if obj.user.email == email:
+			if obj.verify_security_details(security_q, answer):
+				if validate_password(password) == None:			# checks if password is valid
+					obj.user.set_password( password )
+					return True
+				else:
+					messages.error( request, 'Password is not valid. Please enter a strong password with atleast'
+						+ ' 8 character long, 1 lowercase letter(a-z), 1 digit (0-9), one special symbol. ')
+		else:
+			messages.error( request, "Details did'nt matched with registered details. Please enter correct details. ")
+			return True
 
 def set_password(request):
     user_type = request.POST.get('user_type')
@@ -97,7 +112,7 @@ def set_password(request):
         user.save( update_fields = ['password'] )
 
 
-### Mapped ###
+	### Mapped ###
 
 def approve(request, id_no):
 	if request.user.is_staff:
@@ -206,41 +221,23 @@ def reactivate(request, id_no):
 		return redirect( '/user/' )
 	return redirect('/permission-denied/')
 
-def register(request):
-    if not request.user.is_authenticated:
-        student = Student.init(request)
-        if student.is_valid():
-            ## add verification if verified continue or redirect to register again.
-            context = { 'student' : student , 'questions' : questions }
-            return render(request, 'user/security-detail.html', context)
-        else:
-            context = { 'branches' : Student.branches, 'years' : Student.years, 'admission' : Student.admission }
-            return render(request, 'user/register.html', context)
-        
-    context = { 'message' : 'Cannot registe when logged in. Please log out!' }
-    return render(request, 'permission-denied.html', context)
-
-def security(request):
+def sign_up(request):
 	if not request.user.is_authenticated:
 		student, valid_password = Student.init_all(request)
-		if valid_password:
-			password = request.POST.get('password')
-			if password == request.POST.get('confirm_password'):
-				student.set_security_answer(request.POST.get('security_answer'))
-				student.user.save()
-				student.save()
-				student.user.set_password(password)
-				student.user.save(update_fields = ['password'])
-				context = { 'message' :
-							'Account created successfully. Please login to register a complain',
-							'branches' : Student.branches, 'years' : Student.years, 'admission' : Student.admission }
-				return render(request, 'user/register.html', context)
+		context = { 'departments' : Student.departments,
+			'years' : Student.years,
+			 'questions' : questions 
+		}
+		if student.is_valid():
+			if valid_password:
+				if student.password == request.POST.get('confirm_password'):
+					student.final_save()							# saves final details
+					messages.success( request, 'Account created successfully. Please login to register a complain.',)
+				else:
+					messages.info( request, "Password doesn't match of both fields.")
 			else:
-				message = "Password doesn't match of both fields."
-		else:
-			message = 'Password is not valid. Please enter a valid password.'
-		context = { 'student' : student, 'message' : message, 'questions' : questions }
-		return render(request, 'user/security-detail.html', context)
+				messages.info( request, 'Password is not valid. Please enter a valid password.' )
+		return render(request, 'user/sign_up.html', context)
 	return redirct('/permission-denied/')
 
 def profile(request, id_no):
@@ -274,15 +271,17 @@ def profile(request, id_no):
     return redirect('/permission-denied/')
 
 def dashboard(request):
-    if request.user.is_authenticated:
-        user = get_user(request.user)
-        if not request.user.is_staff:
-            context = { 'student' : user }
-            return render(request, 'user/dashboard.html', context )
-        if request.user.is_staff:
-            context = {'member' : user }
-            return render(request, 'user/dashboard.html', context)
-    return redirect('/permission-denied/')
+	if request.user.is_authenticated:
+		user = get_object( request )
+		if user == None:
+			return render( request, 'error.html')
+		elif not request.user.is_staff:
+			context = { 'student' : user }
+			return render(request, 'user/dashboard.html', context )
+		elif request.user.is_staff:
+			context = {'member' : user }
+			return render(request, 'user/dashboard.html', context)
+	return redirect('/permission-denied/')
   
   
 def deactivate(request, id_no):
@@ -415,43 +414,22 @@ def deact_request_form(request, id_no):
 				return render(request, 'user/deactivation_form.html', context)
 	return render(request, 'permission_denied.html')
 
-def forgot_passwd(request, part):
-    if not request.user.is_authenticated:
-        if part == 0:                             ### PART_0 - render a blank form
-            context = { 'part' : 0,
-                        'questions' : questions}
-            return render(request, 'user/forgot_passwd.html', context)
-        elif part == 1:                            ### PART_1 - verify details and render password form
-            if is_security_detail_valid(request):
-                if verify_security_details(request):
-                    context = { 'part' : 1, 'user_type' : request.POST.get('user_type'),
-                                'username' : request.POST.get('username') }
-                else:
-                    context = { 'part' : 0, 'message' : 'please enter correct details',
-                                'questions' : questions}
-            else:
-                context = { 'part' : 0,
-                            'message' : 'Please fill out full form first, then submit it.',
-                            'questions' : questions,}
-            return render(request, 'user/forgot_passwd.html', context)
-        elif part == 2:
-            valid = is_password_valid(request)
-            context = { 'user_type' : request.POST.get('user_type'),
-                        'username' : request.POST.get('username') }
-            if valid:
-                set_password(request)
-                context.update( { 'part' : 2 } )
-            elif valid == None:             ### if any password field is empty
-                context.update( { 'part' : 1,
-                                  'message' : 'Please fill out full form first, then submit it' } )
-            else:                           ### if password in both field deosn't match
-                context.update( { 'part' : 1,
-                                  'message' : "Password in both field doesn't match." } )
-            return render(request, 'user/forgot_passwd.html', context)
-        else:
-            context = { 'err_msg' : '404 : Page not found' }
-            return render(request, 'error.html', context)
-    return redirect('/permission-denied/')
+def forgot_passwd(request):
+	if not request.user.is_authenticated:
+		context = { 'questions' : questions }
+		print('hai')
+		if is_security_detail_valid(request):
+			print('hi')
+			if verify_security_details(request):
+				print('hiah')
+				messages.success( request, 'Password changed successfully. ')
+			else:
+				print('hiafalsa')
+				messages.error( request, "Details didn't matched with the registered details. ")
+		#else:
+		#messages.info( request,  'Please fill out full form first, then submit it.' )
+		return render(request, 'user/forgot_passwd.html', context)
+	return redirect('/permission-denied/')
 
 def add_permission(request):
     content_type = ContentType.objects.get_for_model(Member)
