@@ -17,47 +17,42 @@ questions = ('In which town your mom/dad was born?',
              
              
 class MemberIDCount (models.Model):
-    next_solver_id = models.IntegerField()
-    next_sorter_id = models.IntegerField()
-    next_db_admin_id = models.IntegerField()
-    next_hod_id = models.IntegerField()
-    next_principal_id = models.IntegerField()
-    count_date = models.DateField(default = timezone.now)
-        
-    def initialize():
-        ''' For initializing new object, if no object is present. '''
-        id_count_obj = MemberIDCount()
-        id_count_obj.next_solver_id = 0
-        id_count_obj.next_sorter_id = 0
-        id_count_obj.next_db_admin_id = 0
-        id_count_obj.next_hod_id = 0
-        id_count_obj.next_principal_id = 0
-        id_count_obj.count_date = date.today()
-        id_count_obj.save(update_fields = ['next_solver_id',
-                                           'next_sorter_id',
-                                           'next_hod_id',
-                                           'next_principal_id',
-                                           'count_date', ])
-        return id_count_obj
-    
-    def reinitialize():
-        ''' If new year starts, call this function to initialize all value to zero. '''
-        try:
-            id_count_obj = MemberIDCount.objects.first()
-        except ObjectDoesNotExist:
-            id_count_obj = MemberIDCount()
-        id_count_obj.next_solver_id = 0
-        id_count_obj.next_sorter_id = 0
-        id_count_obj.next_db_admin_id = 0
-        id_count_obj.next_hod_id = 0
-        id_count_obj.next_principal_id = 0
-        id_count_obj.count_date = date.today()
-        id_count_obj.save(update_fields = ['next_solver_id',
-                                           'next_sorter_id',
-                                           'next_hod_id',
-                                           'next_principal_id',
-                                           'count_date', ])
-    
+	next_solver_id = models.IntegerField()
+	next_sorter_id = models.IntegerField()
+	next_db_admin_id = models.IntegerField()
+	next_hod_id = models.IntegerField()
+	next_principal_id = models.IntegerField()
+	count_date = models.DateField(default = timezone.now)
+		
+	def initialize():
+		''' For initializing new object, if no object is present. '''
+		id_count_obj = MemberIDCount()
+		id_count_obj.next_solver_id = 0
+		id_count_obj.next_sorter_id = 0
+		id_count_obj.next_db_admin_id = 0
+		id_count_obj.next_hod_id = 1
+		id_count_obj.next_principal_id = 0
+		id_count_obj.count_date = date.today()
+		id_count_obj.save()
+		return id_count_obj
+
+	def reinitialize( self ):
+		''' If new year starts, call this function to initialize all value to zero. '''
+		self.next_solver_id = 0
+		self.next_sorter_id = 0
+		self.next_db_admin_id = 0
+		self.next_hod_id = 0
+		self.next_principal_id = 1
+		self.count_date = date.today()
+		self.save( update_fields = [
+				'next_solver_id',
+				'next_sorter_id',
+				'next_hod_id',
+				'next_principal_id',
+				'count_date'
+			]
+		)
+
 
 
 class Member(models.Model):
@@ -90,7 +85,7 @@ class Member(models.Model):
 		null = True,
 		blank = True
 	)
-	reativated_at = models.DateTimeField( null = True, blank = True )
+	reactivated_at = models.DateTimeField( null = True, blank = True )
 	# Deactivation request
 	deactivation_request = models.BooleanField(default = False)
 	deact_requested_mem = models.ForeignKey(
@@ -112,12 +107,13 @@ class Member(models.Model):
 	deactivated_at = models.DateTimeField(null = True, blank = True)
 	  ### CONTSTANTS
 
-	roles = (('L', 'Solver'),
-			 ('R', 'Sorter'),
-			 ('D', 'DB Admin'),
-			 ('H', 'HOD'),
-			 ('P', 'Principal'),
-			 )
+	roles = (
+		('L', 'Solver'),
+		('R', 'Sorter'),
+		('D', 'DB Admin'),
+		('H', 'HOD'),
+		('P', 'Principal'),
+	)
 	global questions
 
 		
@@ -141,6 +137,10 @@ class Member(models.Model):
 		print(request.POST.get('password'))
 		if validate_password(password = password) == None:
 			self.user.set_password(password)
+			
+	def __str__(self):
+		''' returns mid if object is called for printing purpose. '''
+		return self.mid
 
 	def is_non_activable(self):
 		''' Checks data assigned to object is not empty string('')/None, while creating new account '''
@@ -172,7 +172,7 @@ class Member(models.Model):
 			empty = False
 		return empty
 
-	def generate_mid(self):
+	def generate_mid( self ):
 		''' Generates Member ID while creation of account. '''
 		curr_date = date.today()
 		curr_year = curr_date.strftime('%y')
@@ -180,9 +180,11 @@ class Member(models.Model):
 			count_obj = MemberIDCount.objects.first()
 		except ObjectDoesNotExist:
 			count_obj = MemberIDCount.initialize()
+		if count_obj == None:
+			count_obj = MemberIDCount.initialize()
 		# If year changes, reinitialize the Count
 		if curr_year != count_obj.count_date.strftime('%y'):
-			count_obj = MemberIDCount.reinitialze()
+			MemberIDCount.reinitialze()
 		# Getting role_code and count of roles of member
 		if self.role == 'HOD':
 			next_id = count_obj.next_hod_id
@@ -204,18 +206,21 @@ class Member(models.Model):
 			next_id = count_obj.next_principal_id
 			count_obj.next_principal_id += 1
 			role_code = 'P'
-		count_obj.save( update_fields = ['next_solver_id',
-										 'next_sorter_id',
-										 'next_db_admin_id',
-										 'next_hod_id',
-										 'next_principal_id'] )
+		count_obj.save( update_fields = [
+				'next_solver_id',
+				'next_sorter_id',
+				'next_db_admin_id',
+				'next_hod_id',
+				'next_principal_id'
+			]
+		)
 		id = str(next_id) 
 		id_len = len(id)
 		for count in range(3-id_len):
 			id = '0' + id
 		mid = curr_year + role_code + id   # final addition of mid 
 		self.mid = mid                     # mid assigned to object
-		self.user.username = mid 
+		self.user.username = mid
 		
 	# generates activaton code 
 	def generate_code(self):
@@ -239,8 +244,8 @@ class Member(models.Model):
 
 	# verifies activation code
 	def verify_activation_code(self, request):
-		''' Verifies 8 digit ACTIVATION CODE '''
-		if self.activation_code == request.POST.get('activation_code'):
+		''' Verifies 8 digit Activation code with hashed activation_code in model. '''
+		if  check_password( request.POST.get('activation_code'), self.activation_code ):
 			return True
 		return False
 
@@ -266,6 +271,10 @@ class Member(models.Model):
 									'activated',
 									'activated_datetime']
 		)
+		
+	def set_activation_code( self, activation_code ):
+		''' Initialize Member object with hashed activation code from passed data. '''
+		self.activation_code = make_password( activation_code )
 
 	def set_security_answer(self, answer):
 		self.security_answer = make_password(answer)
@@ -275,9 +284,11 @@ class Member(models.Model):
 		self.user.is_active = True
 		self.user.save( update_fields = [ 'is_active' ] )
 		self.deactivation_request = False
+		self.deactivation_reason = None
 		self.reactivated_by = member
 		self.reactivated_at = timezone.now()
 		self.save( update_fields = [
+				'deactivation_reason',
 				'deactivation_request',
 				'reactivated_by',
 				'reactivated_at',
@@ -319,8 +330,8 @@ class Student(models.Model):
 	security_question = models.CharField(max_length = 40)
 	security_answer = models.CharField(max_length = 100)
 	# for limiting the complain registration
-	complain_count = models.IntegerField(blank = True, null = True)
-	count_date = models.DateField(blank = True, null = True)
+	complain_count = models.IntegerField(default = 0)
+	count_date = models.DateField(default = date.today)
 	# Reactivation
 	reactivated_by = models.ForeignKey( 
 		Member,
@@ -397,6 +408,10 @@ class Student(models.Model):
 			if validate_password(password) == None:
 				return (student, True)
 		return (student, False)
+		
+	def __str__( self ):
+		''' return string of sid if object is called for printing purpose. '''
+		return self.sid
 
 	def is_valid(self):
 		valid = True
@@ -443,6 +458,7 @@ class Student(models.Model):
 		self.user.is_active = True
 		self.user.save( update_fields = [ 'is_active' ] )
 		self.deactivation_request = False
+		self.deactivation_reason = None
 		self.reactivated_by = member
 		self.reactivated_at = timezone.now()
 		self.save( update_fields = [

@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'user',
     'complain',
-    'thread',
+    'threads',
     'verification',
     'django.contrib.admin',
     'django.contrib.auth',

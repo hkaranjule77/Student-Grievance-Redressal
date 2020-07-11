@@ -15,14 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 
 from . import views
 
 urlpatterns = [
 	path('', views.home, name = 'Home'),
 	path('complain/', include('complain.urls'), name = 'Complain'),
+	path('note/', include('complain.note_urls'), name = 'Note'),
+	path('thread/', include( 'threads.urls'), name = 'Thread'),
 	path('user/', include('user.urls'), name = 'User'),
-        path('verification/', include('verification.urls'), name = 'Verification'),
+	path('verification/', include('verification.urls'), name = 'Verification'),
         path('admin/', admin.site.urls),
         path('about-us/', views.about_us, name = 'About us'),
         path('contact-us/', views.contact_us, name = 'Contact us'),
@@ -30,3 +33,10 @@ urlpatterns = [
         path('permission-denied/', views.perm_denied, name = 'Pemission Denied'),
         path('temp/', views.temp),
 ]
+
+if settings.DEBUG:
+	from django.conf.urls.static import static
+	
+	urlpatterns += static( settings.STATIC_URL, document_root = settings.STATIC_ROOT )
+	
+	urlpatterns += static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT )

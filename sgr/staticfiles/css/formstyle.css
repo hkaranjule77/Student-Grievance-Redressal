@@ -30,7 +30,7 @@ div.floatBox2{
 }
                 
 h2 {
-    color: red
+    color: #FF4444;
 }
 
 h3 {
@@ -38,6 +38,20 @@ h3 {
 }
 
 input[type=text], input[type=password], input[type=email]{
+	width: 100%;
+	box-sizing: border-box;
+	padding: 12px 5px;
+	background:rgba(0,0,0,0.1);
+	outline:none;
+	border:none;
+	border-bottom:2px solid #fff;
+	color: #fff;
+	border-radius: 15px;
+	margin: 8px;
+	font-weight: bold;
+}
+
+textarea{
 	width: 100%;
 	box-sizing: border-box;
 	padding: 12px 5px;
@@ -93,7 +107,7 @@ input[type=button]{
   background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
 }
 
-input[type=submit]{
+input[type=submit], button{
   height: 30px;
   width: 100px;
   color: white;
@@ -109,7 +123,7 @@ input[type=submit]{
   background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
 }	
 			
-input[type=submit]:hover{
+input[type=submit]:hover, button:hover{
 	background: linear-gradient(to left, #f64f59, #c471ed, #12c2e9);
 	color: black;
 	text-decoration: none;

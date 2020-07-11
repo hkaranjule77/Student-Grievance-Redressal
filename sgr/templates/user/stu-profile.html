@@ -5,6 +5,17 @@
 {% endblock %}
 
 {% block section %}
+
+	<p align="right">
+		{% if user.is_staff %}
+			{% if curr_mem.role == 'HOD' or curr_mem.role == 'Principal' %}
+				<a href="/user/deactivate/{{ student.sid }}/"> Deactivate </a>
+			{% elif curr_mem.role == 'Sorter' %}
+				<a href="/user/deactivation-request-form/{{ student.sid }}/"> Deactiviation request </a>
+			{% endif %}
+		{% endif %}
+	</p>
+	
     <p>
         <br>
         <h1>{{student.user.first_name}} {{student.user.last_name}}</h1>

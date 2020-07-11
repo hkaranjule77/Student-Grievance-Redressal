@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 
 from .models import Student, Member, questions
 
@@ -19,7 +20,7 @@ def get_object( request, user = None, username=None):
 		try:
 			user = User.objects.get( username = username )
 		except ObjectDoesNotExist:
-			messages.error( requset, f' User account with username {username} does no exist. ')
+			messages.error( request, f' User account with username {username} does not exist. ')
 			return
 	elif user == None:
 		user = request.user
@@ -27,12 +28,14 @@ def get_object( request, user = None, username=None):
 		try:
 			obj = Member.objects.get(user = user)
 		except ObjectDoesNotExist:
-			messages.error( reqeust, f' Member account with id {user.username} does not exist. ')
+			messages.error( request, f' Member account with id {user.username} does not exist. ')
+			obj = None
 	elif user.is_authenticated:
 		try:
 			obj = Student.objects.get(user = user)
 		except ObjectDoesNotExist:
-			messages.error( reqeust, f' Student account with id { user.username } does not exist. ')
+			messages.error( request, f' Student account with id { user.username } does not exist. ')
+			obj = None
 	else:
 		messages.error( request, 'Please log in to get access to different services. ')
 		return None
@@ -159,27 +162,29 @@ def log_in(request):
 			return render(request, 'user/login.html')
 		elif username == '' or password == '':
 			message.info(request, 'username/password is empty. Please fill full login form and then login.' )
+		try:
+			user = User.objects.get( username = username )
+			if not user.is_active:
+				messages.info( request, f' Your account { user.username } is Deactivated. ')
+				return render( request, 'user/login.html' )
+		except ObjectDoesNotExist:
+			messages.error( request, ' Wrong username and/or password. ') 
 		user = authenticate(request, username = username, password = password)
 		if user is not None:
 			login(request, user)
-			return redirect('/user/dashboard/')
-		try:
-			temp_user = User.objects.get(username = username)
-			if not temp_user.is_active:
-				message.info( request, 'Your account is deactivated.' +
-					'For futher information, please communicate to committee.'
-				)
-		except ObjectDoesNotExist:
-			messages.error(request, 'No such user exist' )
-		except AttributeError:
-			message.error( request, 'usename or passwors is wrong' )
-		return render(request, 'user/login.html', context)
-	return redirect('/permission-denied/')
+			messages.success( request, 'Logged in successfully. ')
+			if user.is_superuser:
+				return redirect( '/admin/' )
+			return redirect( '/user/dashboard/' )
+		messages.error( request, ' Wrong username and/or password, ' )
+		return render( request, 'user/login.html' )
+	return redirect( '/permission-denied/' )
 
 def log_out(request):
     if request.user.is_authenticated:
         logout(request)
-        return render(request, 'user/logout.html')
+        messages.success( request, ' Logged out successfully. ')
+        return render(request, 'user/login.html')
     return redirect('/permission-denied/')
     
 def reactivate(request, id_no):
@@ -187,7 +192,6 @@ def reactivate(request, id_no):
 		try:
 			react_user = User.objects.get(username = id_no)
 		except ObjectDoesNotExist:
-			print('hi')
 			messages.error( request, f'No user with the id {id_no}.')
 		if not react_user.is_active:
 			try:
@@ -241,34 +245,25 @@ def sign_up(request):
 	return redirct('/permission-denied/')
 
 def profile(request, id_no):
-    if request.user.is_authenticated:     
-        try:
-            user_obj = User.objects.get(username = id_no)
-        except ObjectDoesNotExist:
-            context = { 'err_msg' : 'No such user exist.' }
-            return render(request, 'error.html', context)
-        if user_obj.is_staff:
-            try:
-                member = Member.objects.get(user = user_obj)
-                request_user_role = Member.objects.get(user = request.user).role
-            except ObjectDoesNotExist:
-                context = { 'err_msg' : 'No such Member exists.' }
-                return render(request, 'error.html', context)
-            if (request.user == user_obj or
-                request_user_role == 'HOD' or
-                request_user_role == 'Principal'):
-                context = { 'member' : member }
-                return render(request, 'user/mem-profile.html', context)
-        else:
-            if request.user.username == id_no or request.user.is_staff:
-                try:
-                    user = Student.objects.get(user = user_obj)
-                except ObjectDoesNotExist:
-                    context = { 'err_msg' : 'No such student account exists.' }
-                    return render(request, 'error.html', context)
-                context = { 'student' : user }
-                return render(request, 'user/stu-profile.html', context)
-    return redirect('/permission-denied/')
+	if request.user.is_authenticated:     
+		obj = get_object( request, username = id_no )
+		context = {}
+		if obj == None:
+			return render( request, 'error.html')
+		if request.user != obj.user:
+			curr_mem = get_object( request )
+			context.update( { 'curr_mem' : curr_mem } )
+		if obj.user.is_staff:
+			if (request.user == obj.user or
+				curr_mem.role == 'HOD' or
+				curr_mem.role == 'Principal'):
+				context.update( { 'member' : obj } )
+				return render(request, 'user/mem-profile.html', context)
+		else:
+			if request.user.username == id_no or request.user.is_staff:
+				context.update( { 'student' : obj } )
+				return render(request, 'user/stu-profile.html', context)
+	return redirect('/permission-denied/')
 
 def dashboard(request):
 	if request.user.is_authenticated:
@@ -286,38 +281,26 @@ def dashboard(request):
   
 def deactivate(request, id_no):
 	if request.user.is_staff:
-		try:
-			member = Member.objects.get(user = request.user)
-		except ObjectDoesNotExist:
-			messages.error( request, 'DEACTIVATION FAILED\n' +
-				'There was some error in fetching your Member account permission.' +
-				' Please report it on the website'
-			)
-		try:
-			user = User.objects.get(username = id_no)        # user to which deactivation is to addef
-		except ObjectDoesNotExist:
-			messages.error( request, 'No such user exist. ' )
-		if user.is_staff:
-			if member.role == 'Principal':
-				try:
-					deact_mem = Member.objects.get(mid = id_no)
-				except ObjectDoesNotExist:
-					messages.error(request, 'DEACTIVATION FAILED\n' +
-						'No such Member account exist'
-					)
-				deact_mem.deactivate(member)
-				messages.success( f'Member {user.username} is DEACTIVATED.' )
+		member = get_object( request )
+		deact_obj = get_object( request, username = id_no )	        
+		if member.role == 'Principal' or member.role == 'HOD' and not deact_obj.user.is_staff:
+			if  member != deact_obj:
+				if deact_obj.deactivation_request == False:
+					deact_obj.deactivation_reason = request.POST.get( 'deactivation_reason' )
+					if deact_obj.deactivation_reason == None or deact_obj.deactivation_reason == '':
+						context = { 'username' : deact_obj.user.username }
+						return render( request, 'user/deactivation_form.html', context )
+					deact_obj.save( update_fields = [ 'deactivation_reason' ] )
+				deact_obj.deactivate( member )
+				if deact_obj.user.is_staff:
+					messages.success( request, f'Member { deact_obj.user.username } is DEACTIVATED.' )
+				else:
+					messages.success( request, f' Student { deact_obj.user.username } is DEACTIVATED. ' )
+			else:
+				messages.error( request, f' You cannot deactivate your own account. ')
 		else:
-			if member.role == 'HOD' or member.role == 'Principal':
-				try:
-					student = Student.objects.get(sid = id_no)
-				except ObjectDoesNotExist:
-					messages.error(request, 'DEACTIVATION FAILED\n' +
-						'No such Student account exist.'
-					)
-				student.deactivate(member)
-				messages.success( request, f'Student {user.username} is DEACTIVATED.' )
-		return redirect('/user/')
+			messages.info( request, " You don't have proper rights to deactivate. But you can lodge a deactiavtion request. " )
+		return redirect( '/user/' )
 	return render(request, 'permission-denied,html')
 	
 def deactivation_request(request):
@@ -326,7 +309,7 @@ def deactivation_request(request):
 		deactivation_reason = request.POST.get('deactivation_reason')
 		if deactivation_reason == '' or deactivation_reason == None:
 			context = { "username" : username }
-			return render(request, 'deactivation_form.html', context)
+			return render(request, 'deact_req_form.html', context)
 		try:
 			user = User.objects.get(username = username)        # user to which deactivation is to addef
 		except ObjectDoesNotExist:
@@ -351,28 +334,26 @@ def deactivation_request(request):
 					return render(request, 'error.html', context)
 				if deact_mem.deactivation_request == False:
 					deact_mem.add_deactivation_request(member, deactivation_reason)
-					context = { 'message' : f'Deactivation request added for {user.username}' }
+					messages.success( request, f' Deactivation request added for {user.username}. ' )
 					return render(request, 'user/list.html', context)
-				context = { 'err_msg' : 'DEACTIVATION REQUEST CANCELLED\n' +
-					'Already deactivation request  added' }
+				messages.error( request, 'DEACTIVATION REQUEST CANCELLED\n' +
+					'Already deactivation request  added' )
 				return render(request, 'error.html', context)
 		else:
 			if member.role == 'Sorter':
 				try:
 					student = Student.objects.get(user = user)
 				except ObjectDoesNotExist:
-					context = { 'err_msg' : 
-						'DEACTIVATION REQUEST CANCELLED.\n' + 
-						'No such Student account exist. Please report it on website' }
-					return render(request, 'error.html', context)
+					messages.error( request, ' DEACTIVATION REQUEST CANCELLED.\n' + 
+						'No such Student account exist. Please report it on website. ' )
+					return render( request, 'error.html', context )
 				if not student.deactivation_request:
 					student.add_deactivation_request(member, deactivation_reason)
-					context = { 'message' : f'Deactivation request added for {user.username}' }
-					return render(request, 'user/list.html', context)
-				context = { 'err_msg' : 'DEACTIVATION REQUEST CANCELLED\n' +
-					'Already deactivation request  added' }
-				return render(request, 'error.html', context)
-	context = { 'message' : 'Please log in with proper to perform this action.'}
+					messages.success( request, f'Deactivation request added for {user.username}. ' )
+					return render( request, 'user/list.html', context )
+				messages.error( request, 'DEACTIVATION REQUEST CANCELLED. Already deactivation request  added' )
+				return render( request, 'error.html', context )
+	messages.error( request, 'Please log in with proper to perform this action.' )
 	return render(request, 'permission_denied.html', context)
 	
 def deact_request_form(request, id_no):
@@ -400,7 +381,7 @@ def deact_request_form(request, id_no):
 										'No such user exist.'}
 					return render(request, 'error.html', context)
 				context = { 'username' : id_no }
-				return render(request, 'user/deactivation_form.html', context)
+				return render(request, 'user/deact_req_form.html', context)
 		else:
 			if member.role == 'Sorter':
 				try:
@@ -411,7 +392,7 @@ def deact_request_form(request, id_no):
 										'No such user exists'}
 					return render(request, 'error.html', context)
 				context = { 'username' : id_no}
-				return render(request, 'user/deactivation_form.html', context)
+				return render(request, 'user/deact_req_form.html', context)
 	return render(request, 'permission_denied.html')
 
 def forgot_passwd(request):
@@ -440,26 +421,35 @@ def add_permission(request):
     return redirect('/')
 
 def add_member(request):
-    if request.user.is_staff:
-        member = Member.objects.get(user = request.user)
-        if member.role == 'HOD':
-            member = Member()
-            member.init(request)
-            if member.is_non_activable():    #check whether non active account can be created.
-                member.generate_mid()
-                member.generate_code()    #activation code
-                member.user.save()
-                member.save()
-                context = { 'message' : 'Member added in portal', 'roles' : Member.roles,
-                            'part_2' : True, 'member' : member }
-            elif member.is_non_activable_empty():
-                context = { 'roles' : Member.roles }
-            else:
-                context = { 'message' : 'please fill out full form first', 'roles' : Member.roles }
-            return render(request, 'user/add_member.html', context)
-    return redirect('/permission-denied/')
+	if request.user.is_staff:
+		member = Member.objects.get(user = request.user)
+		if member.role == 'HOD' or member.role == 'Principal':
+			member = Member()
+			member.init( request )
+			if member.is_non_activable():    #check whether non active account can be created.
+				member.generate_mid()
+				member.generate_code()    #activation code
+				activation_code = member.activation_code
+				member.set_activation_code( member.activation_code )
+				member.user.save()
+				member.save()
+				messages.success( request, f' M  ember { member.mid } added in portal. ' )
+				context = { 
+					'roles' : Member.roles,
+					'part_2' : True,
+					'member' : member,
+					'activation_code' : activation_code,
+				}
+			elif member.is_non_activable_empty():
+				context = { 'roles' : Member.roles }
+			else:
+				messages.error( request, ' Please fill out full form, before submitting it. ' )
+				context = { 'roles' : Member.roles }
+			return render(request, 'user/add_member.html', context)
+	return redirect( '/permission-denied/' )
 
 def activate_member(request):
+	''' Activates member account if approved, added in the Member model. '''
 	if not request.user.is_authenticated:
 		mid = request.POST.get('mid')
 		context = { 'questions' : questions }
@@ -467,8 +457,8 @@ def activate_member(request):
 			try:
 				member = Member.objects.get(mid = mid)
 			except ObjectDoesNotExist:
-				context = { 'err_msg' : 'No such user exist. Please communicate to Committee' }
-				return render(request, 'error.html', context)
+				messages.error( request, 'No such user exist. Please communicate to Committee' )
+				return render(request, 'error.html', context )
 			if not member.activated:
 				if member.approved:
 					if member.user.is_active: 
@@ -477,21 +467,18 @@ def activate_member(request):
 							if member.verify_activation_code(request):
 								if request.POST.get('password') == request.POST.get('confirm_password'):
 									member.activate()                     ### saves Member
-									context.update({'message' : 'Your account is activated. Please log in to start with your work' })
+									messages.success( request, f'Your account { mid } is activated. Now you can log in and can start with your work. ' )
 								else:
-									context.update({ 'message' : "Password in both input fields doesn't match." })
+									messages.error( request, "Password in both input fields doesn't match." )
 							else:
-								context.update({ 'message' : 'Wrong Activation code. Please enter right activation code' })
+								messages.error( request, 'Wrong Activation code. Please enter right activation code' )
 						else:
-							context.update({ 'message' : 'Please fill out full form then submit it.' })
+							messages.error( request, 'Please fill out full form then submit it.' )
 					else:
-						messages.error(request, 'Your account has been deactivated. So you cannot activate now')
+						messages.info(request, f'Your account { mid } has been deactivated. So you cannot activate now. ' )
 				else:
-					context.update( { 'message' : 'Your is not approved yet. Please try again later or ' + 
-						'communicate to committee.'
-					} )
+					messages.info( request, 'Your is not approved yet. Please try again later or communicate to committee.' )
 			else:
-				context = { 'info_msg' : 'This accout is already activated. Please <a href = "/user/login/">login</a> here.' }
-				return render(request, 'info.html', context)
+				messages.info( request, ' This accout is already activated. You can login, there is no need of activation. ' )
 		return render(request, 'user/activate_mem.html', context)
 	return redirect('/permission-denied/')

@@ -10,4 +10,6 @@ urlpatterns = [
         path('<str:id_no>/select/', views.select, name = 'Select'),
         path('<str:id_no>/deselect/', views.deselect, name = 'Deselect'),
         path('<str:id_no>/add-note/', views.add_note, name = 'Add Note'),
+        path('<str:id_no>/pin/', views.pin_complain, name = 'Pin Complain'),
+        path('<str:id_no>/unpin/', views.unpin_complain, name = "Unpin_Complain")
 ]

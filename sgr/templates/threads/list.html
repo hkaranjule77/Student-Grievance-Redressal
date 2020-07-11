@@ -1,0 +1,12 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+	Thread List
+{% endblock %}
+
+{% block section %}
+	<h1>Thread List</h1>
+	{% for thread in thread_list %}
+		<a href="/thread/{{ thread }}/"> {{ thread.id }} {{ thread.title }} </a>
+	{% endfor %}
+{% endblock %}

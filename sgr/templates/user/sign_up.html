@@ -30,8 +30,6 @@
 {% block content %}
 
 	<link rel="stylesheet" type="text/css" href="{% static 'css/formstyle.css' %}">
-	
-	{% include 'home_navbar.html' %}
 
 	<div class="wrap">
 		<form name="signupform" method="post">
@@ -67,7 +65,6 @@
 				<input type="password" name="confirm_password" id="signupcpswd" placeholder="Confirm Password" required>
 				<input type="text" id="sucapcode" disabled="disabled">
 				<input type="button" id="suref" value="refresh" onclick="generateCaptcha()"><br>
-				<input type="text" placeholder="Enter captcha" required><br>
 				<input type="text" placeholder="Enter captcha" required><br>
 				
 			<input type="submit" id="signupsub" value="Sign Up">

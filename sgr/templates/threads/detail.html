@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Thread {{ thread.title }}
+{% endblock %}
+
+{% block js_script %}
+		function toggle_note_form(){
+			var note_form = document.getElementById("hidden_note_form");
+			var redressal_form = document.getElementById("hidden_redressal_form")
+			if ( note_form.style.display == "block" ){
+				note_form.style.display = "none" ;
+			}
+			else{
+				note_form.style.display = "block" ;
+				redressal_form.style.display = "none" ;
+			}
+		}
+		
+		function toggle_redressal_form(){
+			var note_form = document.getElementById("hidden_note_form");
+			var redressal_form = document.getElementById("hidden_redressal_form")
+			if ( redressal_form.style.display == "block" ){
+				redressal_form.style.display = "none" ;
+			}
+			else{
+				note_form.style.display = "none" ;
+				redressal_form.style.display = "block" ;
+			}
+		}
+		
+		function toggle_rejection_form(){
+			var rejection_form = document.getElementById("hidden_rejection_form") ;
+			if ( rejection_form.style.display == "none"){
+				rejection_form.style.display = "block" ;
+			}
+			else{
+				rejection_form.style.display = "none" ;
+			}
+		}
+{% endblock %}
+
+{% block content %}
+	<p>
+		<h1>Title : {{ thread.title }} </h1>
+		<h2>
+			[
+				{% if thread.action == 'APPROVE' %}
+					approved
+				{% elif thread.action == 'REJECT' %}
+					rejected
+				{% elif thread.redressed %}
+					redressed
+				{% else %}
+					unredressed
+				{% endif %}
+			]
+		</h2>
+	</p>
+	<p> <i> ID :</i> <b> {{ thread.id }} </b> </p>
+	<p>
+			<i>Category : </i><b>{{ thread.category }}</b> 
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<i>Sub Category : </i><b>{{ thread.sub_category}}</b>
+		</h4>
+	</p>
+	<p> <i> Description </i>: <b>{{ thread.description }}</b> </p>
+	<p> <i> Complain count : </i> {{ thread.complain_count }}
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		<i>Note count : </i> {{ thread.note_count }} 
+	</p>
+	<hr>
+	
+	{% if thread.action == "REJECT" %}
+		<i>Rejection message : </i> {{ thread.action_msg }}
+		<p  align="right">Rejected by {{ thread.action_by }} at {{ thread.action_at }}</p>
+		<hr>
+	{% endif %}
+	
+	<!--------			ACTION BUTTONS			--------->
+		<i>Action : </i>
+		<p>
+			{% if thread.action == 'REJECT' or thread.action == '' %}
+				<button onclick="toggle_note_form()"> Add Note </button>
+				<button onclick="toggle_redressal_form()"> Add Redressal </button>
+			{% endif %}
+			{% if member.role == 'HOD' and thread.redressed or member.role == 'Principal'  and thread.redressed %}
+				{% if thread.action == '' or thread.action == 'REJECT' %}
+					<form method="post" action="/thread/{{ thread }}/approve/">
+						{% csrf_token %}
+						<input type="submit" value="Approve">
+					</form>
+				{% elif thread.action == '' or thread.action == 'APPROVE' %}
+						<input type="submit" onclick="toggle_rejection_form()" value="Reject">
+				{% endif %}
+			{% endif %}
+		</p>
+	<hr>
+	<br>
+	
+	<!-----			HIDDEN NOTE FORM 			----->
+	<div class="wrap" id="hidden_note_form" style="display: none">
+		<form method="post" action="/thread/{{ thread }}/add-note/" enctype="multipart/form-data">
+			{% csrf_token %}
+			<p>
+				&nbsp;&nbsp;Note :
+				<textarea name="note"></textarea>
+			</p>
+			&nbsp;&nbsp;Upload doocument : <br>
+			<input type="file" name="file"><br><br>
+			&nbsp;&nbsp;Pin it?
+			<select name="pin_it">
+				<option selected>No</option>
+				<option>Yes</option>
+			</select>
+			<input type="submit" value="Note it">
+		</form>
+	</div>
+	
+	<!---------			HIDDEN REDRESSAL FORM 			---------->
+	<div class="wrap" id="hidden_redressal_form" style="display : none">
+		<form method="post" action="/thread/{{ thread }}/add-redressal/" enctype="multipart/form-date">
+			{% csrf_token %}
+			<p>
+				&nbsp;&nbsp;Redressal :
+				<textarea name="redressal"></textarea>
+			</p>
+			&nbsp;&nbsp;Upload document : <br>
+			<input type="file" name="redressal_file"> <br><br>
+			<input type="submit" value=" Request for  Approval">
+			</p>
+		</form>
+	</div>
+	
+	<div class="wrap" id="hidden_rejection_form" style="display : none">
+		<form method="post" action="/thread/{{ thread }}/reject-approval/">
+			{% csrf_token %}
+			<h1 align="center">Redressal Rejection</h1><br>
+			&nbsp;&nbsp;Rejection message :
+			<textarea name="rejection_msg" required></textarea>
+			<input type="submit" value="Reject it">
+		</form>
+	</div>
+	
+	<!---------			 Redressal section 		------------>
+	{% if thread.redressal or thread.redressal != '' %}
+		<p> Redressal : {{ thread.redressal }} </p>
+		{% if thread.redressal_file %}
+			<p> Redressal File : <a href="{{ thread.redressal_file.url }}"> {{ thread.redreassal_file }} </a> </p>
+		{% endif %}
+		<p align="right"> Redressed by : {{ thread.redressed_by }} at {{ thread.redressal_at }} </p>
+		<hr><br>
+	{% endif %}
+	
+	<!---------			 Note Section			----------->
+	{% if pinned_note_list %}
+		<h2 align="center"> Pinned Note </h2>
+		{% for note in pinned_note_list %}
+			<p> ID : {{ note.id }} &nbsp;&nbsp; [ pinned ]</p> 
+			 <p> Note : {{ note.note }} </p>
+			 {% if note.file %}
+				<p> File : <a href="{{ note.file.url }}"> {{ note.get_filename }}</a> </p>
+			 {% endif %}
+			 <p>
+				<a href="/note/{{ note.id }}/unpin/" >unpin</a>
+				<div align="right"> 
+					created_by <a href="/user/profile/{{ note.solver}}/">{{ note.solver }}</a> at {{ note.reg_datetime }}
+				</div>
+			</p>
+			 <hr><br>
+		{% endfor %}
+	{% endif %}
+	
+	{% if unpinned_note_list %}
+		<h2 align="center"> Unpinned Note </h2>
+		 {% for note in unpinned_note_list %}
+			<p> ID : {{ note.id }} </p>
+			<p> Note : {{ note.note }} </p>
+			{% if note.file %}
+				<p> File : <a href="{{ note.file.url }}"> {{ note.get_filename }} </a> </p>
+			{% endif %}
+			 <p>
+				<a href="/note/{{ note.id }}/pin/" >pin</a>
+				<div align="right"> 
+					created_by <a href="/user/profile/{{ note.solver}}/">{{ note.solver }}</a> at {{ note.reg_datetime }}
+				</div>
+			</p>
+			 <hr><br>
+		{% endfor %}
+	{% endif %}
+	<!---------------- Complaint Section 		----------------->
+	{% if pinned_complain_list %}
+		<h2 align="center"> Pinned Complaint </h2>
+		{% for complain in pinned_complain_list %}	
+			<p> <h3>
+				<a href="/complain/{{ complain.id }}/">{{ complain.id }}</a> [ pinned ]
+			</h3> </p>
+			<p> <i> Complain in brief :</i> {{ complain.brief }}</p>
+				{% if complain.file %}
+					<p>File : <a href="{{ complain.file.url }}">{{ complain.file.name }} </a> </p>
+				{% endif %}
+			<p>
+				<a href="/complain/{{ complain.id }}/unpin/" >unpin</a>
+				<div align="right"> created_by 
+					<a href="/user/profile/{{ complain.complainer}}/">
+						{{ complain.complainer }}
+					</a>
+					at {{ complain.reg_datetime }}
+				</div>
+			</p>
+			 <hr><br>
+		{% endfor %}
+	{% endif %}
+	
+	{% if unpinned_complain_list %}
+		<h2 align="center"> Unpinned Complaint </h2>
+		{% for complain in unpinned_complain_list %}	
+			<p> <h3>
+				<a href="/complain/{{ complain.id }}/">{{ complain.id }}</a>
+			</h3> </p>
+			<p> <i> Complain in brief :</i> {{ complain.brief }}</p>
+			{% if complain.file %}
+				<p> File : <a href="{{ complain.file.url }}">{{ complain.get_filename }}</a> </p>
+			{% endif %}
+			<p>
+				<a href="/complain/{{ complain.id }}/pin/"> pin </a>
+				<div align="right"> created_by 
+					<a href="/user/profile/{{ complain.complainer}}/">
+						{{ complain.complainer }}
+					</a>
+					at {{ complain.reg_datetime }}
+				</div>
+			</p>
+			 <hr><br>
+		{% endfor %}
+	{% endif %}
+	
+	<script type="text/javascript">
+		
+	</script>
+		 
+{% endblock %}

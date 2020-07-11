@@ -1,0 +1,23 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+	Add Note | Thread
+{% endblock %}
+
+{% block section %}
+	<div class="wrap">
+		<form method="post" action="#" enctype="multipart/form-data">
+			<p> Note :
+				<textarea name="note" required></textarea>
+			</p>
+			<p> File attachment : 
+				<input type="file" name="file">
+			</p>
+			<p> pin it  in thread ?
+				<select name="pin_it">
+					<option> No </option>
+					<option> Yes </option>
+				</select>
+		</form>
+	</div>
+{% endblock %}
