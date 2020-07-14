@@ -9,6 +9,13 @@ Complain List
     <h3> <i> {{complain.subject}} </i> </h3>
     <p>
          <p>Complain ID : <i>{{complain.id}}</i></p>
+         [
+    {% if complain.action == 'ACCEPTED' %}
+		Accepted for solving
+	{% elif complain.action == 'REJECTED' %}
+		Rejected
+    {% endif %}
+    ]
          <p>Subject : <i>{{complain.subject}}</i></p>
          <p>Category : <i>{{complain.category}}</i></p>
          <p>Sub-category : <i>{{complain.sub_category}}</i></p>
@@ -17,12 +24,23 @@ Complain List
              {% if complain.file %}
                  <a href = "{{complain.file}}"> {{complain.get_filename}}</i></a>
              {% else %}
-                 None
+                 No file attached
              {% endif %}
          </p>
-         <p align = "right">Registered at <i>{{complain.reg_datetime}}</i> </p>
+         
+         {% if complain.action == 'REJECTED' %}
+			<i>Rejected for :</i> {{ complain.action_msg }}
+         {% endif %}
+         
+         <p align = "right">
+			{% if complain.last_edit_at %}
+				last edited at <i> {{ complain.last_edit_at }} </i>	<br>
+			{% endif %}
+			 Registered at <i>{{complain.reg_datetime}}</i>
+		</p>
+		
          <hr>
-         {% if user.is_staff %}
+         
              {% if select_button %}
                  <a href = "/complain/{{complain.id}}/select/"> Select to Solve </a> | 
              {% else %}
@@ -36,9 +54,12 @@ Complain List
                     </p>
                 {% endif %}
              {% endif %}
-          {% endif %}
-         <a href = "/complain/"> Back </a>
-         {% if user.is_staff %}
+             
+         <a href = "/complain/"> Back to Complain List</a>
+<!--
+         NOTE SECTION
+-->
+
              <br><br>
              {% for note in notes %}
                  <br>
@@ -52,6 +73,6 @@ Complain List
                  </div>
                  <hr>
              {% endfor %}
-         {% endif %}
+
     </p>
 {% endblock %}

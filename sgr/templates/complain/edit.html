@@ -1,13 +1,13 @@
 {% extends 'user/navbar.html' %}
 
 {% block title %}
-    Add complain
+Edit {{ complain }} Complain
 {% endblock %}
 
 {% block section %}
 	<div class="wrap">
 		<h1 align="center">Register Complaint</h1>
-		<form method = "post" action = "/complain/add/" enctype = "multipart/form-data">
+		<form method = "post" action = "/complain/{{ complain }}/edit/" enctype = "multipart/form-data">
 		{% csrf_token %}
 			<p>
 				<input type = "text" name = "subject" placeholder="Enter your Complain's subject" value = "{{complain.subject}}">
@@ -16,7 +16,9 @@
 				<select name = "category" id="category">
 					<option selected>Select Category</option>
 					{% for code, category in categories %}
-						<option> {{category}} </option>
+						<option {% if category == complain.category %}selected{% endif %}>
+							{{category}}
+						</option>
 					{% endfor %}
 				</select>
 			</p>
@@ -25,13 +27,15 @@
 					<option selected>Select Sub Category</option>
 					{% for section in sub_categories %}
 						{% for code, sub_category in section %}
-							<option> {{sub_category}} </option>
+							<option {% if complain.sub_category == sub_category %}selected{% endif %}>
+								{{sub_category}}
+							</option>
 						{% endfor %}
 					{% endfor %}
 				</select>
 			</p>
 			<p>
-				<textarea name = "brief">{% if not complain.brief %}Add your complain in brief here...{% else %}{{ complain.brief }}{% endif %}</textarea>
+				<textarea name = "brief" value = "{{complain.brief}}">{% if not complain.brief %}Add your complain in brief here...{% else %}{{ complain.brief }}{% endif %}</textarea>
 			</p>
 			<p> &nbsp;&nbsp; Upload document :<br>
 				&nbsp;&nbsp;<input type = "file" name = "file" value = "{{complain.file}}">

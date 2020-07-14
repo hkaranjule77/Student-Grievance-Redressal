@@ -324,6 +324,7 @@ class Student(models.Model):
 	user = models.ForeignKey(User, on_delete = models.CASCADE)
 	department = models.CharField(max_length = 12)
 	year = models.CharField(max_length = 10)
+	branch = models.CharField(max_length = 15)
 	contact_no = models.CharField(max_length=15)
 	reg_datetime = models.DateField(default = timezone.now)
 	# security details
@@ -376,6 +377,42 @@ class Student(models.Model):
 					'Fourth',
 	)
 	global questions
+	
+	def __str__( self ):
+		''' return string of sid if object is called for printing purpose. '''
+		return self.sid
+		
+	def add_deactivation_request(self, member, deactivation_reason):
+		''' Adds and save deactivation request details in model '''
+		self.deactivation_request = True
+		self.deact_requested_mem = member
+		self.deactivation_reason = deactivation_reason
+		self.deact_req_at = datetime.now()
+		self.save( update_fields = [
+				'deactivation_request',
+				'deact_requested_mem',
+				'deactivation_reason',
+				'deact_req_at',] 
+		)
+	
+	def deactivate(self, member):
+		''' Deactivates member account. '''
+		self.user.is_active = False
+		self.deactivated_by = member
+		self.deactivated_at = datetime.now()
+		self.user.save( update_fields = [ 'is_active' ] )
+		self.save( update_fields = [ 'deactivated_by', 'deactivated_at' ] )
+		
+	def final_save( self):
+		self.set_security_answer( self.security_answer )
+		self.user.set_password( self.password )
+		self.user.save()
+		self.save()
+		
+	def increase_count( self ):
+		''' Increases and saves the complain_count in Student objects. '''
+		self.complain_count += 1
+		self.save( update_fields = [ 'complain_count' ] )
 
 	def init(request):
 		''' Initialize a student object with form data. '''
@@ -387,6 +424,7 @@ class Student(models.Model):
 		student = Student(user = user)
 		student.sid = user.username
 		student.department = request.POST.get('department')
+		student.branch = request.POST.get( 'branch' )
 		student.year = request.POST.get('year')
 		student.contact_no = request.POST.get('contact_no')
 		return student
@@ -408,10 +446,6 @@ class Student(models.Model):
 			if validate_password(password) == None:
 				return (student, True)
 		return (student, False)
-		
-	def __str__( self ):
-		''' return string of sid if object is called for printing purpose. '''
-		return self.sid
 
 	def is_valid(self):
 		valid = True
@@ -437,22 +471,6 @@ class Student(models.Model):
 			valid = False
 		return valid
 		
-	def set_security_answer(self, answer):
-		self.security_answer = make_password(answer)
-		
-	def final_save( self):
-		self.set_security_answer( self.security_answer )
-		self.user.set_password( self.password )
-		self.user.save()
-		self.save()
-
-	def verify_security_details(self, security_q, answer):
-		''' Verifies security question for forgot password feature'''
-		if (self.security_question == security_q and check_password(answer, self.security_answer)):
-			return True
-		else:
-			return False
-		
 	def reactivate( self, member ):
 		''' Make changes in model for reactivation. '''
 		self.user.is_active = True
@@ -468,26 +486,21 @@ class Student(models.Model):
 			]
 		)
 		
-	def add_deactivation_request(self, member, deactivation_reason):
-		''' Adds and save deactivation request details in model '''
-		self.deactivation_request = True
-		self.deact_requested_mem = member
-		self.deactivation_reason = deactivation_reason
-		self.deact_req_at = datetime.now()
-		self.save( update_fields = [
-				'deactivation_request',
-				'deact_requested_mem',
-				'deactivation_reason',
-				'deact_req_at',] 
-		)
-	
-	def deactivate(self, member):
-		''' Deactivates member account. '''
-		self.user.is_active = False
-		self.deactivated_by = member
-		self.deactivated_at = datetime.now()
-		self.user.save( update_fields = [ 'is_active' ] )
-		self.save( update_fields = [ 'deactivated_by', 'deactivated_at' ] )
+	def reinitialize_count( self ):
+		''' Reinitializes the complain_count to 0 and count_date to current date and saves them in Stuedent object. '''
+		self.count_date = date.today()
+		self.complain_count = 0
+		self.save( update_fields = [ 'count_date', 'complain_count' ] )
+		
+	def set_security_answer(self, answer):
+		self.security_answer = make_password(answer)
+
+	def verify_security_details(self, security_q, answer):
+		''' Verifies security question for forgot password feature'''
+		if (self.security_question == security_q and check_password(answer, self.security_answer)):
+			return True
+		else:
+			return False
 				
 
 

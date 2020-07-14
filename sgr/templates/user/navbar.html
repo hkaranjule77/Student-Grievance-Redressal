@@ -10,6 +10,7 @@
         {% if user.is_staff %}
             <a href = "/user/"> User </a> | 
             <a href = "/verification/add-table"> Add Table </a> | 
+            <a href = "{% url 'Thread List' %}">Thread</a> |
         {% else %}
         
         {% endif %}

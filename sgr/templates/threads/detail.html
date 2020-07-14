@@ -81,8 +81,8 @@
 		<i>Action : </i>
 		<p>
 			{% if thread.action == 'REJECT' or thread.action == '' %}
-				<button onclick="toggle_note_form()"> Add Note </button>
-				<button onclick="toggle_redressal_form()"> Add Redressal </button>
+				<input type="submit" onclick="toggle_note_form()" id="add_note_submit" value="Add Note">
+				<input type="submit" onclick="toggle_redressal_form()" id="add_redressal_submit" value="Add Redressal">
 			{% endif %}
 			{% if member.role == 'HOD' and thread.redressed or member.role == 'Principal'  and thread.redressed %}
 				{% if thread.action == '' or thread.action == 'REJECT' %}
@@ -104,7 +104,7 @@
 			{% csrf_token %}
 			<p>
 				&nbsp;&nbsp;Note :
-				<textarea name="note"></textarea>
+				<textarea name="note" required></textarea>
 			</p>
 			&nbsp;&nbsp;Upload doocument : <br>
 			<input type="file" name="file"><br><br>
@@ -123,7 +123,7 @@
 			{% csrf_token %}
 			<p>
 				&nbsp;&nbsp;Redressal :
-				<textarea name="redressal"></textarea>
+				<textarea name="redressal" required></textarea>
 			</p>
 			&nbsp;&nbsp;Upload document : <br>
 			<input type="file" name="redressal_file"> <br><br>
@@ -143,7 +143,7 @@
 	</div>
 	
 	<!---------			 Redressal section 		------------>
-	{% if thread.redressal or thread.redressal != '' %}
+	{% if thread.redressed %}
 		<p> Redressal : {{ thread.redressal }} </p>
 		{% if thread.redressal_file %}
 			<p> Redressal File : <a href="{{ thread.redressal_file.url }}"> {{ thread.redreassal_file }} </a> </p>
@@ -201,7 +201,14 @@
 				{% endif %}
 			<p>
 				<a href="/complain/{{ complain.id }}/unpin/" >unpin</a>
-				<div align="right"> created_by 
+				<div align="right">
+					threaded by 
+					<a href="/user/profile/{{ complain.threaded_by }}/">
+						{{ complain.threaded_by }}
+					</a>
+					at {{ complain.threaded_at }}
+					<br>
+					 created_by 
 					<a href="/user/profile/{{ complain.complainer}}/">
 						{{ complain.complainer }}
 					</a>

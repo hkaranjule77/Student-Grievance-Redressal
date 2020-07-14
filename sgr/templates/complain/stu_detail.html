@@ -1,0 +1,49 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+Complain List
+{% endblock %}
+
+{% block section %}
+    <br>
+    <h3> <i> {{complain.subject}} </i> </h3>
+    [
+    {% if complain.action == 'ACCEPTED' %}
+		Accepted for solving
+	{% elif complain.action == 'REJECTED' %}
+		Rejected
+    {% endif %}
+    ]
+    <p>
+         <p>Complain ID : <i>{{complain.id}}</i></p>
+         <p>Subject : <i>{{complain.subject}}</i></p>
+         <p>Category : <i>{{complain.category}}</i></p>
+         <p>Sub-category : <i>{{complain.sub_category}}</i></p>
+         <p>Brief : <i>{{complain.brief}}</i></p>
+         <p>File :
+             {% if complain.file %}
+                 <a href = "{{complain.file}}"> {{complain.get_filename}}</i></a>
+             {% else %}
+                 No file attached
+             {% endif %}
+         </p>
+         
+         {% if complain.action == 'REJECTED' %}
+			<i>Rejected for :</i> {{ complain.action_msg }}
+         {% endif %}
+         
+         <p align = "right">
+			{% if complain.last_edit_at %}
+				last edited at <i> {{ complain.last_edit_at }} </i>	<br>
+			{% endif %}
+			 Registered at <i>{{complain.reg_datetime}}</i>
+		</p>
+		
+         <hr>
+         
+          {% if complain.action == 'REJECTED' and not user.is_staff %}
+				<a href="/complain/{{ complain }}/edit/">Edit</a> | 
+          {% endif %}
+         <a href = "/complain/">Back to Complain List</a>
+    </p>
+{% endblock %}

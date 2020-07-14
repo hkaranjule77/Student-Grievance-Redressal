@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
@@ -8,6 +8,24 @@ from user.views import get_object
 
 
 # Create your views here.
+
+def add_thread( request ):
+	'''Handles requests for adding new Thread. '''
+	if request.user.is_staff:
+		member = get_object( request )
+		if member is not None:
+			context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories }
+			if request.method == 'POST':
+				thread = Thread.init_for_add( request, member )
+				if thread.is_add_valid():
+					thread.save()
+					messages.success( request, f'Thread { thread.id } is added. ')
+					return redirect( f'/thread/{ thread.id }/')
+				else:
+					messages.error( request, ' Please fill form before submitting it. ' )
+					context.update( { 'thread' : thread } )
+			return render( request, 'threads/add.html', context )
+	return render( request, 'permission_denied.html' )
 
 def add_note( request, id_no ):
 	''' Adds note in specified Thread. '''
@@ -39,14 +57,15 @@ def add_redressal( request, id_no ):
 		thread = Thread.get_thread( request, id_no )
 		member = get_object( request )
 		if thread is not None and  member is not None:
-			if not thread.approved:
+			if not thread.action == 'APPROVE':
 				if not thread.redressed:
-					thread.init_for_redressal( request, member )
-					if thread.is_redress_valid():
-						thread.redress()
-						messages.success( request, f' Thread { thread } is redressed' )
-					else:
-						messages.info( request, ' Please fill out full form first, before submitting it. ')
+					if request.method == 'POST':
+						thread.init_for_redressal( request, member )
+						if thread.is_redress_valid():
+							thread.redress()
+							messages.success( request, f' Thread { thread } is redressed' )
+						else:
+							messages.info( request, ' Please fill out full form first, before submitting it. ')
 				else:
 					messages.info( request, ' Thread is already redressed. ')
 			else:
@@ -69,6 +88,32 @@ def approve_thread( request, id_no ):
 				messages.info( request, f' Redressal of Thread { id_no } is already approved. ' )
 		return HttpResponseRedirect( request.META.get( 'HTTP_REFERER' ) )
 	return render( request, 'permission_thread.html' )
+	
+def attach_complain( request, id_no, complain_id ):
+	''' Attaches Complain of same category and sub_category to thread. '''
+	if request.user.is_staff :
+		thread = Thread.get_thread( request, id_no )
+		complain = Complain.get_complain( request, complain_id )
+		member = get_object( request )
+		if thread is not None and complain is not None and member is not None :
+			if member.role == 'Sorter' :
+				if complain.thread == None:
+					if thread.category == complain.category :
+						if thread.sub_category == complain.sub_category :
+							complain.init_for_thread( request, member, thread )
+							complain.thread_it()
+							thread.increase_complain_count()
+							messages.success( request, f' Complain { complain } is attached to Thread { thread }. ' )
+						else :
+							messages.error( request, f" Sub category doesn't match for Complaint { complain } and Thread { thread }. " )
+					else :
+						messages.error( request, f" Category doesn't match for Complaint { complain } and Thread { thread }. " )
+				else :
+					messages.error( request, f" Complaint { complain } id already attached to Thread { complain.thread }. " )
+			else :
+				messages.info( request, f" You don't have access to attach Complaint to a Thread. " )
+			return redirect( f'/complain/{ complain_id }/' )
+	return render( request, 'permission_denied.html' )	
 
 def detail(request, id_no):
 	if request.user.is_staff:
@@ -114,3 +159,6 @@ def reject_thread( request, id_no ):
 				messages.info( request, f' Redressal of Thread { id_no } is already rejected. ')
 		return HttpResponseRedirect( request.META.get( 'HTTP_REFERER' ) )
 	return
+	
+def search_sort( request, query ):
+	pass

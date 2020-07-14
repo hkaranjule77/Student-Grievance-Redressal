@@ -35,7 +35,7 @@ class Thread(models.Model):
 	)
 	redressed_at = models.DateTimeField( null = True, blank = True )
 	# action of accept / reject of redressal by HOD / Principal. 
-	action = models.CharField( default = '', max_length = 15 )
+	action = models.CharField( default = '', max_length = 15 )		# actions - APPROVE / REJECT
 	action_msg = models.TextField( null = True )
 	action_by = models.ForeignKey( 
 		Member, 
@@ -84,6 +84,16 @@ class Thread(models.Model):
 		self.note_count += 1
 		self.save( update_fields = [ 'note_count' ] )
 		
+	def init_for_add( request, member ):
+		''' Initializes new Thread object with data received by post method. '''
+		thread = Thread()
+		thread.title = request.POST.get( 'title' )
+		thread.category = request.POST.get( 'category' )
+		thread.sub_category = request.POST.get( 'sub_category' )
+		thread.description = request.POST.get( 'description' )
+		thread.created_by = member
+		return thread
+		
 	def init_for_redressal( self , request, member ):
 		''' Initializes the Thread object with the redressal data recieved through post method. '''
 		self.redressed = True
@@ -97,7 +107,22 @@ class Thread(models.Model):
 		self.action = 'REJECT'
 		self.action_msg = request.POST.get( 'rejection_msg')
 		self.action_at = timezone.now()
-		self.action_by = member
+		self.action_by = member		
+		
+	def is_add_valid( self ):
+		''' Validates data initialized by method 'init_for_all' before saving in DB. '''
+		valid = True
+		if self.title == '' or self.title == None:
+			valid = False
+		elif self.category == '' or self.category == None or self.category == 'Select Category':
+			valid = False
+		elif self.sub_category == '' or self.sub_category == None or self.sub_category == 'Select Sub Category':
+			valid = False
+		elif self.description == '' or self.description == None or self.description == 'Add description here...':
+			valid = False
+		elif self.created_by == None:
+			 valid = False
+		return valid
 		
 	def is_redress_valid( self ):
 		''' Returns True if initialized redressal data of Thread object is valid or else returns False. '''

@@ -162,13 +162,6 @@ def log_in(request):
 			return render(request, 'user/login.html')
 		elif username == '' or password == '':
 			message.info(request, 'username/password is empty. Please fill full login form and then login.' )
-		try:
-			user = User.objects.get( username = username )
-			if not user.is_active:
-				messages.info( request, f' Your account { user.username } is Deactivated. ')
-				return render( request, 'user/login.html' )
-		except ObjectDoesNotExist:
-			messages.error( request, ' Wrong username and/or password. ') 
 		user = authenticate(request, username = username, password = password)
 		if user is not None:
 			login(request, user)
@@ -176,15 +169,20 @@ def log_in(request):
 			if user.is_superuser:
 				return redirect( '/admin/' )
 			return redirect( '/user/dashboard/' )
-		messages.error( request, ' Wrong username and/or password, ' )
+		try:
+			user = User.objects.get( username = username )
+			if not user.is_active:
+				messages.info( request, f' Your account { user.username } is DEACTIVATED. ')
+		except ObjectDoesNotExist:
+			messages.error( request, ' Wrong username and/or password. ') 
 		return render( request, 'user/login.html' )
 	return redirect( '/permission-denied/' )
 
 def log_out(request):
     if request.user.is_authenticated:
-        logout(request)
+        logout( request )
         messages.success( request, ' Logged out successfully. ')
-        return render(request, 'user/login.html')
+        return redirect( '/user/login/')
     return redirect('/permission-denied/')
     
 def reactivate(request, id_no):

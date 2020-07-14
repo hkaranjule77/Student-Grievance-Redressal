@@ -10,8 +10,30 @@ Complain List
     {% endif %}
     <a href = "/complain/search"> Search a complain</a> |
     <h1>Complain List</h1>
+    <table>
+		<tr>
+			<th>Complain ID</th>
+			<th>Subject</th>
+			<th>Cateogory</th>
+			<th>Sub Category&nbsp;&nbsp;</th>
+			<th>&nbsp;&nbsp;Status</th>
+		</tr>
     {% for complain in complain_list %}
-        <a href='{{complain.id}}/'> {{complain.id}} {{complain.subject}} </a>
-        <br>
+		<tr>
+			<td>
+				<a href='{{complain.id}}/'>{{complain.id}}</a>
+			</td>
+			<td>&nbsp;&nbsp;{{complain.subject}}&nbsp;&nbsp;</td>
+			<td>&nbsp;&nbsp;{{ complain.category }}&nbsp;&nbsp;</td>
+			<td>&nbsp;&nbsp;{{ complain.sub_category }}&nbsp;&nbsp;</td>
+			<td>
+				{% if complain.thread %}
+					THREADED
+				{% else %}
+					{{ complain.action }}
+				{% endif %}
+			</td>
+        </tr>
     {% endfor %}
+    </table>
 {% endblock %}

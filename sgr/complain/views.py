@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Complain, Note
+from threads.models import Thread
 from user.models import Student, Member
 from user.views import get_object
 
@@ -22,6 +23,20 @@ def list(request):
     messages.info( request, f' Complain count : { len(complain_list) }' )
     context = { 'complain_list' : complain_list }
     return render(request, 'complain/list.html', context)
+    
+def accept( request, id_no ):
+	''' Accepts Complain object for solving. '''
+	if request.user.is_staff:
+		member = get_object( request )
+		complain = Complain.get_complain( request, id_no )
+		if member is not None and complain is not None:
+			if complain.action == '' or complain.action == 'REJECTED' :
+				complain.accept( member )
+				messages.success( request, f' Complain { complain } is ACCEPTED for solving. ' )
+			else:
+				messages.info( request, f' Complain { complain } is already Accepted. ' )
+			return HttpResponseRedirect( request.META.get( 'HTTP_REFERER' ) )
+	return render( request, 'permission_denied.html' )
 
 def add(request):
 	if request.user.is_authenticated:
@@ -29,60 +44,93 @@ def add(request):
 			messages.info( 'Members are not allowed to add complaint.' )
 			return render( request, 'permission-denied.html' )
 		student = get_object( request )
-		today_date = date.today()
-		context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories }
-		if student.count_date != today_date:
-			student.count_date = today_date
-			student.complain_count = 0
-		if student.complain_count < 5:
-			complain = Complain.init(request)
-			if complain.is_valid():
-				print( complain.id, complain.category, complain.sub_category )
-				student.complain_count += 1
-				complain.save()
-				student.save( update_fields = [
-						'complain_count',
-						'count_date',
-					]
-				)
-				messages.success( request,  'Complaint registered. Track it on dashboard . ' )
-				messages.info( request, f' You can register { str( 5 - student.complain_count ) } more complaints')
-			else:
-				messages.error( request, ' Please fill full form, before submitting it. ' )
-		else:
-			messages.info( request, 'Complaint registration limit reached for today. You have used all your 5 registrations. ')
-			return render( request, 'permission_denied.html')
-		return render(request, 'complain/add.html', context)
-	else:
-		return redirect('/permission-denied.html/')
+		if student is not None:
+			today_date = date.today()
+			context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories }
+			if request.method == "POST":
+				if student.count_date != today_date:
+					student.reinitialize_count()
+				if student.complain_count < 5:
+					complain = Complain.init( request )
+					if complain.is_valid():
+						print( complain.id, complain.category, complain.sub_category )
+						complain.save()
+						student.increase_count()							# Increases Complain count
+						messages.success( request,  'Complaint registered. Track it on dashboard . ' )
+						messages.info( request, f' You can register { str( 5 - student.complain_count ) } more complaints')
+						return redirect( f'/complain/{ complain }' ) 
+					else:
+						context.update( { 'complain' : complain } )
+						messages.error( request, ' Please fill full form, before submitting it. ' )
+				else:
+					messages.info( request, 'Complaint registration limit reached for today. You have used all your 5 registrations. ')
+					return render( request, 'permission_denied.html') 
+			return render(request, 'complain/add.html', context)
+	return redirect('/permission-denied.html/')
+	
+def detail_for_solve( request, member, complain ):
+	''' Extensive functions of complain details for solving of Complain object. '''
+	print(1)
+	curr_date = date.today()
+	if complain.solving_date != curr_date:
+		context = { 'complain' : complain, 'select_button' : True}
+		return render(request, 'complain/detail.html', context)
+	notes = Note.objects.filter(complain = complain)
+	context = {'complain' : complain, 'select_button' : False, 'notes' : notes }
+	return render( request, 'complain/solve_detail.html', context )
+        
+def detail_for_sort( request, member, complain ) :
+	print(2)
+	''' Extended funcion of complain details for sorting of Complain object.  '''
+	thread_list = Thread.objects.filter( category = complain.category, sub_category = complain.sub_category )
+	context = { 'complain': complain, 'thread_list' : thread_list }
+	return render( request, 'complain/sort_detail.html', context )
 
 def detail(request, id_no):
-    try:
-        complain = Complain.objects.get(id = id_no)
-    except ObjectDoesNotExist:
-        context = { 'err_msg' : 'No such complain exist' }
-        return render(request, 'error.html', context)
-    if request.user.is_staff:
-        curr_date = date.today()
-        if complain.solving_date != curr_date:
-            context = { 'complain' : complain, 'select_button' : True}
-            return render(request, 'complain/detail.html', context)
-        notes = Note.objects.filter(complain = complain)
-        context = {'complain' : complain, 'select_button' : False, 'notes' : notes }
-    elif request.user.is_authenticated:
-        try:
-            student = Student.objects.get(user = request.user)
-        except:
-            context = { 'err_msg' : 'Error code : 1\n Please Contact Student Grievance Cell or report bug in Help section' }
-            return render(request, 'error.html', context)
-        if complain.complainer == student:
-            context = { 'complain' : complain }
-        else:
-            cotext = { 'message' : 'This complain is reqistered by other student, it cannot be accessed.' }
-            return render(request, 'permisssion_denied.html', context)
-    else:
-        return redirect('/permission-denied/')
-    return render(request, 'complain/detail.html', context)
+	complain = Complain.get_complain( request, id_no )
+	obj = get_object( request )
+	if request.user.is_staff :
+		if complain.action == 'ACCEPTED' and obj.role != 'Sorter' :
+			page = detail_for_solve( request, obj, complain )
+		else:
+			page = detail_for_sort( request, obj, complain )
+		return page
+	elif request.user.is_authenticated:
+		if complain.complainer == student:
+			context = { 'complain' : complain }
+			return render( request, 'complain/stu_detail.html' )
+		else:
+			messages.info( request, 'This complain is registered by other student, it cannot be accessed.' )
+	return redirect( '/permission-denied/' )
+		
+def edit( request, id_no ):
+	''' Grants edit access to complainer(student) id complain is rejected. '''
+	if request.user.is_authenticated:
+		student = get_object( request )
+		complain = Complain.get_complain( request, id_no )
+		if student is not None and complain is not None:
+			if student == complain.complainer:
+				if complain.action == 'REJECTED':
+					context = { 
+						'complain' : complain,
+						'categories' : Complain.categories,
+						'sub_categories' : Complain.sub_categories
+					}
+					if request.method == "POST":
+						complain.init_for_edit( request )
+						if complain.is_edit_valid():
+							complain.save_edit()
+							messages.success( request, f'Complain { complain } edit successfully saved and sent for approval. ' )
+							return redirect( f'/complain/{ complain }/' )
+						else:
+							messages.error( request, f'Please fill out all required columns of form then submit it, ')
+					return render( request, 'complain/edit.html', context )
+				else:
+					messages.info( request, 'You can only edit complain only if it is rejected by committee. ' )
+			else:
+				messages.info( f"You don't have edit access to required Complain { complain }. " )
+			return redirect( f'/complain/{ complain }/' )
+	return render( request, 'permission_denied.html' )
 
 def select(request, id_no):
     if request.user.is_staff:
@@ -154,6 +202,25 @@ def pin_complain( request, id_no ):
 			else:
 				messages.info( request, f' Complaint { complain.id } is already pinned in thread { complain.thread }. ' )
 		return HttpResponseRedirect( request.META.get( 'HTTP_REFERER' ) )
+	return render( request, 'permission_denied.html' )
+	
+def reject( request, id_no ):
+	''' Rejects Complain object and sents for editing to student( complainer ). '''
+	if request.user.is_staff:
+		member = get_object( request )
+		complain = Complain.get_complain( request, id_no )
+		if member is not None and complain is not None:
+			if complain.action != 'REJECTED' :
+				if request.method == "POST" :
+					complain.init_for_reject( request, member )
+					if complain.is_reject_valid():
+						complain.save_reject()
+						messages.success( request, f'Complaint { complain } is REJECTED and sent back to student for editing. ')
+					else:
+						messages.error( request, ' Please fill a message for rejection of a complaint. ' )
+			else :
+				messages.info( request, f' Complaint { complain } is ALREADY REJECTED. ' )
+			return redirect( f'/complain/{ complain }/' )
 	return render( request, 'permission_denied.html' )
 	
 def unpin_complain( request, id_no ):
