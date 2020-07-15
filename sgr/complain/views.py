@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-from django.db.models import QuerySet
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import QuerySet
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
 
 from .models import Complain, Note
 from threads.models import Thread
@@ -12,17 +12,23 @@ from user.views import get_object
 from datetime import date
 
 # Create your views here.
-def list(request):
-    if request.user.is_staff:
-        complain_list = Complain.objects.all()
-    elif request.user.is_authenticated:
-        student = get_object( request )
-        complain_list = Complain.objects.filter(complainer = student)
-    else:
-        return redirect( '/permission-denied/' )
-    messages.info( request, f' Complain count : { len(complain_list) }' )
-    context = { 'complain_list' : complain_list }
-    return render(request, 'complain/list.html', context)
+def list(request) :
+	if request.user.is_authenticated:
+		obj = get_object( request )			# Member / Student object
+		if obj is not None :
+			if request.user.is_staff:
+				if obj.role == 'Solver' :
+					complain_list = Complain.objects.filter( action = 'ACCEPTED' )
+				elif obj.role == 'Sorter' :
+					complain_list = Complain.objects.filter( action = '' )
+				else :
+					complain_list = Complain.objects.all()
+			else :
+				complain_list = Complain.objects.filter( complainer = obj )
+			messages.info( request, f' Complain count : { len(complain_list) }' )
+			context = { 'complain_list' : complain_list }
+			return render(request, 'complain/list.html', context)
+	return render( request, 'permission_denied.html' )
     
 def accept( request, id_no ):
 	''' Accepts Complain object for solving. '''
@@ -70,17 +76,15 @@ def add(request):
 	
 def detail_for_solve( request, member, complain ):
 	''' Extensive functions of complain details for solving of Complain object. '''
-	print(1)
 	curr_date = date.today()
 	if complain.solving_date != curr_date:
 		context = { 'complain' : complain, 'select_button' : True}
-		return render(request, 'complain/detail.html', context)
+		return render(request, 'complain/solve_detail.html', context)
 	notes = Note.objects.filter(complain = complain)
 	context = {'complain' : complain, 'select_button' : False, 'notes' : notes }
 	return render( request, 'complain/solve_detail.html', context )
         
 def detail_for_sort( request, member, complain ) :
-	print(2)
 	''' Extended funcion of complain details for sorting of Complain object.  '''
 	thread_list = Thread.objects.filter( category = complain.category, sub_category = complain.sub_category )
 	context = { 'complain': complain, 'thread_list' : thread_list }
@@ -90,15 +94,17 @@ def detail(request, id_no):
 	complain = Complain.get_complain( request, id_no )
 	obj = get_object( request )
 	if request.user.is_staff :
-		if complain.action == 'ACCEPTED' and obj.role != 'Sorter' :
+		if obj.role != 'Sorter' :
 			page = detail_for_solve( request, obj, complain )
+			print( 1 )
 		else:
 			page = detail_for_sort( request, obj, complain )
+			print( 3 )
 		return page
 	elif request.user.is_authenticated:
-		if complain.complainer == student:
+		if complain.complainer == obj:
 			context = { 'complain' : complain }
-			return render( request, 'complain/stu_detail.html' )
+			return render( request, 'complain/stu_detail.html', context )
 		else:
 			messages.info( request, 'This complain is registered by other student, it cannot be accessed.' )
 	return redirect( '/permission-denied/' )

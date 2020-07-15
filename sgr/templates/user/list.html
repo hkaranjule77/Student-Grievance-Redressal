@@ -8,9 +8,9 @@ User List
 	&nbsp;&nbsp;	<i>Useful Links : </i><br>
 	&nbsp;&nbsp;	<a href="{% url 'Add Member' %}">Add Member</a> |
 	<a href="{% url 'Search&Sort' % }">Search & Sort </a>
-    
+	
     {% if member_list %}
-		<h4>Member user list: </h4>
+		<h3>Member user list: </h3>
 		<table>
 			<tr> 
 				<th>Username &nbsp;&nbsp;</th>
@@ -30,7 +30,9 @@ User List
 				<td>{{membr.role}}</td>
 				<!-----------     account status     ----------->
 				<td>
-					{% if membr.activated %}
+					{% if membr.activated and not membr.user.is_active %}
+						Deactivated
+					{% elif membr.activated %}
 						Active
 					{% elif membr.approved %}
 						Approved<br>(not activated)
@@ -43,31 +45,41 @@ User List
 				<td>
 					{% if member == membr %}
 						No action
-					{% elif member.role == 'Principal' and not membr.user.is_active %}
-							<a href = "/user/reactivate/{{membr.mid}}/">
-								Reactivate
-							</a>
 					{% elif member.role == 'Principal' and not membr.approved %}
 							<a href = "/user/approve/{{membr.mid}}/">
 								Approve
 							</a>
+					{% elif member.role == 'Principal' and not membr.user.is_active and membr.activated %}
+							<a href = "/user/reactivate/{{membr.mid}}/">
+								Reactivate
+							</a>
 					{% elif member.role == 'Principal' and membr.user.is_active %}
-						{% if membr.deactivation_reason %}
-							Deactivation reason : {{ membr.deactivation_reason }} &nbsp;&nbsp;
-						{% endif %}
 						<a href = "/user/deactivate/{{membr.mid}}/">
 							Deactivate
 						</a>
+						{% if membr.deactivation_request %}
+							&nbsp;/<br>
+							<a href="/user/reject-deactivation-request/{{ membr.mid }}/">
+								Reject Deactivation Request
+							</a>
+						{% endif %}
 					{% elif member.role == 'HOD' and not membr.deactivation_request and membr.user.is_active and not membr.role == 'HOD' and not membr.role == 'Principal' %}
 						<a href = "/user/deactivation-request-form/{{membr.mid}}/">
 							Add Deactivation request
 						</a>
+					{% else %}
+						No action
 					{% endif %}
-					{% if not membr.user.is_active %}
-						Deactived by {{ membr.deactivated_by.role }} ({{ membr.deactivated_by.mid }})
+					&nbsp;
+				</td>
+				<td>
+					&nbsp;
+					{% if not membr.user.is_active and membr.approved and membr.activated %}
+						Deactivated by {{ membr.deactivated_by.role }} ({{ membr.deactivated_by.mid }})<br>
 					{% endif %}
 					{% if membr.deactivation_request %}
-						Deactivation request added by {{membr.deactivated_by}} ({{ membr.deactivated_by.mid }})
+						Deactivation request : {{ membr.deactivation_reason}}
+						<br>&nbsp;By {{membr.deact_requested_mem.role }} ({{ membr.deact_requested_mem.mid }})
 					{% endif %}
 				</td>
 			</tr>
@@ -82,8 +94,8 @@ User List
 				<th>Username &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 				<th>Firstname &nbsp;&nbsp;&nbsp;</th>
 				<th>Lastname &nbsp;&nbsp;&nbsp;</th>
-				<th>Branch &nbsp;&nbsp;&nbsp;</th>
 				<th>Year</th>
+				<th>Department &nbsp;&nbsp;&nbsp;</th>
 				<th>Actions</th> 
 			</tr>
 			{% for stu in student_list %}
@@ -91,29 +103,39 @@ User List
 						<td><a href = "/user/profile/{{stu.sid}}/"> {{stu.sid}}</a> &nbsp;</td>
 						<td>{{stu.user.first_name}} &nbsp;&nbsp;</td>
 						<td>{{stu.user.last_name}} &nbsp;&nbsp;</td>
-						<td>{{stu.branch}} &nbsp;&nbsp;</td>
 						<td>{{stu.year}}</td>
+						<td>{{stu.department }} &nbsp;&nbsp;</td>
 						<td>
 							{% if member.role == 'HOD' and not stu.user.is_active or member.role == 'Principal' and not stu.user.is_active %}
 								<a href = "/user/reactivate/{{stu.sid}}/">
 									Reactivate
 								</a>
-							{% elif member.role == 'Sorter' and not stu.deactivation_request and stu.user.is_active %}
-								<a href = "/user/deactivation-request-form/{{stu.sid}}/">
-									Add Deactivation request
-								</a>
 							{% elif member.role == 'HOD' and stu.user.is_active or member.role == 'Principal' and stu.user.is_active %}
 								<a href = "/user/deactivate/{{stu.sid}}/">
 									Deactivate
 								</a>
+								{% if stu.deactivation_request %}
+									&nbsp;/<br>
+									<a href="/user/reject-deactivation-request/{{ stu.sid }}/">
+										Reject Deactivation Request
+									</a><br>
+								{% endif %}
+							{% elif not stu.deactivation_request and stu.user.is_active %}
+								<a href = "/user/deactivation-request-form/{{stu.sid}}/">
+									Add Deactivation request
+								</a>
+							{% else %}
+								No action
 							{% endif %}
+							&nbsp;&nbsp;
 						</td>
 						<td>
+							&nbsp;&nbsp;
 							{% if not stu.user.is_active %}
-								Deactivated by {{ stu.deactivated_by.role }} ({{ stu.deactivated_by.mid }})
+								Deactivated by {{ stu.deactivated_by.role }} ({{ stu.deactivated_by.mid }})<br>
 							{% endif %}
 							{% if stu.deactivation_request %}
-									Deactivation reason : {{ stu.deactivation_reason }} &nbsp;&nbsp;
+									Deactivation request : {{ stu.deactivation_reason }} &nbsp;&nbsp;
 							{% endif %}
 						</td>
 				</tr>

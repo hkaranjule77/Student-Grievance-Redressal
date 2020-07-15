@@ -14,4 +14,5 @@ urlpatterns = [
 	),
 	path('<str:id_no>/approve/', views.approve_thread, name = 'Approve Thread'),
 	path('<str:id_no>/reject-approval/', views.reject_thread, name = 'Reject Thread'),
+	path('<str:id_no>/search-sort/', views.search_sort, name = 'Search&Sort Thread' ),
 ]

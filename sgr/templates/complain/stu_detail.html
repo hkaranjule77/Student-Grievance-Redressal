@@ -9,20 +9,20 @@ Complain List
     <h3> <i> {{complain.subject}} </i> </h3>
     [
     {% if complain.action == 'ACCEPTED' %}
-		Accepted for solving
+		[ Accepted for solving ]
 	{% elif complain.action == 'REJECTED' %}
-		Rejected
+		[ Rejected ]
     {% endif %}
-    ]
+    
     <p>
-         <p>Complain ID : <i>{{complain.id}}</i></p>
-         <p>Subject : <i>{{complain.subject}}</i></p>
-         <p>Category : <i>{{complain.category}}</i></p>
-         <p>Sub-category : <i>{{complain.sub_category}}</i></p>
-         <p>Brief : <i>{{complain.brief}}</i></p>
-         <p>File :
+         <p><i>Complain ID</i> : {{complain.id}}</i></p>
+         <p><i>Subject</i> : {{complain.subject}}</i></p>
+         <p><i>Category</i> : {{complain.category}}</p>
+         <p><i>Sub-category</i> : {{complain.sub_category}}</p>
+         <p><i>Brief </i>:{{complain.brief}}</p>
+         <p><i>File</i> :
              {% if complain.file %}
-                 <a href = "{{complain.file}}"> {{complain.get_filename}}</i></a>
+                 <a href = "{{ complain.file.url }}"> {{complain.get_filename}}</i></a>
              {% else %}
                  No file attached
              {% endif %}
@@ -34,9 +34,9 @@ Complain List
          
          <p align = "right">
 			{% if complain.last_edit_at %}
-				last edited at <i> {{ complain.last_edit_at }} </i>	<br>
+				<i>last edited at </i> {{ complain.last_edit_at }}	<br>
 			{% endif %}
-			 Registered at <i>{{complain.reg_datetime}}</i>
+				<i>Registered at </i>{{complain.reg_datetime}}
 		</p>
 		
          <hr>

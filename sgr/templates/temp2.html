@@ -1,0 +1,53 @@
+﻿{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>custom range slider using html css and javascript</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/slide.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/userview.css' %}">
+    <!--
+    <link rel="stylesheet" type="text/css" href="userview.css">
+        <link rel="stylesheet" href="slide.css" />
+
+        -->
+    <script type="text/javascript">
+        function change(e) {
+
+
+            var tooltip = document.getElementById('tool-tip');
+
+            tooltip.innerHTML = e;
+            tooltip.style.marginLeft = (e * 5.4) + 'px';
+
+        }
+
+    </script>
+</head>
+<body>
+    <h2>
+        <center><b><p>Recent complaint added..</p></b></center>
+        <center><b><p>Tracker</p></b></center>
+    </h2><select name="slctor" id="slctor">
+        <option>select your complaint..</option>
+    </select>
+    <br><br>
+
+    <div class="main">
+        <div class="slider-box">
+            <p class="value-tooltip" id="tool-tip">
+				44
+            </p>
+            <input type="range" class="slider" id="slider" value="10" max="100" >
+        </div>
+    </div>
+    <br><br>
+    <b>25%&nbsp; -Complaint Successfully Registered</b><br>
+    <b>50%&nbsp; -Compaint Recieved By Committee</b><br>
+    <b>75%&nbsp; -Responce By Committee</b><br>
+    <b>100%-Solved</b><br>
+
+
+</body>
+</html>

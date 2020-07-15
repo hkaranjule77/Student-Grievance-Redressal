@@ -174,7 +174,7 @@ class Complain(models.Model):
 		complain.sub_category = request.POST.get('sub_category')
 		complain.brief = request.POST.get('brief')
 		complain.complainer = Student.objects.get(user = request.user)
-		file = request.FILES.get('file')
+		complain.file = request.FILES.get('file')
 		return complain
 		
 	
@@ -205,8 +205,9 @@ class Complain(models.Model):
 			self.action_msg = ''
 			self.actioned_at = datetime.now()
 			self.actioned_by = member
-		print( request.POST.get( thread ), 'thread it pin_it' )
-		if request.POST.get( thread ) == "True":
+		print( request.POST.get( str( thread ) ), 'thread it pin_it' )
+		if request.POST.get( str(thread) ) == "True":
+			print( 'entered' )
 			self.pinned_in_thread = True
 			self.pinned_at = datetime.now()
 			self.pinned_by = member
@@ -341,7 +342,7 @@ class Note(models.Model):
 
 	def init_all(self, request):
 		self.note = request.POST.get('note')
-		self.file = request.POST.get('file')
+		self.file = request.FILES.get('file')
 		id = request.POST.get('complain_id')
 		if id != None and id != '':
 			self.complain = Complain.objects.get(id = id)

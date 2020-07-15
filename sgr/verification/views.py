@@ -14,7 +14,7 @@ def add_table(request):
 		if member.role == 'DB Admin':
 			context = { 'table_types' : TableDetail.table_types,
 						'years' : Student.years,
-						'branches' : Student.branches,
+						'branches' : Student.departments,
 						'name_storage_types' : TableDetail.name_storage_types
 						}
 			table = TableDetail.init(request)

@@ -32,6 +32,7 @@ urlpatterns = [
         path('contact-dev/', views.contact_dev, name = 'Contact Dev'),
         path('permission-denied/', views.perm_denied, name = 'Pemission Denied'),
         path('temp/', views.temp),
+        path('temp2/', views.temp2),
 ]
 
 if settings.DEBUG:

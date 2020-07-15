@@ -1,32 +1,29 @@
-﻿{% load static %}
+﻿{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>custom range slider using html css and javascript</title>
+{% load static %}
+
+{% block title %}
+	{{ user.username }} Dashboard
+{% endblock %}
+
+{% block js_script %}
+	function change(e) {
+
+		var tooltip = document.getElementById('tool-tip');
+
+		tooltip.innerHTML = e;
+		tooltip.style.marginLeft = (e * 5.4) + 'px';
+
+	}
+{% endblock %}
+
+{% block head %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/slide.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/userview.css' %}">
-    <!--
-    <link rel="stylesheet" type="text/css" href="userview.css">
-        <link rel="stylesheet" href="slide.css" />
+{% endblock %}
 
-        -->
-    <script type="text/javascript">
-        function change(e) {
-
-
-            var tooltip = document.getElementById('tool-tip');
-
-            tooltip.innerHTML = e;
-            tooltip.style.marginLeft = (e * 5.4) + 'px';
-
-        }
-
-    </script>
-</head>
-<body>
-    <h2>
+{% block content %}
+	<h2>
         <center><b><p>Recent complaint added..</p></b></center>
         <center><b><p>Tracker</p></b></center>
     </h2><select name="slctor" id="slctor">
@@ -50,5 +47,4 @@
     <b>100%-Solved</b><br>
 
 
-</body>
-</html>
+{% endblock %}

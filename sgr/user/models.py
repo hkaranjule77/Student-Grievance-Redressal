@@ -1,12 +1,14 @@
-from django.db import models
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.hashers import make_password, check_password
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import models
+from django.db.utils import IntegrityError
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
 
+from datetime import date
 import random
-from datetime import date, datetime
 
 questions = ('In which town your mom/dad was born?',
 				'What is name of your grand mother?',
@@ -116,62 +118,68 @@ class Member(models.Model):
 	)
 	global questions
 
-		
-	def init(self, request):
-		''' Assigns data from form to object for creating a non_active account. '''
-		user = User()
-		user.first_name = request.POST.get('first_name')
-		user.last_name = request.POST.get('last_name')
-		user.email = request.POST.get('email')
-		user.is_staff = True
-		self.user = user
-		self.role = request.POST.get('role')
-		self.contact_no = request.POST.get('contact_no')
-		self.activation_code = request.POST.get('activation_code')
-		
-	def init_for_active(self, request):
-		''' Assigns data from form to object for activation of account. '''
-		self.security_question = request.POST.get('security_question')
-		self.security_answer = request.POST.get('answer')
-		password = request.POST.get('password')
-		print(request.POST.get('password'))
-		if validate_password(password = password) == None:
-			self.user.set_password(password)
-			
 	def __str__(self):
 		''' returns mid if object is called for printing purpose. '''
 		return self.mid
+		
+	def activate(self):
+		self.activated = True
+		self.user.save( update_fields = ['password' ] )
+		self.save( update_fields = [ 
+				'security_question',
+				'security_answer',
+				'activated',
+				'activated_datetime'
+			]
+		)
 
-	def is_non_activable(self):
-		''' Checks data assigned to object is not empty string('')/None, while creating new account '''
-		valid = True
-		if self.user.first_name == '' or self.user.first_name == None:
-			valid = False
-		elif self.user.last_name == '' or self.user.last_name == None:
-			valid = False
-		elif self.user.email == '' or self.user.email == None:
-			valid = False
-		elif self.role == '' or self.role == None:
-			valid = False
-		elif self.contact_no == '' or self.contact_no == None:
-			valid = False
-		return valid
-
-	def is_non_activable_empty(self):
-		''' Checks data assigned to object is not empty string('')/None, while activating new account '''
-		empty = True
-		if self.user.first_name != '' and self.user.first_name != None:
-			empty = False
-		elif self.user.last_name != '' and self.user.last_name != None:
-			empty = False
-		elif self.user.email != '' and self.user.email != None:
-			empty = False
-		elif self.role != '' and self.role != None:
-			empty = False
-		elif self.contact_no != '' and self.contact_no != None:
-			empty = False
-		return empty
-
+	def add_deactivation_request(self, member, deactivation_reason):
+		''' Adds and save deactivation request details in model '''
+		self.deactivation_request = True
+		self.deact_requested_mem = member
+		self.deactivation_reason = deactivation_reason
+		self.deact_req_at = timezone.now()
+		self.save( update_fields = [
+				'deactivation_request',
+				'deact_requested_mem',
+				'deactivation_reason',
+				'deact_req_at',] 
+		)
+		
+	def approve(self, member):
+		''' Approves added Member account in models. '''
+		self.approved = True
+		self.approved_by = member
+		self.approved_at = timezone.now()
+		self.save( update_fields = [
+				'approved',
+				'approved_at',
+				'approved_by',
+			]
+		)
+		
+	def deactivate(self, member):
+		''' Deactivates member account. '''
+		self.user.is_active = False
+		self.deactivated_by = member
+		self.deactivated_at = timezone.now()
+		self.user.save( update_fields = [ 'is_active' ] )
+		self.save( update_fields = [ 'deactivated_by', 'deactivated_at' ] )
+		
+	def delete_deact_req( self ) :
+		''' Make changes in Member object to remove Deactivation request. '''
+		self.deactivation_request = False
+		self.deactivation_reason = ''
+		self.deact_requested_mem = None
+		self.deact_req_at = None
+		self.save( update_fields = [
+				'deactivation_request',
+				'deactivation_reason',
+				'deact_requested_mem',
+				'deact_req_at',
+			]
+		)
+		
 	def generate_mid( self ):
 		''' Generates Member ID while creation of account. '''
 		curr_date = date.today()
@@ -219,8 +227,8 @@ class Member(models.Model):
 		for count in range(3-id_len):
 			id = '0' + id
 		mid = curr_year + role_code + id   # final addition of mid 
-		self.mid = mid                     # mid assigned to object
-		self.user.username = mid
+		self.mid = mid                     		# mid assigned to member object
+		self.user.username = mid		# mid assigned to user object
 		
 	# generates activaton code 
 	def generate_code(self):
@@ -230,54 +238,80 @@ class Member(models.Model):
 			code += str(random.randint(0,9))
 		self.activation_code = code
 		
-	def approve(self, member):
-		''' Approves added Member account in models. '''
-		self.approved = True
-		self.approved_by = member
-		self.approved_at = timezone.now()
-		self.save( update_fields = [
-				'approved',
-				'approved_at',
-				'approved_by',
-			]
-		)
-
-	# verifies activation code
-	def verify_activation_code(self, request):
-		''' Verifies 8 digit Activation code with hashed activation_code in model. '''
-		if  check_password( request.POST.get('activation_code'), self.activation_code ):
-			return True
-		return False
-
-	def verify_security_details(self, security_q, answer):
-		''' Verifies security question for forgot password feature'''
-		if (self.security_question == security_q and check_password(answer, self.security_answer)):
-			return True
-		else:
-			return False
-
+	def init(self, request):
+		''' Assigns data from form to object for creating a non_active account. '''
+		user = User()
+		user.first_name = request.POST.get('first_name')
+		user.last_name = request.POST.get('last_name')
+		user.email = request.POST.get('email')
+		user.is_staff = True
+		self.user = user
+		self.role = request.POST.get('role')
+		self.contact_no = request.POST.get('contact_no')
+		self.activation_code = request.POST.get('activation_code')
+		
+	def init_for_activate(self, request):
+		''' Assigns data from form to object for activation of account. '''
+		self.security_question = request.POST.get('security_question')
+		self.security_answer = request.POST.get('answer')
+		password = request.POST.get('password')
+		print(request.POST.get('password'))
+		try:
+			error_list = validate_password(password = password)
+		except ValidationError :
+			messages.error( request, ' Invalid Password. ' )
+		else :
+			self.user.set_password(password)
+			
 	def is_activating_valid(self):
 		''' Validates data at time of activation of account. '''
+		valid = True
+		if self.security_question == '' or self.security_question == None or self.security_question == 'Select Security Question':
+			valid = False
 		if self.security_answer == '' or self.security_answer == None:
-			return False
-		return True
-		
-	def activate(self):
-		self.activated = True
-		self.user.save(update_fields = ['password'])
-		self.save(update_fields = [ 
-									'security_question',
-									'security_answer',
-									'activated',
-									'activated_datetime']
-		)
-		
-	def set_activation_code( self, activation_code ):
-		''' Initialize Member object with hashed activation code from passed data. '''
-		self.activation_code = make_password( activation_code )
+			valid = False
+		return valid
 
-	def set_security_answer(self, answer):
-		self.security_answer = make_password(answer)
+	def is_non_activable(self):
+		''' Checks data assigned to object is not empty string('')/None, while creating new account '''
+		valid = True
+		if self.user.first_name == '' or self.user.first_name == None:
+			valid = False
+		elif self.user.last_name == '' or self.user.last_name == None:
+			valid = False
+		elif self.user.email == '' or self.user.email == None:
+			valid = False
+		elif self.role == '' or self.role == None or self.role == 'Select Role' :
+			valid = False
+		elif self.contact_no == '' or self.contact_no == None:
+			valid = False
+		return valid
+
+	def is_non_activable_empty(self):
+		''' Checks data assigned to object is not empty string('')/None, while activating new account '''
+		empty = True
+		if self.user.first_name != '' and self.user.first_name != None:
+			empty = False
+		elif self.user.last_name != '' and self.user.last_name != None:
+			empty = False
+		elif self.user.email != '' and self.user.email != None:
+			empty = False
+		elif self.role != '' and self.role != None:
+			empty = False
+		elif self.contact_no != '' and self.contact_no != None:
+			empty = False
+		return empty
+		
+	def non_activable_save( self ) :
+		''' Save newly added, non-activated, non-approved member object in DB. '''
+		self.generate_mid()
+		self.generate_code()
+		activation_code = self.activation_code
+		self.set_activation_code( self.activation_code )
+		self.user.save()
+		self.save()
+		return activation_code
+		
 		
 	def reactivate( self, member ):
 		''' Make changes in model for reactivation. '''
@@ -295,26 +329,26 @@ class Member(models.Model):
 			]
 		)
 		
-	def add_deactivation_request(self, member, deactivation_reason):
-		''' Adds and save deactivation request details in model '''
-		self.deactivation_request = True
-		self.deact_requested_mem = member
-		self.deactivation_reason = deactivation_reason
-		self.deact_req_at = datetime.now()
-		self.save( update_fields = [
-				'deactivation_request',
-				'deact_requested_mem',
-				'deactivation_reason',
-				'deact_req_at',] 
-		)
+	def set_activation_code( self, activation_code ):
+		''' Initialize Member object with hashed activation code from passed data. '''
+		self.activation_code = make_password( activation_code )
+
+	def set_security_answer(self, answer):
+		self.security_answer = make_password(answer)
 		
-	def deactivate(self, member):
-		''' Deactivates member account. '''
-		self.user.is_active = False
-		self.deactivated_by = member
-		self.deactivated_at = datetime.now()
-		self.user.save( update_fields = [ 'is_active' ] )
-		self.save( update_fields = [ 'deactivated_by', 'deactivated_at' ] )
+	# verifies activation code
+	def verify_activation_code(self, request):
+		''' Verifies 8 digit Activation code with hashed activation_code in model. '''
+		if  check_password( request.POST.get('activation_code'), self.activation_code ):
+			return True
+		return False
+
+	def verify_security_details(self, security_q, answer):
+		''' Verifies security question for forgot password feature'''
+		if (self.security_question == security_q and check_password(answer, self.security_answer)):
+			return True
+		else:
+			return False
 	
 			 
 
@@ -324,7 +358,6 @@ class Student(models.Model):
 	user = models.ForeignKey(User, on_delete = models.CASCADE)
 	department = models.CharField(max_length = 12)
 	year = models.CharField(max_length = 10)
-	branch = models.CharField(max_length = 15)
 	contact_no = models.CharField(max_length=15)
 	reg_datetime = models.DateField(default = timezone.now)
 	# security details
@@ -387,7 +420,7 @@ class Student(models.Model):
 		self.deactivation_request = True
 		self.deact_requested_mem = member
 		self.deactivation_reason = deactivation_reason
-		self.deact_req_at = datetime.now()
+		self.deact_req_at = timezone.now()
 		self.save( update_fields = [
 				'deactivation_request',
 				'deact_requested_mem',
@@ -399,15 +432,34 @@ class Student(models.Model):
 		''' Deactivates member account. '''
 		self.user.is_active = False
 		self.deactivated_by = member
-		self.deactivated_at = datetime.now()
+		self.deactivated_at = timezone.now()
 		self.user.save( update_fields = [ 'is_active' ] )
 		self.save( update_fields = [ 'deactivated_by', 'deactivated_at' ] )
 		
-	def final_save( self):
+	def delete_deact_req( self ) :
+		''' Make changes in Student object to remove Deactivation request. '''
+		self.deactivation_request = False
+		self.deactivation_reason = ''
+		self.deact_requested_mem = None
+		self.deact_req_at = None
+		self.save( update_fields = [
+				'deactivation_request',
+				'deactivation_reason',
+				'deact_requested_mem',
+				'deact_req_at',
+			]
+		)
+		
+	def final_save( self, request ):
 		self.set_security_answer( self.security_answer )
 		self.user.set_password( self.password )
-		self.user.save()
-		self.save()
+		try :
+			self.user.save()
+			self.save()
+		except IntegrityError:
+			messages.error( request, f" Student { self.sid } account already exists.If you didn't opened your account please communicate to Committee for action. " )
+		else :
+			messages.success( request, f'Student { self.sid } account created successfully. Please login to register a complain.',)
 		
 	def increase_count( self ):
 		''' Increases and saves the complain_count in Student objects. '''
@@ -424,12 +476,11 @@ class Student(models.Model):
 		student = Student(user = user)
 		student.sid = user.username
 		student.department = request.POST.get('department')
-		student.branch = request.POST.get( 'branch' )
 		student.year = request.POST.get('year')
 		student.contact_no = request.POST.get('contact_no')
 		return student
 
-	def init_all(request):
+	def init_all( request ):
 		'''
 		initialize the student object with data from post method of request and returns
 		tuple of student and boolean value of validate_password.
@@ -442,18 +493,21 @@ class Student(models.Model):
 		student.security_answer = request.POST.get('security_answer')
 		password = request.POST.get('password')
 		student.password = password
-		if password is not None:
-			if validate_password(password) == None:
-				return (student, True)
-		return (student, False)
+		try :
+			 error_list = validate_password( password )
+		except ValidationError :
+			messages.error( request, ' Invalid Password. ' )
+			return student
+		else :
+			return student
 
 	def is_valid(self):
 		valid = True
 		if  self.sid == '' or self.sid == None:
 			valid = False
-		if  self.department == '' or self.department == None:
+		if  self.department == '' or self.department == None or self.department == 'Department' : 
 			valid = False
-		if self.year == '' or self.year == None:
+		if self.year == '' or self.year == None or self.year == 'Year':
 			valid = False
 		if  self.contact_no == '' or self.contact_no == None:
 			valid = False

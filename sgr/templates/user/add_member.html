@@ -10,26 +10,27 @@ Add Member
 			<h1 align="center">Add Member</h1>
 			<form method = "post" action = "/user/add-member/">
 			{% csrf_token %}
-				<p>First name : 
-					<input type = "text" name = "first_name" value = "{{member.user.first_name}}" required>
+				<p>
+					<input type = "text" name = "first_name" value = "{{member.user.first_name}}" placeholder="Enter Member's First Name" required>
 				</p>
-				<p>Last name :
-					<input type = "text" name = "last_name" value = "{{member.user.last_name}}" required>
+				<p>
+					<input type = "text" name = "last_name" value = "{{member.user.last_name}}" placeholder="Enter Member's Last Name" required>
 				</p>
-				<p>Role:
+				<p>
 					<select name = "role" required>
+						<option>Select Role</option>
 						{% for code, role in roles %}
 							<option> {{role}} </option>
 						{% endfor %}
 					</select>
 				</p>
-				<p>Email ID : 
-					<input type = "email" name = "email" value = "{{member.user.email}}" required>
+				<p>
+					<input type = "email" name = "email" value = "{{member.user.email}}" placeholder="Enter Member's Email ID" required>
 				</p>
-				<p>Contact no :
-					<input type = "text" name = "contact_no" value = "{{member.contact_no}}" required>
+				<p>
+					<input type = "text" name = "contact_no" value = "{{member.contact_no}}" placeholder="Enter Member's Mobile No" required>
 				</p>
-				<button type = "submit" > Add member </button>
+				&nbsp;&nbsp;<button type = "submit" > Add member </button>
 			</form>
 		</div>
     {% else %}

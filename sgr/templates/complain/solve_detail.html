@@ -8,25 +8,39 @@ Complain List
     <br>
     <h3> <i> {{complain.subject}} </i> </h3>
     <p>
-         <p>Complain ID : <i>{{complain.id}}</i></p>
-         [
-    {% if complain.action == 'ACCEPTED' %}
-		Accepted for solving
-	{% elif complain.action == 'REJECTED' %}
-		Rejected
-    {% endif %}
-    ]
-         <p>Subject : <i>{{complain.subject}}</i></p>
-         <p>Category : <i>{{complain.category}}</i></p>
-         <p>Sub-category : <i>{{complain.sub_category}}</i></p>
-         <p>Brief : <i>{{complain.brief}}</i></p>
-         <p>File :
+        [
+			{% if complain.action == 'ACCEPTED' and complain.thread %}
+				Threaded
+			{% elif complain.action == 'ACCEPTED' %}
+				Accepted for solving
+			{% elif complain.action == 'REJECTED' %}
+				Rejected
+			{% endif %}
+		]
+         <p><i>Complain ID</i> : {{complain.id}}</i></p>
+         <p><i>Subject</i> : {{complain.subject}}</i></p>
+         <p><i>Category</i> : {{complain.category}}</p>
+         <p><i>Sub-category</i> : {{complain.sub_category}}</p>
+         <p><i>Brief </i>:{{complain.brief}}</p>
+         <p><i>File</i> :
              {% if complain.file %}
-                 <a href = "{{complain.file}}"> {{complain.get_filename}}</i></a>
+                 <a href = "{{ complain.file.url }}"> {{complain.get_filename}}</i></a>
              {% else %}
                  No file attached
              {% endif %}
          </p>
+         
+         {% if complain.thread %}
+			<p><i>Attached to Thread :</i>
+				<a href="/thread/{{ complain.thread }}/">{{ complain.thread.title }} ( {{ complain.thread }} ) </a>
+			</p>
+			<p><i>Threaded by : </i>
+				{{ complain.threaded_at }}
+			</p>
+			<p><i>Threaded at :</i>
+				{{ complain.threaded_at }}
+			</p>
+         {% endif %}
          
          {% if complain.action == 'REJECTED' %}
 			<i>Rejected for :</i> {{ complain.action_msg }}
@@ -34,13 +48,13 @@ Complain List
          
          <p align = "right">
 			{% if complain.last_edit_at %}
-				last edited at <i> {{ complain.last_edit_at }} </i>	<br>
+				<i>last edited at </i> {{ complain.last_edit_at }}	<br>
 			{% endif %}
-			 Registered at <i>{{complain.reg_datetime}}</i>
+			<i>Registered at </i>{{complain.reg_datetime}}
 		</p>
 		
          <hr>
-         
+         {% if not complain.thread and complain.actioin == 'ACCEPTED' %}
              {% if select_button %}
                  <a href = "/complain/{{complain.id}}/select/"> Select to Solve </a> | 
              {% else %}
@@ -54,7 +68,7 @@ Complain List
                     </p>
                 {% endif %}
              {% endif %}
-             
+         {% endif %}
          <a href = "/complain/"> Back to Complain List</a>
 <!--
          NOTE SECTION

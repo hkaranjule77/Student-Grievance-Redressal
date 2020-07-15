@@ -16,5 +16,6 @@ urlpatterns = [
         path('logout/', views.log_out, name = 'Log out'),
         path('profile/<str:id_no>/', views.profile, name = 'Profile'),
         path('reactivate/<str:id_no>/', views.reactivate, name = 'Reactivate'),
+        path('reject-deactivation-request/<str:id_no>/', views.reject_deact_req, name = 'Reject Deactivation Request'),
         path('sign-up/', views.sign_up, name = 'Sign up'),
 ]

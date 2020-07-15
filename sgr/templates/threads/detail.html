@@ -231,7 +231,14 @@
 			{% endif %}
 			<p>
 				<a href="/complain/{{ complain.id }}/pin/"> pin </a>
-				<div align="right"> created_by 
+				<div align="right">
+					threaded by 
+					<a href="/user/profile/{{ complain.threaded_by }}/">
+						{{ complain.threaded_by }}
+					</a>
+					at
+					{{ complain.threaded_at }} <br>
+					created_by 
 					<a href="/user/profile/{{ complain.complainer}}/">
 						{{ complain.complainer }}
 					</a>

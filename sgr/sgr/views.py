@@ -21,3 +21,6 @@ def perm_denied(request):
     
 def temp(request):
 	return render( request, 'temp.html')
+	
+def temp2(request):
+	return render( request, 'temp2.html')

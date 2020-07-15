@@ -160,5 +160,18 @@ def reject_thread( request, id_no ):
 		return HttpResponseRedirect( request.META.get( 'HTTP_REFERER' ) )
 	return
 	
-def search_sort( request, query ):
-	pass
+def search_sort( request ):
+	''' Search and Sort Thread QuerySet and returns list of it. '''
+	if request.user.is_staff :
+		if request.method == 'POST' :
+			query = request.POST.get( 'query' )
+			sort_option = request.POST.get( 'sort_option' )
+			search_type = request.POST.get( 'search_type' )
+			if query != '':
+				search_qs = Thread.search( query, search_type )
+			else:
+				search_qs = Thread.objects.all()
+			if sort_option != Thread.sort_options[0] :
+				final_qs = search_qs.filter()
+			context = { 'thread_list' : search_qs }
+		return render( request, 'threads/list.html', context )
