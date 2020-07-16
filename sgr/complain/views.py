@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from .models import Complain, Note
-from threads.models import Thread
+from threads.models import Category, SubCategory, Thread
 from user.models import Student, Member
 from user.views import get_object
 
@@ -51,13 +51,20 @@ def add(request):
 			return render( request, 'permission-denied.html' )
 		student = get_object( request )
 		if student is not None:
+			print( Category.get_list() )
 			today_date = date.today()
-			context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories }
+			context = { 'categories' : Category.get_list() }
 			if request.method == "POST":
 				if student.count_date != today_date:
 					student.reinitialize_count()
 				if student.complain_count < 5:
 					complain = Complain.init( request )
+					if complain.category != 'Select Category' :
+						context.update( { 
+								'sub_categories' : SubCategory.get_list( request, complain.category ),
+								'complain' : complain
+							}
+						)
 					if complain.is_valid():
 						print( complain.id, complain.category, complain.sub_category )
 						complain.save()
@@ -67,10 +74,13 @@ def add(request):
 						return redirect( f'/complain/{ complain }' ) 
 					else:
 						context.update( { 'complain' : complain } )
-						messages.error( request, ' Please fill full form, before submitting it. ' )
+						if complain.sub_category != 'Select Sub Category' :
+							messages.error( request, ' Please fill full form, before submitting it. ' )
+						else :
+							messages.info( request, ' Please select Sub Category for Complain. ' )
 				else:
 					messages.info( request, 'Complaint registration limit reached for today. You have used all your 5 registrations. ')
-					return render( request, 'permission_denied.html') 
+					return render( request, 'permission_denied.html')
 			return render(request, 'complain/add.html', context)
 	return redirect('/permission-denied.html/')
 	

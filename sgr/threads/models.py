@@ -1,12 +1,71 @@
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from datetime import date
+import os
+
+from sgr.settings import BASE_DIR
 from user.models import Member
+
+
+class Category( models.Model ) :
+	code = models.CharField( primary_key = True, max_length = 1 )
+	name = models.CharField( max_length = 25 )
+	
+	def get_category( request, category ) :
+		''' Returns Category Object of specified category string. '''
+		try :
+			category_obj = Category.objects.get( name = category )
+		except ObjectDoesNotExist :
+			messages.error( request, f' No such Category exists. ' )
+			return None
+		else :
+			return category_obj
+			
+	def get_code_name_list() :
+		''' Returns a List of code, name of all Category objects. '''
+		cat_obj = Category.objects.all()
+		category_list = [ [ obj.code, obj.name ] for obj in cat_obj ]
+		return category_list
+		
+
+	def get_list():
+		''' Returns a List of all Category name. '''
+		category_qs = Category.objects.all()
+		category_list = [ category.name for category in category_qs ]
+		return category_list
+	
+class SubCategory( models.Model ) :
+	''' Model Class for storing different categories of Complain and Thread Model '''
+	code = models.CharField( max_length = 1 )
+	name = models.CharField( max_length = 25 )
+	category = models.ForeignKey( Category, on_delete = models.CASCADE )
+	
+	def get_code_name_list() :
+		''' Returns a List of [ code, name ] of Sub Category object nested according to category. '''
+		final_list = list()
+		for cat_obj in Category.objects.all() :
+			sub_cat_obj = SubCategory.objects.filter( category = cat_obj )
+			sub_list = [ [ sub_category.code, sub_category.name ] for sub_category in sub_cat_obj ]
+			final_list.append( sub_list )
+		return final_list
+	
+	def get_list( request, category ):
+		''' Returns a List of Subcategories based on passed category string. '''
+		category_obj = Category.get_category( request, category )
+		if category_obj is not None :
+			print( category_obj.name )
+			sub_cat_obj = SubCategory.objects.filter( category = category_obj )
+			sub_cat_list = [ sub_category.name for sub_category in sub_cat_obj ]
+			print( sub_cat_list )
+			return sub_cat_list
 
 class Thread(models.Model):
 	# required data
+	id = models.CharField( primary_key = True, max_length = 15 )
 	title = models.CharField(max_length = 25)
 	category = models.CharField( max_length = 25 )
 	sub_category = models.CharField( max_length = 25 )
@@ -79,7 +138,8 @@ class Thread(models.Model):
 		
 	def generate_id(self, category, sub_category):
 		''' Generates and initialize id for object when called. '''
-		complain = Complain.objects.first()
+		categories = Category.get_code_name_list()
+		sub_categories = SubCategory.get_code_name_list()
 		today = date.today()
 		curr_date = today.strftime('%y%m%d')
 		# opening file in reading mode
@@ -92,13 +152,16 @@ class Thread(models.Model):
 		if curr_date != count_data[0]:
 			print( 1 )
 			data = ''
-			for category_wise in complain.sub_categories:
-				for code, sub_cat in category_wise:
+			category_index = 0
+			for category_wise in sub_categories:
+				for sub_code, sub_cat in category_wise:
 					if sub_cat == sub_category:
 						data+='1 '
+						code = categories[ category_index ][ 0 ] + sub_code
 					else:
 						data+='0 '
 				data+='\n'
+				category_index += 1
 			data = curr_date+ '\n' + data
 			count_file.write(data)
 			count_file.close()
@@ -113,9 +176,9 @@ class Thread(models.Model):
 			print( count_data, 'count_data' )
 			# count incrementing part
 			cat_index = 1
-			for cat_code, cat in complain.categories:
+			for cat_code, cat in categories:
 				sub_index = 0
-				for sub_cat_code, sub in complain.sub_categories[cat_index-1]:
+				for sub_cat_code, sub in sub_categories[cat_index-1]:
 					if (sub == sub_category and cat == category):
 						print(sub, cat)
 						try:
@@ -134,11 +197,10 @@ class Thread(models.Model):
 				count_file.write('\n')
 				cat_index += 1
 			count_file.close()
-		while len(generated_id) < 4:
-			generated_id = '0' + generated_id
-		generated_id = curr_date + code + generated_id
-		print(generated_id, 'id  id')
-		self.id = generated_id
+		if int( generated_id ) < 10 :
+			generated_id = curr_date + code + generated_id
+			print(generated_id, 'id  id')
+			self.id = generated_id
 		
 	def get_thread( request, id_no ):
 		''' Returns Thread with specified id if present or else returns messages and None. '''
@@ -185,7 +247,7 @@ class Thread(models.Model):
 		self.action_at = timezone.now()
 		self.action_by = member		
 		
-	def is_add_valid( self ):
+	def is_add_valid( self, request ):
 		''' Validates data initialized by method 'init_for_all' before saving in DB. '''
 		valid = True
 		if self.title == '' or self.title == None:

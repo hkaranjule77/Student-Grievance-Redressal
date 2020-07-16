@@ -6,7 +6,7 @@ from datetime import date, datetime
 import os
 
 from user.models import Student, Member
-from threads.models import Thread
+from threads.models import Category, SubCategory, Thread
 from sgr.settings import BASE_DIR
 from user.views import get_object
 
@@ -23,7 +23,7 @@ class Complain(models.Model):
 	sub_categories = ( 
 		( ( 'A', 'Admission' ), ( 'C', 'Concession' ), ( 'S', 'Scholarship/Freeship' ), ( 'O', 'Other' ) ),
 		( ( 'C', 'Canteen' ), ( 'A', 'Classroom' ), ( 'G', 'Gymnasium' ), ( 'L', 'Library' ),
-		  ( 'L', 'Lift' ), ( 'P', 'Parking' ), ( 'Y', 'Playground' ),
+		  ( 'I', 'Lift' ), ( 'P', 'Parking' ), ( 'Y', 'Playground' ),
 		  ( 'R', 'Practical Lab' ), ( 'T', 'Toilets/Washrooms' ), ( 'W', 'Workshop' ),
 		  ( 'X', 'Xerox Office' ), ( 'O', 'Other' ) ),
 		( ( 'B', 'Branch Committees' ), ( 'E', 'E-Cell' ), ( 'N', 'NSS' ), ( 'W', 'Women Development' ),
@@ -104,7 +104,8 @@ class Complain(models.Model):
 
 	def generate_id(self, category, sub_category):
 		''' Generates and initialize id for object when called. '''
-		complain = Complain.objects.all().last()
+		categories = Category.get_code_name_list()
+		sub_categories = SubCategory.get_code_name_list()
 		today = date.today()
 		curr_date = today.strftime('%y%m%d')
 		# opening file in reading mode
@@ -117,13 +118,16 @@ class Complain(models.Model):
 		if curr_date != count_data[0]:
 			print( 1 )
 			data = ''
-			for category_wise in Complain.sub_categories:
-				for code, sub_cat in category_wise:
+			category_index = 0
+			for category_wise in sub_categories:
+				for sub_code, sub_cat in category_wise:
 					if sub_cat == sub_category:
 						data+='1 '
+						code = categories[ category_index ][ 0 ] + sub_code
 					else:
 						data+='0 '
 				data+='\n'
+				category_index += 1
 			data = curr_date+ '\n' + data
 			count_file.write(data)
 			count_file.close()
@@ -138,9 +142,9 @@ class Complain(models.Model):
 			print( count_data, 'count_data' )
 			# count incrementing part
 			cat_index = 1
-			for cat_code, cat in Complain.categories:
+			for cat_code, cat in categories:
 				sub_index = 0
-				for sub_cat_code, sub in Complain.sub_categories[cat_index-1]:
+				for sub_cat_code, sub in sub_categories[cat_index-1]:
 					if (sub == sub_category and cat == category):
 						print(sub, cat)
 						try:

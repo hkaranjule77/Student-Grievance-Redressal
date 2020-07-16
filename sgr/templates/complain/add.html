@@ -4,41 +4,37 @@
     Add complain
 {% endblock %}
 
-{% block js_script %}
-	function populate(){
-		var categories = {{ categories|safe }} ;
-		var sub_categories = {{ sub_categories.0|safe }} ;
-		var select_cat = document.getElementById( "category" ) ;
-		var select_sub = document.getElementById( "sub_category" ) ;
-		for( i=0 ; i < categories.length ; i++ ){
-			document.write( categories[i] )
-		}
+{% block js_script %}	
+	function submitForm(){
+		document.getElementById( "complain_form" ).submit()
 	}
 {% endblock %}
 
 {% block section %}
 	<div class="wrap">
 		<h1 align="center">Register Complaint</h1>
-		<form method = "post" action = "/complain/add/" enctype = "multipart/form-data">
+		<form id="complain_form" method = "post" action = "/complain/add/" enctype = "multipart/form-data">
 		{% csrf_token %}
 			<p>
 				<input type = "text" name = "subject" placeholder="Enter your Complain's subject" value = "{{complain.subject}}">
 			</p>
 			<p>
-				<select name = "category" id="category" >
+				<select name = "category" id="category" onchange="submitForm()" >
 					<option selected>Select Category</option>
-					{% for code, category in categories %}
-						<option> {{category}} </option>
+					{% for category in categories %}
+						<option {% if category == complain.category %} selected {% endif %}>
+							{{category}}
+						</option>
 					{% endfor %}
 				</select>
 			</p>
 			<p>
 				<select name = "sub_category" id="sub_category">
 					<option selected>Select Sub Category</option>
-					{% for section in sub_categories %}
-						{% for code, sub_category in section %}
-							<option> {{sub_category}} </option>
-						{% endfor %}
+					{% for sub_category in sub_categories %}
+						<option {% if complain.sub_category == sub_category %} selected {% endif %}>
+							{{ sub_category }}
+						</option>
 					{% endfor %}
 				</select>
 			</p>

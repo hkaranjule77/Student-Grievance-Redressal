@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from .models import Thread
+from .models import Category, SubCategory, Thread
 from complain.models import Complain, Note
 from user.views import get_object
 
@@ -14,15 +14,30 @@ def add_thread( request ):
 	if request.user.is_staff:
 		member = get_object( request )
 		if member is not None:
-			context = { 'categories' : Complain.categories, 'sub_categories' : Complain.sub_categories }
+			context = { 'categories' : Category.get_list() }
+			print( Category.get_list() )
+			print( Category.get_code_name_list() )
+			print( SubCategory.get_code_name_list() )
 			if request.method == 'POST':
 				thread = Thread.init_for_add( request, member )
-				if thread.is_add_valid():
-					thread.save()
-					messages.success( request, f'Thread { thread.id } is added. ')
-					return redirect( f'/thread/{ thread.id }/')
+				if thread.category != 'Select Category' :
+					context.update( { 
+							'thread' : thread,
+							'sub_categories' : SubCategory.get_list( request, thread.category )
+						}
+					)
+				if thread.is_add_valid( request ):
+					if thread.id != '' :
+						thread.save()
+						messages.success( request, f'Thread { thread.id } is added. ')
+						return redirect( f'/thread/{ thread.id }/')
+					else :
+						messages.error( request, ' Thread Creation Limit reached for this subcatgory. ')
 				else:
-					messages.error( request, ' Please fill form before submitting it. ' )
+					if thread.sub_category != 'Select Sub Category' :
+						messages.error( request, ' Please fill form before submitting it. ' )
+					else :
+						messages.info( request, ' Please select Sub Category. ' )
 					context.update( { 'thread' : thread } )
 			return render( request, 'threads/add.html', context )
 	return render( request, 'permission_denied.html' )
