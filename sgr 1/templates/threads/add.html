@@ -1,0 +1,46 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+	Add Thread
+{% endblock %}
+
+{% block js_script %}
+	function submitForm(){
+		document.getElementById( "add_thread_form" ).submit() ;
+	}
+{% endblock %}
+
+
+{% block section %}
+	<div class="wrap">
+		<h2 align="center">Add Thread</h2>
+		<form id ="add_thread_form" method="post" action="{% url 'Add Thread' %}">
+			{% csrf_token %}
+			<p>
+				<input type="text" name="title" value="{{ thread.title }}" placeholder="Enter Title" required>
+			</p>
+			<p>
+				<select name="category" id="category" onchange="submitForm()" required>
+					<option selected>Select Category</option>
+					{% for category in categories %}
+						<option {% if thread.category == category %}selected{% endif %}>
+							{{ category }}
+						</option>
+					{% endfor %}
+				</select>
+			</p>
+			<p>
+				<select name="sub_category" id="sub_category" required>
+					<option>Select Sub Category</option>
+					{% for sub_category in sub_categories %}
+						<option> {{ sub_category }} </option>
+					{% endfor %}
+				</select>
+			</p>
+			<p>
+				<textarea name="description"required>{% if thread.description %}{{ thread.description }}{% else %}Add description here...{% endif %}</textarea>
+			</p>
+			&nbsp;&nbsp;<input type="submit" id="add_thread_submit" value="Add Thread">
+		</form>
+	</div>
+{% endblock %}

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <!-- <link rel="stylesheet" href="complain outline.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <body>
+    <style >
+    body{
+      background-image: url("brown-paper-clips-1097930.jpg");
+      background-repeat: no-repeat;
+      background-size: 100%;
+    }
+
+    .header{
+      background-color: #f1f1f1;
+      padding: 20px 10px;
+      height: 70px;
+      width: 100%;
+      position: absolute;
+    }
+
+
+    .header a{
+      position: relative;
+      float: left;
+      top: -7px;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-left: 30px;
+        justify-content: space-between;
+    }
+
+    .header-right{
+      margin-left:700px;
+    }
+
+    .header a:hover{
+      font-weight: bolder;
+      color: #1610b5;
+      text-decoration: none;
+    }
+
+    #mySidenav a {
+      position: absolute; /* Position them relative to the browser window */
+      left: -20px; /* Position them outside of the screen */
+      transition: 0.4s ease-in; /* Add transition on hover */
+      padding: 15px; /* 15px padding */
+      width: 250px; /* Set a specific width */
+      text-decoration: none; /* Remove underline */
+      font-size: 20px; /* Increase font size */
+      color: white; /* White text color */
+      border-radius: 0 5px 5px 0; /* Rounded corners on the top right and bottom right side */
+      display: inline-block;
+    }
+
+    #mySidenav a:hover {
+      left: 10px; /* On mouse-over, make the elements appear as they should */
+    }
+
+    /* The about link: 20px from the top with a green background */
+    #profile {
+      top: 120px;
+      background-color: #4CAF50;
+      margin-bottom: 3px;
+    }
+
+    #add {
+      top: 200px;
+      background-color: #2196F3;
+      margin-bottom: 3px;
+    }
+
+    #mycomp {
+      top: 280px;
+      background-color: #f44336; /* Red */
+      margin-bottom: 3px;
+    }
+
+    #drafts {
+      top: 360px;
+      background-color: #555;
+      margin-bottom: 3px;
+    }
+    #Starred{
+      top: 440px;
+      background-color: #03fcd7;
+      margin-bottom: 3px;
+    }
+    #help{
+      top: 520px;
+      background-color: #b507f5;
+      margin-bottom: 3px;
+
+    }
+    #logout{
+      top: 600px;
+      margin-bottom: 3px;
+      background-color: #ed1ae3;
+    }
+
+    .chatbox{
+      margin-left: 500px;
+      position: absolute;
+      text-transform: uppercase;
+      height: 500px;
+      width: 500px;
+      background-color: #f7e8bc;
+      margin-top: 100px;
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+    a:hover { color: #2ff7cc; font-size: 1.1em;}
+
+    </style>
+    <div class="header" >
+      <a href="#" style="margin-left: 10px;">DASHBOARD</a>
+      <a href="#" class="header-left" style="margin-left:100px;">WELCOME SWATI MOHAPATRA</a>
+      <div class="header-right">
+        <a href="#">USER-ID: DMCE0127</a>
+        <a href="#">YEAR: 3rd</a>
+        <a href="#">DIV: COMP A</a>
+      </div>
+
+    </div>
+
+    <div id="mySidenav" class="sidenav">
+  <a href="#" id="profile"><span class="glyphicon glyphicon-user"></span>&nbsp {{User.first_name}}</a>
+  <a href="#" id="add"> <span class="glyphicon glyphicon-plus-sign"></span>&nbsp Add New Complaint </a>
+  <a href="#" id="mycomp"><span class="glyphicon glyphicon-folder-open"></span>&nbsp My Complains</a>
+  <a href="#" id="drafts"><span class="glyphicon glyphicon-folder-close"></span>&nbsp Drafts</a>
+  <a href="#" id="Starred"><span>&#x2605;</span>&nbsp Starred Complaints</a>
+  <a href="#" id="help"><span class="glyphicon glyphicon-question-sign pull-left"></span>&nbsp Help</a>
+  <a href="#" id="logout"><i class="fa fa-power-off" style="font-size:20px;"></i> &nbsp Logout</a>
+</div>
+
+<div class="chatbox">
+    <div class="container" style="margin: 15px 20px;">
+      <a href="{% url 'studchatbox' %}"><i class="fa fa-angle-double-left" style="font-size:26px; position: absolute;"></i></a> &nbsp &nbsp &nbsp &nbsp;
+      <strong>Chatbox</strong> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+    </div>
+
+  <hr style="background-color: black;">
+    <strong>{{member.mid}}</strong>
+  <hr>
+  <form action="{% url 'studchatpage' %}" method="post">
+    {% csrf_token %}
+    {% if oc %}
+      {% if msg %}
+        {% for i in msg %}
+          {% if i.msg_flag == "member" %}
+            <input type="text" name="" value="{{ i.msg }}" style="background-color: #c1dede; margin-left: 190px; border-radius: 7px; " disabled > <p></p>
+          {% elif i.msg_flag == 'student' %}
+            <input type="text" name="" value="{{ i.msg }}" style="background-color: #366cf5; margin-left: 30px; border-radius: 7px; " disabled ><p></p>
+          {% endif %}
+        {% endfor %}
+        <textarea name="msg_from_student" rows="2" cols="40" placeholder="Reply Here" style="border-radius: 8px; border-bottom: 3px solid black; background-color: #ffecd6;" required></textarea> <p></p>
+        <input type="submit" name="" value="Send">
+      {% else %}
+        <center><em>No Message Received <br> Wait for the Member to Message</em></center>
+      {% endif %}
+     {% else %}
+      {% if msg %}
+        {% for i in msg %}
+          {% if i.msg_flag == "member" %}
+            <input type="text" name="" value="{{ i.msg }}" style="background-color: #c1dede; margin-left: 190px; border-radius: 7px; " disabled > <p></p>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <center><em>No Message Received <br> Wait for the Member to Message</em></center>
+       {% endif %}
+      {% endif %}
+
+  </form>
+
+</div>
+
+  </body>
+</html>

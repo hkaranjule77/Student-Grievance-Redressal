@@ -1,0 +1,42 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+    Profile
+{% endblock %}
+
+{% block section %}
+
+	<p align="right">
+		{% if user.is_staff %}
+			{% if curr_mem.role == 'HOD' or curr_mem.role == 'Principal' %}
+				<a href="/user/deactivate/{{ student.sid }}/"> Deactivate </a>
+			{% elif curr_mem.role == 'Sorter' %}
+				<a href="/user/deactivation-request-form/{{ student.sid }}/"> Deactiviation request </a>
+			{% endif %}
+		{% endif %}
+	</p>
+	
+    <p>
+        <br>
+        <h1>{{student.user.first_name}} {{student.user.last_name}}</h1>
+        <hr width = "70%" align = "left">
+        <i>Student</i>
+        <br>
+        <p><i> username : </i> {{student.user.username}}</p>
+        <br>
+        
+        <p><h3> Academics details: </h3></p>
+        <hr width = "50%" align = "left">
+        <p> <i>Student ID : </i> {{student.sid}}</p>
+        <p> <i>Year : </i> {{student.year}} </p>
+        <p> <i>Department : </i> {{student.department }} </p>
+        <br>
+        
+        <p><h3> Contact details: </h3></p>
+        <hr width = "50%" align = "left" >
+        <p> <i>Contact No : </i> {{student.contact_no}}</p>
+        <p> <i>Email : </i> {{student.user.email}} </p>
+        <br>
+        
+    </p>
+{% endblock %}

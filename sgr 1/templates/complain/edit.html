@@ -1,0 +1,46 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+Edit {{ complain }} Complain
+{% endblock %}
+
+{% block section %}
+	<div class="wrap">
+		<h1 align="center">Register Complaint</h1>
+		<form method = "post" action = "/complain/{{ complain }}/edit/" enctype = "multipart/form-data">
+		{% csrf_token %}
+			<p>
+				<input type = "text" name = "subject" placeholder="Enter your Complain's subject" value = "{{complain.subject}}">
+			</p>
+			<p>
+				<select name = "category" id="category">
+					<option selected>Select Category</option>
+					{% for code, category in categories %}
+						<option {% if category == complain.category %}selected{% endif %}>
+							{{category}}
+						</option>
+					{% endfor %}
+				</select>
+			</p>
+			<p>
+				<select name = "sub_category" id="sub_category">
+					<option selected>Select Sub Category</option>
+					{% for section in sub_categories %}
+						{% for code, sub_category in section %}
+							<option {% if complain.sub_category == sub_category %}selected{% endif %}>
+								{{sub_category}}
+							</option>
+						{% endfor %}
+					{% endfor %}
+				</select>
+			</p>
+			<p>
+				<textarea name = "brief" value = "{{complain.brief}}">{% if not complain.brief %}Add your complain in brief here...{% else %}{{ complain.brief }}{% endif %}</textarea>
+			</p>
+			<p> &nbsp;&nbsp; Upload document :<br>
+				&nbsp;&nbsp;<input type = "file" name = "file" value = "{{complain.file}}">
+			</p>
+			&nbsp;&nbsp;<input type = "submit" id="add_complain_submit" value="Add Complaint">  
+		</form>
+	</div>
+{% endblock %}
