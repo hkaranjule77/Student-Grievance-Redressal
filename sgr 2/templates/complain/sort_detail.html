@@ -1,0 +1,122 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+Complain List
+{% endblock %}
+
+{% block js_script %}
+	function toggle_rejection_form(){
+		var reject_form = document.getElementById( "hidden_rejection_form" ) ;
+		if ( reject_form.style.form == "block" ){
+			reject_form.style.display = "none" ;
+		}
+		else{
+			reject_form.style.display = "block" ;
+		}
+	}
+{% endblock %}
+
+{% block section %}
+    <br>
+    <h3> <i> {{complain.subject}} </i> </h3>
+    [
+    {% if complain.action == 'ACCEPTED' %}
+		Accepted for solving
+	{% elif complain.action == 'REJECTED' %}
+		Rejected
+    {% endif %}
+    ]
+    <div>
+         <p><i>Complain ID</i> : {{complain.id}}</i></p>
+         <p><i>Subject</i> : {{complain.subject}}</i></p>
+         <p><i>Category</i> : {{complain.category}}</p>
+         <p><i>Sub-category</i> : {{complain.sub_category}}</p>
+         <p><i>Brief </i>:{{complain.brief}}</p>
+         <p><i>File</i> :
+             {% if complain.file %}
+                 <a href = "{{ complain.file.url }}"> {{complain.get_filename}}</i></a>
+             {% else %}
+				No file attached
+             {% endif %}
+         </p>
+         
+         {% if complain.thread %}
+			<p><i>Attached to Thread :</i>
+				<a href="/thread/{{ complain.thread }}/">{{ complain.thread.title }} ( {{ complain.thread }} ) </a>
+			</p>
+			<p><i>Threaded by : </i>
+				{{ complain.threaded_at }}
+			</p>
+			<p><i>Threaded at :</i>
+				{{ complain.threaded_at }}
+			</p>
+         {% endif %}
+         
+         {% if complain.action == 'REJECTED' %}
+			<i>Rejected for :</i> {{ complain.action_msg }}
+         {% endif %}
+         
+         <p align = "right">
+			{% if complain.last_edit_at %}
+				<i>last edited at </i> {{ complain.last_edit_at }}	<br>
+			{% endif %}
+			<i>Registered at </i>{{complain.reg_datetime}}
+		</p>
+		
+         <hr>
+         
+		<a href = "/complain/"> Back to Complain List</a>
+         
+
+             <br><br>
+        {% if complain.action == '' %}
+				<p>
+				<form method="post" action="/complain/{{ complain.id }}/accept/">
+					{% csrf_token %}
+					<input type="submit" value="Accept">
+				</form>
+				{% if complain.action == 'ACCEPTED' or complain.thread.action != 'APPROVE' %}
+					<input type="submit" onclick="toggle_rejection_form()" value="Reject" >
+				{% endif %}
+				</p>
+				
+				<div class="wrap" id ="hidden_rejection_form" style="display:none">
+					<form method="post" action="/complain/{{ complain.id }}/reject/">
+						{% csrf_token %}
+						<textarea name="rejection_msg" required>Add your message for rejection here...</textarea>
+						&nbsp;&nbsp;<input type="submit" value="Reject">
+					</form>
+				</div>
+				
+				{% if thread_list %}
+					<h4>Recommended Threads : </h4>
+						<table>
+							<tr>
+								<th>ID</th>
+								<th>Title</th>
+								<th>Pin it? </th>
+								<th>Action</th>
+							</tr>
+							{% for thread in thread_list %}
+								<tr>
+									<form method="post" action="/thread/{{ thread }}/attach-complain/{{ complain }}/">
+									{% csrf_token %}
+										<td><br>&nbsp; <a href="/thread/{{ thread }}/">{{ thread }}</a> &nbsp;</td>
+										<td><br>&nbsp; {{ thread.title }} &nbsp;</td>
+										<td><br> &nbsp;
+											<input type="checkbox" name="{{ thread }}" value="True">
+											&nbsp;
+										</td>
+										<td>
+											<input type="submit" value="Attach" >
+										</td>
+									</form>
+								</tr>
+								<br>
+							{% endfor %}
+						</table>
+				{% endif %}
+				
+         {% endif %}
+    </div>
+{% endblock %}
