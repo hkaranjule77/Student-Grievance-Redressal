@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Activate Member
+{% endblock %}
+
+{% block content %}
+	
+	<div class="wrap">
+		<h1 align="center">Activate Member</h1>	
+		<form method = "post" action = "/user/activate-member/">
+		{% csrf_token %}
+			<p> 
+				<input type = "text" name = "mid" title="Enter Your Member ID ( 6 Character )"
+				 value = "{{member.mid}}" placeholder="Enter Member ID" required>
+			</p>
+			<p> 
+				<select name = "security_question" id="security_question" required>
+					<option>Select Security Question</option>
+					{% for question in questions %}
+						<option> {{question}}</option>
+					{% endfor %}
+				</select>
+			</p>
+			<p> 
+				<input type = "password" name = "answer" placeholder="Enter Security Answer" required>
+				<i> (max length 12) </i>
+			</p>
+			<p>
+				<input type = "password" name = "activation_code" placeholder="Enter 8-digit Activation code" required>
+				<i> (8 digit-code) </i>
+			</p>
+			<p>
+				<input type = "password" name = "password" placeholder="Enter New Password" required>
+			</p>
+			<p>
+				<input type = "password" name = "confirm_password" placeholder="Confirm New Password" required>
+			</p>
+			&nbsp;&nbsp;<input type = "submit" value="Activate"  title='Click this button to submit form'>
+		</form>
+	</div>
+{% endblock %}
