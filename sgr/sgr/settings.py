@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'user',
     'complain',
     'threads',
+    'chat',
     'verification',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -132,5 +133,5 @@ STATIC_ROOT = os.path.join(LOCAL_CDN_PATH, 'static')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'staticfiles')]
 
 MEDIA_URL = '/media/'
-                    
-MEDIA_ROOT = os.path.join(LOCAL_CDN_PATH, 'media')                    
+
+MEDIA_ROOT = os.path.join(LOCAL_CDN_PATH, 'media')
