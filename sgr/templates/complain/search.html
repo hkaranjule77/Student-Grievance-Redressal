@@ -11,14 +11,24 @@
 		{% csrf_token %}
 			<p>
 				<input type = "text" name = "query" value = "{{query}}">
-				<input type = "submit" value="Search">
-			</p>
-			Filter : 
+			</p> 
+			Search by :
 			<select name = "opt" value = {{opt}}>
-				{% for op in options %}
-					<option> {{op}} </option>
+				{% for op in search_options %}
+					<option {% if search_by == op %}selected{% endif %}>
+						{{op}}
+					</option>
 				{% endfor %}
 			</select>
+			<select name="filter">
+				<option>Select Filter</option>
+				{% for filter in filter_options %}
+					<option {% if filter_option == filter %}selected{% endif %}>
+						{{ filter }}
+					</option>
+				{% endfor %}
+			</select>
+			<input type = "submit" value="Search">
 		</form>
 	</div>
 		

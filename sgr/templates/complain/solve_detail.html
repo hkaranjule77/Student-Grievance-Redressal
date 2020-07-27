@@ -1,36 +1,104 @@
 {% extends 'user/navbar.html' %}
 
 {% block title %}
-Complain List
+	Complaint {{ complain }}
 {% endblock %}
+
+{% block js_script %}
+	function cancel_edit_redressal(){
+		redressal_text = document.getElementById( "redressal_text" ) ;
+		redressal_form = document.getElementById( "hidden_redressal_form" ) ;
+		cancel_button = document.getElementById( "cancel_redressal_button") ;
+		redressal_text.style.display = "block" ;
+		redressal_form.style.display = "none" ;
+		cancel_button.style.display = "none" ;
+	}
+
+	function edit_redressal(){
+		redressal_text = document.getElementById( "redressal_text" )
+		redressal_form = document.getElementById( "hidden_redressal_form" )
+		cancel_button = document.getElementById( "cancel_redressal_button")
+		redressal_text.style.display = "none" ;
+		redressal_form.style.display = "block" ;
+		cancel_button.style.display = "block" ;
+	}
+
+	function toggle_redressal_form(){
+		redressal_form = document.getElementById( "hidden_redressal_form" ) ;
+		note_form = document.getElementById( "hidden_note_form" ) ;
+		if ( redressal_form.style.display == "none" ){
+			redressal_form.style.display = "block" ;
+			note_form.style.display = "none" ;
+		}
+		else{
+			redressal_form.style.display = "none" ;
+		}
+	}
+	function toggle_note_form(){
+		note_form = document.getElementById( "hidden_note_form" ) ;
+		redressal_form = document.getElementById( "hidden_redressal_form" ) ;
+		if ( note_form.style.display == "none" ){
+			redressal_form.style.display = "none" ;
+			note_form.style.display = "block" ;
+		}
+		else{
+			note_form.style.display = "none" ;
+		}
+	}
+	
+	function toggle_rejection_form(){
+		rejection_form = document.getElementById( "hidden_rejection_form" ) ;
+		if ( rejection_form.style.display == "none" ){
+			rejection_form.style.display = "block" ;
+		}
+		else {
+			rejection_form.style.display = "none" ;
+		}
+	}
+{% endblock %}
+
+
 
 {% block section %}
     <br>
-    <h3> <i> {{complain.subject}} </i> </h3>
-    <p>
-        [
-			{% if complain.action == 'ACCEPTED' and complain.thread %}
-				Threaded
-			{% elif complain.action == 'ACCEPTED' %}
-				Accepted for solving
-			{% elif complain.action == 'REJECTED' %}
-				Rejected
+    <div class="wrap">
+		<h3> <i> {{complain.subject}} </i> </h3>
+		
+		<!-----			Complain STATUS			----->	
+			{% if complain.redressal.action == "APPROVE" or complain.thread.redressal.action == "APPROVE" %}
+				<div title=" Status : Redressal is approved. So, Complaint is solved ">[ Solved ]</div>
+			{% elif complain.redressal.action == "REJECT" or complain.thread.redressal.action == "REJECT" %}
+				<div title="Status : Redressal is rejected.">[ Redressal Rejected ]</div>
+			{% elif complain.action_by_sorter == 'ACCEPTED' and complain.thread %}
+				<div title="Status : Complaint is added in thread for solving">[ Threaded ]</div>
+			{% elif complain.action_by_sorter == 'ACCEPTED' %}
+				[ Accepted for solving ]
+			{% elif complain.action_by_sorter == 'REJECTED' %}
+				[ Rejected for solving ]
 			{% endif %}
-		]
-         <p><i>Complain ID</i> : {{complain.id}}</i></p>
-         <p><i>Subject</i> : {{complain.subject}}</i></p>
-         <p><i>Category</i> : {{complain.category}}</p>
-         <p><i>Sub-category</i> : {{complain.sub_category}}</p>
-         <p><i>Brief </i>:{{complain.brief}}</p>
-         <p><i>File</i> :
-             {% if complain.file %}
-                 <a href = "{{ complain.file.url }}"> {{complain.get_filename}}</i></a>
-             {% else %}
-                 No file attached
-             {% endif %}
-         </p>
-         
-         {% if complain.thread %}
+		
+		<!-----			COMPLAIN INFO			----->
+		 <p><i>Complain ID</i> : {{complain.id}}</i></p>
+		 <p><i>Subject</i> : {{complain.subject}}</i></p>
+		 <p><i>Category</i> : {{complain.category}}</p>
+		 <p><i>Sub-category</i> : {{complain.sub_category}}</p>
+		 <p><i>Brief </i>:{{complain.brief}}</p>
+		 <p><i>File</i> :
+			 {% if complain.file %}
+				 <a href = "{{ complain.file.url }}"> {{complain.get_filename}}</i></a>
+			 {% else %}
+				 No file attached
+			 {% endif %}
+		 </p>
+		<p><i>Complainer </i>:
+			<a href="/user/profile/{{ complain.complainer }}/"
+				title="{{complain.complainer.user.first_name}} {{complain.complainer.user.last_name}} ({{complain.complainer}})">
+				{{ complain.complainer }}
+			</a>
+		</p>	
+		 
+		 <!----			THREAD DETAIL			----->
+		 {% if complain.thread %}
 			<p><i>Attached to Thread :</i>
 				<a href="/thread/{{ complain.thread }}/">{{ complain.thread.title }} ( {{ complain.thread }} ) </a>
 			</p>
@@ -40,53 +108,156 @@ Complain List
 			<p><i>Threaded at :</i>
 				{{ complain.threaded_at }}
 			</p>
-         {% endif %}
-         
-         {% if complain.action == 'REJECTED' %}
-			<i>Rejected for :</i> {{ complain.action_msg }}
-         {% endif %}
-         
-         <p align = "right">
+		 {% endif %}
+		 
+		 <!-----			REJECTION MSG			----->
+		 {% if complain.action_by_sorter == 'REJECTED' %}
+			<i>Rejected for :</i> {{ complain.sorter_action_msg }}
+		 {% endif %}
+		 
+		 <!-----			TIME INFO			----->
+		 <p align = "right">
 			{% if complain.last_edit_at %}
 				<i>last edited at </i> {{ complain.last_edit_at }}	<br>
 			{% endif %}
 			<i>Registered at </i>{{complain.reg_datetime}}
 		</p>
+	</div>
+	 <hr>
+	 
+	 <!-----				ACTION LINKS FOR SOLVING			----->
+	 {% if not complain.thread and not complain.redressal or complain.redressal.action == "REJECT" %}
+		 {% if select_button %}
+			 <a href = "/complain/{{complain.id}}/select/"> Select to Solve </a> | 
+		 {% else %}
+			 {% if complain.solver.user == user %}
+				{% if not complain.redressal or complain.redressal.action == "REJECT" %}
+					<button onclick="toggle_note_form()" title="Shows / Hides note form">
+						Add note
+					</button>
+					<button onclick="toggle_redressal_form()" title="Shows / Hides redressal form">
+						 Redress
+					</button>
+					<form action='/complain/{{complain.id}}/deselect/'>
+						<input type="submit" value="Deselect"> 
+					</form>
+				{% endif %}
+			 {% else %}
+				 <p>
+					 This complain already selected by other member.<br>
+					 Please try to select other complain.
+				</p>
+			{% endif %}
+		 {% endif %}
+	 {% endif %}
+	 
+	 <!---	BACK BUTTON		--->
+	 <form action="/complain/">
+		<input type="submit" value="Back to Complain List" align="right" title="Takes back to Complaint List">
+	</form>
+	
+	<!-----				HIDDEN NOTE FORM					----->
+	<div id="hidden_note_form" {% if not note %} class="wrap" style="display : none "{% endif %}>
+		<h3>Add Note Form</h3>
+		<form method="post" action = '/complain/{{complain.id}}/add-note/' enctype="multipart/form-data">
+			{% csrf_token %}
+			<p><textarea name = "note" required> Track your work on Complaint by adding a note here...</textarea></p>
+			<p>Attachment : <input type = "file" name = "file" ></p>
+			<button type="submit">
+				Add Note
+			</button>
+		</form>
+	</div>
+	 
+	 <!-----				HIDDEN REDRESSAL FORM			----->
+	<div id="hidden_redressal_form" {% if not redressal %} class="wrap" style="display : none"{% endif %}>
+		<h3>Add Redressal Form</h3>
+		 <form method="post" action="/complain/{{ complain }}/redress/" enctype="multipart/form-data">
+			 {% csrf_token %}
+			<textarea name="redressal_text">{% if complain.redressal %}{{ complain.redressal.text }}{% else %}Add your redressal for complaint here...{% endif %}</textarea>
+			<input type="file" name="redressal_file"><br>
+			<input type="submit" value="Redress" title="Adds redress for complaint and sends for approval"><br><br>
+			&nbsp;&nbsp;&nbsp;
+			<input type="button" value="cancel" onclick="cancel_edit_redressal()" style="display : none" id="cancel_redressal_button">
+		</form>
+	</div>
+	
+	<!-----				REDRESSAL SECTION 				----->
+	{% if complain.redressal %}
+		<div class="wrap">
+			<!--- 	REDRESSAL TEXT	--->
+			<div id="redressal_text">
+				<br>
+				<h3>Redressal</h3>
+				<br>
+				Redressal : {{ complain.redressal.text }}<br>
+				File : 
+				{% if complain.redressal.file %}
+					<a href="{{ complain.redressal.file.url }}">{{ complain.redressal.get_filename }}</a>
+				{% else %}
+					No file attached.
+				{% endif %}<br>
+				Added by : {{ complain.redressal.added_by }}<br>
+				Added at : {{ complain.redressal.added_at }}<br>
+				{% if complain.redressal.action != "APPROVE" %}
+					<br>
+					{% if member.role == 'HOD' or member.role == 'Principal' %}
+						&nbsp;&nbsp;&nbsp;
+						<input type="button" onclick="edit_redressal()" value="Edit">
+					{% endif %}
+				{% endif %}
+				{% if complain.redressal.action == "REJECT" %}
+					Rejection reason : {{ complain.redressal.action_msg }}<br>
+					Rejected by : {{ complain.redressal.action_by }}<br>
+					Rejected at : {{ complain.redressal.action_at }}<br>
+				{% endif %}
+			</div>
 		
-         <hr>
-         {% if not complain.thread and complain.actioin == 'ACCEPTED' %}
-             {% if select_button %}
-                 <a href = "/complain/{{complain.id}}/select/"> Select to Solve </a> | 
-             {% else %}
-                 {% if complain.solver.user == user %}
-                     <a href = '/complain/{{complain.id}}/add-note/'> Add note </a> |
-                     <a href = '/complain/{{complain.id}}/deselect/'> Deselect </a> | 
-                 {% else %}
-                     <p>
-                         This complain already selected by other member.<br>
-                         Please try to select other complain.
-                    </p>
-                {% endif %}
-             {% endif %}
-         {% endif %}
-         <a href = "/complain/"> Back to Complain List</a>
+			<!-----				ACTION FOR APPROVAL 			----->
+			{% if complain.redressal.action != "APPROVE" %}
+				<form action="/complain/{{ complain }}/approve-redressal/">
+					<input type="submit" value="Approve" title="Approves redressal and forward it to complainer">
+				</form>
+			{% endif %}
+			{% if complain.redressal.action != "REJECT" %}
+				<button onclick="toggle_rejection_form()"
+					title="Shows / hides redressal rejection form">
+						Reject
+					</button>
+			{% endif %}
+		</div>
+	{% endif %}
+		
+		<!-----		HIDDEN REJECTION FORM	----->
+	{% if complain.redressal.action != "REJECT" %}
+		<div id="hidden_rejection_form" {% if not reject %}style="display : none"{% endif %} class="wrap">
+			<h3>Rejection Form</h3>
+			<br><br>
+			<form method="post" action="/complain/{{ complain }}/reject-redressal/">
+				{% csrf_token %}
+				<textarea name="rejection_msg">Write down the correction to made in Redressal</textarea>
+				<br>
+				<input type="submit" name="submit_button" value="Reject Redressal"
+					title=" Rejects redressal and allow members to edit it. ">
+			</form>
+		</div>
+	{% endif %}
+	 
 <!--
-         NOTE SECTION
+	 NOTE SECTION
 -->
+		 <br><br>
+		{% for note in notes %}
+			<br>
+			<div class="wrap">
+				Note : {{ note.note }} <br>
+				File : {% if note.file %}<a href="{{ note.file.url }}">{{ note.get_filename }}</a>{% endif %} <br>
+				Added by : {{ note.solver.user.username }}<br>
+				<div align = "right">
+					Added at {{ note.reg_datetime }}
+				</div>
+			</div>
+		{% endfor %}
 
-             <br><br>
-             {% for note in notes %}
-                 <br>
-                 Note : {{ note.note }} <br>
-                 {% if note.file %}
-                     File : {{ note.file }} <br>
-                 {% endif %}
-                 Added by : {{ note.solver.user.username }}<br>
-                 <div align = "right">
-                     Added at {{ note.reg_datetime }}
-                 </div>
-                 <hr>
-             {% endfor %}
 
-    </p>
 {% endblock %}

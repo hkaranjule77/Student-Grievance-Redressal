@@ -7,10 +7,13 @@ Complain List
 {% block section %}
     <br>
     <h3> <i> {{complain.subject}} </i> </h3>
-    [
-    {% if complain.action == 'ACCEPTED' %}
-		[ Accepted for solving ]
-	{% elif complain.action == 'REJECTED' %}
+    
+    <!-----		Complain Status		----->	
+    {% if complain.thread.redressal.action == "APPROVE" or complain.redresssal.action == "APPROVE" %}
+		[ Redressed ]
+    {% elif complain.action_by_sorter == 'ACCEPTED' or complain.thread %}
+		<div title="Complaint is accepted for solving">[ Accepted ]</div>
+	{% elif complain.action_by_sorter == 'REJECTED' %}
 		[ Rejected ]
     {% endif %}
     
@@ -28,10 +31,12 @@ Complain List
              {% endif %}
          </p>
          
-         {% if complain.action == 'REJECTED' %}
-			<i>Rejected for :</i> {{ complain.action_msg }}
+         <!-----			COMPLAINT REJECTION MESSAGE			----->
+         {% if complain.action_by_sorter == 'REJECTED' %}
+			<i>Rejected for :</i> {{ complain.sorter_action_msg }}
          {% endif %}
          
+         <!------		TIME		----->
          <p align = "right">
 			{% if complain.last_edit_at %}
 				<i>last edited at </i> {{ complain.last_edit_at }}	<br>
@@ -41,7 +46,28 @@ Complain List
 		
          <hr>
          
-          {% if complain.action == 'REJECTED' and not user.is_staff %}
+         <!-----			REDRESSAL			----->
+         {% if complain.thread.redressal.action == "APPROVE" or complain.redressal.action == "APPROVE" %}
+			 <h3>Redressal</h3>
+			 Redressal : 
+			{% if complain.thread %}
+				{{ complain.thread.redressal.text }}
+			{% else %}
+				{{ complain.redressal.text }}
+			{% endif %}
+			<br>
+			{% if complain.thread and complain.thread.redressal_file %}
+				File attachment :
+				<a href="{{ complain.thread.redressal.file.url }}">{{ complain.thread.redressal.file.name }}</a>
+			{% elif complain.redressal_file %}
+				File attachment :
+				<a href="{{ complain.redressal.file.url }}">{{ complain.redressal.file.name }}</a>
+			{% endif %}
+			<br>
+         {% endif %}
+         
+         <!-----			EDIT LINK			----->
+          {% if complain.action_by_sorter == 'REJECTED' and not user.is_staff %}
 				<a href="/complain/{{ complain }}/edit/">Edit</a> | 
           {% endif %}
          <a href = "/complain/">Back to Complain List</a>

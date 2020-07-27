@@ -1,0 +1,48 @@
+{% extends 'user/navbar.html' %}
+
+{% block title %}
+	Thread List
+{% endblock %}
+
+{% block section %}
+	<i>Useful Link : </i>
+	<a href="{% url 'Add Thread' %}"> Add new Thread</a> |
+	<a href="{% url 'Search&Filter Thread' %}"> Search & Sort </a>
+	<br>
+	{% if search_result %}
+		<h3>Search Result for Thread :</h3>
+			<table>
+				<tr>
+					<th>ID</th>
+					<th>Title</th>
+					<th>Category</th>
+					<th>Sub Category</th>
+					<th>Status</th>
+				</tr>
+				{% for redressal in search_result %}
+					<tr>
+						<td> <a href="/thread/{{ thread }}/"> {{ thread.id }} </a> &nbsp;</td>
+						<td> {{ redressal.thread.title }}&nbsp; </td>
+						<td> {{ redressal.thread.category }}&nbsp; </td>
+						<td> {{ redressal.thread.sub_category }}&nbsp; </td>
+						<td>
+							{% if redressal.thread.action == 'APPROVE' %}
+								Approved
+							{% elif redressal.thread.action == 'REJECT' %}
+								Redressal rejected
+							{% elif redressal.thread.redressed %}
+								Redressed
+							{% else %}
+								Unredressed
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% else %}
+			<br>
+			<h3>
+				No such Thread available.
+			</h3>
+		{% endif %}
+{% endblock %}

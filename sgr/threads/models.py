@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
+from django.db.utils import IntegrityError
 from django.utils import timezone
 
 from datetime import date
@@ -10,10 +11,16 @@ import os
 from sgr.settings import BASE_DIR
 from user.models import Member
 
+# GLOBAL CONSTANTS
+FILE_PATH= os.path.join( BASE_DIR, 'data_files' )
 
 class Category( models.Model ) :
 	code = models.CharField( primary_key = True, max_length = 1 )
 	name = models.CharField( max_length = 25 )
+	
+	#Constants
+	global FILE_PATH
+	CATEGORY_PATH = os.path.join( FILE_PATH, 'categories.txt' )
 	
 	def get_category( request, category ) :
 		''' Returns Category Object of specified category string. '''
@@ -37,12 +44,49 @@ class Category( models.Model ) :
 		category_qs = Category.objects.all()
 		category_list = [ category.name for category in category_qs ]
 		return category_list
+		
+	def load_data() :
+		''' Loads Categories from file in Database. '''
+		# loading data from file & preprocessing the data
+		print( "Loading Categories from file into Database..." )
+		category_file = open( Category.CATEGORY_PATH, 'r' )		# opens file in read mode
+		category_data = category_file.read()										# reads all data from file
+		list_of_code_name = category_data.split( ';\n' )		# divides data in category data
+		list_of_code_name = list_of_code_name[ : len( list_of_code_name ) -1 ] 	# removing last empty line
+		for index in range( len( list_of_code_name ) ) :
+			list_of_code_name[ index ] = list_of_code_name[ index ].split( ',' )	# separates code and name
+		# adding category into database
+		categories_added = 0												# counts category updated in database
+		for code_name in list_of_code_name :
+			# checks if category already exist in DB
+			try :
+				category_obj = Category.objects.get( name = code_name[ 1 ] )
+			except ObjectDoesNotExist :								# occurs when if fetched object is not in DB
+				# adds category in DB
+				category_obj = Category( name = code_name[ 1 ], code = code_name[0] ) # initialization
+				try :
+					category_obj.save()										# saves Category object
+					categories_added += 1								# updating category update count
+					print( f"Category '{ category_obj.name }' is added with code {category_obj.code }. ")
+				except IntegrityError :
+					print( f" Code '{ code_name[ 0 ] }' already exist with another Category ' skipped Category '{ code_name[ 1 ] }' for now change.  " )
+		if categories_added != 0 :
+			print( f' Added { categories_added } new Categories in Database Successfully. ' )
+		else :
+			print( ' Categories are already up-to date. ' )
+	
+		
+		
 	
 class SubCategory( models.Model ) :
 	''' Model Class for storing different categories of Complain and Thread Model '''
 	code = models.CharField( max_length = 1 )
 	name = models.CharField( max_length = 25 )
 	category = models.ForeignKey( Category, on_delete = models.CASCADE )
+	
+	# constant
+	global FILE_PATH
+	SUBCATEGORY_PATH = os.path.join( FILE_PATH, 'subcatgories.txt')
 	
 	def get_code_name_list() :
 		''' Returns a List of [ code, name ] of Sub Category object nested according to category. '''
@@ -62,38 +106,57 @@ class SubCategory( models.Model ) :
 			sub_cat_list = [ sub_category.name for sub_category in sub_cat_obj ]
 			print( sub_cat_list )
 			return sub_cat_list
-
-class Thread(models.Model):
-	# required data
-	id = models.CharField( primary_key = True, max_length = 15 )
-	title = models.CharField(max_length = 25)
-	category = models.CharField( max_length = 25 )
-	sub_category = models.CharField( max_length = 25 )
-	description = models.TextField()
-	complain_count = models.IntegerField( default = 0 )
-	note_count = models.IntegerField( default = 0 )
-	created_by = models.ForeignKey( Member, on_delete = models.CASCADE )
-	created_at = models.DateTimeField( default = timezone.now )
-	# for solving
-	solver = models.ForeignKey(
-		Member, 
-		on_delete = models.SET_NULL, 
-		null = True, 
-		blank = True 
-	)
-	solver = models.DateField( null = True, blank = True )
-	# redressal
-	redressed = models.BooleanField( default = False )
-	redressal = models.TextField( null = True, blank = True )
-	redressal_file = models.FileField( upload_to = 'thread/redressal files/', null = True, blank = True )
-	redressed_by = models.ForeignKey(
+			
+	def load_data() :
+		''' Loads Subcategories from file into DB. '''
+		subcategory_file = open( SubCategory.SUBCATEGORY_PATH, 'r' )
+		subcategory_data = subcategory_file.read()
+		subcategory_data = subcategory_data.split( ';\n')				# divides subcategory, category-wise
+		subcategory_data = subcategory_data[ : len( subcategory_data ) - 1 ]	# deleting last blank line
+		for category_wise in subcategory_data :
+			category_wise = category_wise.split( ';' )
+			category_wise[0] = category_wise[0].split( ',' )
+			subcategories = category_wise[ 1 :  ]
+			try :
+				category_obj = Category.objects.get( code = category_wise[0][0], name = category_wise[0][1] )
+			except ObjectDoesNotExist :
+				print( f"Error : No category exist by name '{ category_wise[0] }' so can't update sub-categories { subcategories }. " )
+			else :
+				for subcategory in subcategories :
+					subcategory = subcategory.split( ',' )
+					# checks if SubCategory already exists in DB
+					try :
+						subcategory_obj = SubCategory.objects.get( name = subcategory[ 1 ], category = category_obj )
+						print( f" SubCategory '{ subcategory_obj.name }' already exist in DB. " )
+						continue
+					except ObjectDoesNotExist :
+						#checks if code is not taken by other SubCategory in a category_wise manner
+						try :
+							subcategory_obj = SubCategory.objects .get( code = subcategory[0], category =  category_obj )
+							print( f" Another SubCategory '{ subcategory_obj.name }' exist with code '{ subcategory_obj.code }'. " )
+							continue
+						except ObjectDoesNotExist :
+							# saves subcategory if not present
+							subcategory_obj = SubCategory( code = subcategory[0] )
+							subcategory_obj.name = subcategory[1] 
+							subcategory_obj.category = category_obj
+							subcategory_obj.save()
+							print( f" Added new SubCategory with  code '{ subcategory_obj.code }' and name { subcategory_obj.name } " )
+							
+			
+			
+class Redressal( models.Model ) :
+	''' Redressal Model for Complain / Thread Model with actions for HOD / Principal '''
+	text = models.TextField( null = True, blank = True )
+	file = models.FileField( upload_to = 'thread-redressal/', null = True, blank = True )
+	added_by = models.ForeignKey(
 		Member,
 		related_name = '+',
 		on_delete = models.CASCADE,
 		null = True, 
 		blank = True 
 	)
-	redressed_at = models.DateTimeField( null = True, blank = True )
+	added_at = models.DateTimeField( null = True, blank = True )
 	# action of accept / reject of redressal by HOD / Principal. 
 	action = models.CharField( default = '', max_length = 15 )		# actions - APPROVE / REJECT
 	action_msg = models.TextField( null = True )
@@ -106,22 +169,6 @@ class Thread(models.Model):
 	)
 	action_at = models.DateTimeField( null = True, blank = True )
 	
-	# constants
-	
-	search_types = (
-		'All',
-		'Title',
-		'Description',
-		'Created by',
-		
-	)
-	
-	
-
-	def __str__( self ):
-		''' return a string of Thread id when object is called for printing purpose. '''
-		return str( self.id )
-		
 	def approve( self, member ):
 		''' Approves the redressal and saves changes for approval in Thread object. ''' 
 		self.action = 'APPROVE'
@@ -135,6 +182,65 @@ class Thread(models.Model):
 				'action_msg',
 			]
 		)
+		
+	def init_for_reject( self, request, member ):
+		''' Initialize the thread object with rejection data received by post method. '''
+		self.action = 'REJECT'
+		self.action_msg = request.POST.get( 'rejection_msg')
+		self.action_at = timezone.now()
+		self.action_by = member
+		
+	def is_reject_valid( self ):
+		''' Checks if rejection message if not blank. '''
+		if self.action_msg == '' or self.action_msg == None:
+			return False
+		return True
+		
+	def reject( self ):
+		''' Rejects redressal and saves the changes accordingly in Thread model. '''
+		self.save( update_fields = [
+				'action',
+				'action_msg',
+				'action_by',
+				'action_at',
+			]
+		)
+	
+	
+
+class Thread( models.Model ) :
+	# required data
+	id = models.CharField( primary_key = True, max_length = 15 )
+	title = models.CharField(max_length = 25)
+	category = models.CharField( max_length = 25 )
+	sub_category = models.CharField( max_length = 25 )
+	description = models.TextField()
+	complain_count = models.IntegerField( default = 0 )
+	note_count = models.IntegerField( default = 0 )
+	created_by = models.ForeignKey( Member, on_delete = models.CASCADE )
+	created_at = models.DateTimeField( default = timezone.now )
+	# for solving
+	solver = models.ForeignKey(
+		Member,
+		related_name = 'solver_member+',
+		on_delete = models.SET_NULL, 
+		null = True, 
+		blank = True 
+	)
+	solving_date = models.DateField( null = True, blank = True )
+	# redressal
+	redressal = models.OneToOneField( Redressal, on_delete = models.CASCADE, null = True, blank = True )
+
+	
+	# constants
+	
+	SEARCH_TYPES = ( 'All', 'Title', 'Description', 'Created by',	)
+	FILTER_OPTIONS = ( 'All', 'Approved', 'Redressed', 'Rejected', 'Unredressed' )
+	
+
+	def __str__( self ) :
+		''' return a string of Thread id when object is called for printing purpose. '''
+		return str( self.id )
 		
 	def generate_id(self, category, sub_category):
 		''' Generates and initialize id for object when called. '''
@@ -234,18 +340,12 @@ class Thread(models.Model):
 		
 	def init_for_redressal( self , request, member ):
 		''' Initializes the Thread object with the redressal data recieved through post method. '''
-		self.redressed = True
-		self.redressal = request.POST.get( 'redressal' )
-		self.redressal_file = request.FILES.get( 'redressal_file' )
-		self.redressed_by = member
-		self.redressed_at = timezone.now()
-		
-	def init_for_reject( self, request, member ):
-		''' Initialize the thread object with rejection data received by post method. '''
-		self.action = 'REJECT'
-		self.action_msg = request.POST.get( 'rejection_msg')
-		self.action_at = timezone.now()
-		self.action_by = member		
+		redressal = Redressal()
+		redressal.text = request.POST.get( 'redressal' )
+		redressal.file = request.FILES.get( 'redressal_file' )
+		redressal.added_by = member
+		redressal.added_at = timezone.now()
+		self.redressal = redressal
 		
 	def is_add_valid( self, request ):
 		''' Validates data initialized by method 'init_for_all' before saving in DB. '''
@@ -267,51 +367,50 @@ class Thread(models.Model):
 	def is_redress_valid( self ):
 		''' Returns True if initialized redressal data of Thread object is valid or else returns False. '''
 		valid = True
-		if self.redressal == '' or self.redressal == None:
+		if self.redressal is None :
 			valid = False
-		if self.redressed_by is None:
+		elif self.redressal.text == '' or self.redressal.text == None:
 			valid = False
-		if self.redressed_at is None:
+		elif self.redressal.added_by is None:
+			valid = False
+		elif self.redressal.added_at is None:
 			valid = False
 		return valid
 		
-	def is_reject_valid( self ):
-		''' Checks if rejection message if not blank. '''
-		if self.action_msg == '' or self.action_msg == None:
-			return False
-		return True
-		
 	def redress( self ):
 		''' Saves initialized redressal data in Thread model. '''
-		self.save( update_fields = [ 
-				'redressed',
-				'redressal',
-				'redressed_by',
-				'redressed_at',
-			]
-		)
-		
-	def reject( self ):
-		''' Rejects redressal and saves the changes accordingly in Thread model. '''
-		self.save( update_fields = [
-				'action',
-				'action_msg',
-				'action_by',
-				'action_at',
-			]
-		)
-		
+		self.redressal.save()
+		self.save( update_fields = [ 'redressal' ] )
+
 	def search( query, search_type ):
 		''' Single function for search of Thread objects. '''
 		search_qs = Thread.objects.none()
-		if search_type == search_types[0] or search_type == search_types[1] :
+		if search_type == Thread.SEARCH_TYPES[0] or search_type == Thread.SEARCH_TYPES[1] :
 			search_qs.union( Q( title__icontains = query ) )
-		elif search_type == search_types[0] or search_type == search_types[2] :
+		elif search_type == Thread.SEARCH_TYPES[0] or search_type == Thread.SEARCH_TYPES[2] :
 			search_qs.union( Q( description__icontains = query ) )
-		elif search_type == search_types[0] or search_type == search_types[3] :
+		elif search_type == Thread.SEARCH_TYPES[0] or search_type == Thread.SEARCH_TYPES[3] :
 			search_qs.union( (	Q( created_by__mid__icontains = query ) | 
 					Q( created_by__user__first_name__icontains = query ) | 
 					Q( created_by__user__last_name__icontains = query )
 				)
 			)
 		return search_qs
+		
+	def filter_qs( queryset, filter_option ) :
+		''' Filters the passed queryset according to passed filter_option. '''
+		print( filter_option, queryset )
+		if filter_option == Thread.FILTER_OPTIONS[ 1 ] :
+			final_qs = queryset.exclude( redressal = None ).filter( redressal__action = 'APPROVE' )
+			print(1)
+		elif filter_option == Thread.FILTER_OPTIONS[ 2 ] :
+			print(2)
+			final_qs = queryset.exclude( redressal = None )
+		elif filter_option == Thread.FILTER_OPTIONS[ 3 ] :
+			final_qs = queryset.exclude( redressal = None ).filter( redressal__action = 'REJECT' )
+			print(3)
+		elif filter_option == Thread.FILTER_OPTIONS[ 4 ] :
+			print(4)
+			final_qs = queryset.filter( redressal = None )
+		print( final_qs )
+		return final_qs

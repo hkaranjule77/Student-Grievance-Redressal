@@ -20,9 +20,9 @@ Complain List
     <br>
     <h3> <i> {{complain.subject}} </i> </h3>
     [
-    {% if complain.action == 'ACCEPTED' %}
+    {% if complain.action_by_sorter == 'ACCEPTED' %}
 		Accepted for solving
-	{% elif complain.action == 'REJECTED' %}
+	{% elif complain.action_by_sorter == 'REJECTED' %}
 		Rejected
     {% endif %}
     ]
@@ -52,8 +52,8 @@ Complain List
 			</p>
          {% endif %}
          
-         {% if complain.action == 'REJECTED' %}
-			<i>Rejected for :</i> {{ complain.action_msg }}
+         {% if complain.action_by_sorter == 'REJECTED' %}
+			<i>Rejected for :</i> {{ complain.sorter_action_msg }}
          {% endif %}
          
          <p align = "right">
@@ -69,13 +69,13 @@ Complain List
          
 
              <br><br>
-        {% if complain.action == '' %}
+        {% if complain.action_by_sorter == '' %}
 				<p>
 				<form method="post" action="/complain/{{ complain.id }}/accept/">
 					{% csrf_token %}
 					<input type="submit" value="Accept">
 				</form>
-				{% if complain.action == 'ACCEPTED' or complain.thread.action != 'APPROVE' %}
+				{% if complain.action_by_sorter == 'ACCEPTED' or complain.thread.action_by_sorter != 'APPROVE' %}
 					<input type="submit" onclick="toggle_rejection_form()" value="Reject" >
 				{% endif %}
 				</p>
@@ -101,10 +101,20 @@ Complain List
 								<tr>
 									<form method="post" action="/thread/{{ thread }}/attach-complain/{{ complain }}/">
 									{% csrf_token %}
-										<td><br>&nbsp; <a href="/thread/{{ thread }}/">{{ thread }}</a> &nbsp;</td>
-										<td><br>&nbsp; {{ thread.title }} &nbsp;</td>
+										<td><br>&nbsp;
+											<a href="/thread/{{ thread }}/"
+											title="Description : {{ thread.description }}">
+												{{ thread }}
+											</a> &nbsp;
+										</td>
+										<td><br>&nbsp;
+											<div title="Description : {{ thread.description }}">
+												{{ thread.title }} &nbsp;
+											</div>
+										</td>
 										<td><br> &nbsp;
-											<input type="checkbox" name="{{ thread }}" value="True">
+											<input type="checkbox" name="{{ thread }}" value="True"
+												title="Check this box to pin this Complaint in Thread">
 											&nbsp;
 										</td>
 										<td>

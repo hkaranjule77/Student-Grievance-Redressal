@@ -1,10 +1,29 @@
-{% extends 'base.html' %}
+{% extends 'user/navbar.html' %}
 
 {% block title %}
 	Thread {{ thread.title }}
 {% endblock %}
 
 {% block js_script %}
+
+	function cancel_redressal_edit(){
+		redressal_text = document.getElementById( "redressal_text" ) ;
+		redressal_form = document.getElementById( "hidden_redressal_form" ) ;
+		cancel_button = document.getElementById( "cancel_redressal_button") ;
+		redressal_text.style.display = "block" ;
+		redressal_form.style.display = "none" ;
+		cancel_button.style.display = "none" ;
+	}
+	
+	function edit_redressal(){
+		redressal_text = document.getElementById( "redressal_text" )
+		redressal_form = document.getElementById( "hidden_redressal_form" )
+		cancel_button = document.getElementById( "cancel_redressal_button")
+		redressal_text.style.display = "none" ;
+		redressal_form.style.display = "block" ;
+		cancel_button.style.display = "block" ;
+	}
+
 		function toggle_note_form(){
 			var note_form = document.getElementById("hidden_note_form");
 			var redressal_form = document.getElementById("hidden_redressal_form")
@@ -40,16 +59,15 @@
 		}
 {% endblock %}
 
-{% block content %}
+{% block section %}
 	<p>
-		<h1>Title : {{ thread.title }} </h1>
-		<h2>
+		<h2>Title : {{ thread.title }}
 			[
-				{% if thread.action == 'APPROVE' %}
+				{% if thread.redressal.action == 'APPROVE' %}
 					approved
-				{% elif thread.action == 'REJECT' %}
+				{% elif thread.redressal.action == 'REJECT' %}
 					rejected
-				{% elif thread.redressed %}
+				{% elif thread.redressal %}
 					redressed
 				{% else %}
 					unredressed
@@ -71,28 +89,68 @@
 	</p>
 	<hr>
 	
-	{% if thread.action == "REJECT" %}
-		<i>Rejection message : </i> {{ thread.action_msg }}
-		<p  align="right">Rejected by {{ thread.action_by }} at {{ thread.action_at }}</p>
+	{% if thread.redressal.action == "REJECT" %}
+		<i>Rejection message : </i> {{ thread.redressal.action_msg }}
+		<p  align="right">Rejected by {{ thread.redressal.action_by }} at {{ thread.redressal.action_at }}</p>
 		<hr>
+	{% endif %}
+	
+		<!---------			 Redressal section 		------------>
+	{% if thread.redressal %}
+		<div id="redressal_text">
+			<p> Redressal : {{ thread.redressal.text }} </p>
+			{% if thread.redressal.file %}
+				<p> Redressal File : <a href="{{ thread.redressal.file.url }}"> {{ thread.redreassal.file }} </a> </p>
+			{% endif %}
+			Redressed by : 
+			<a href="/user/profile/{{ thread.redressal.added_by }}/">
+				{{ thread.redressal.added_by }}
+			</a>
+			{% if thread.redressal.action == "REJECT" and thread.solver == member %}
+				<br>
+				<input type="button" onclick="edit_redressal()" value="edit">
+			{% endif %}
+			<p align="right">
+				at {{ thread.redressal.added_at }}
+			</p>
+			<hr><br>
+		</div>
 	{% endif %}
 	
 	<!--------			ACTION BUTTONS			--------->
 		<i>Action : </i>
 		<p>
-			{% if thread.action == 'REJECT' or thread.action == '' %}
-				<input type="submit" onclick="toggle_note_form()" id="add_note_submit" value="Add Note">
-				<input type="submit" onclick="toggle_redressal_form()" id="add_redressal_submit" value="Add Redressal">
+			{% if thread.solver == member and thread.solving_date == curr_date %}
+				{% if not thread.redressal or thread.redressal.action == "REJECT" %}
+					<input type="submit" value="Add Note" onclick="toggle_note_form()" id="add_note_submit">
+				{% endif %}
+				{% if not thread.redressal %}
+					<input type="submit" value="Add Redressal" onclick="toggle_redressal_form()" id="add_redressal_submit">
+				{% endif %}
+				{% if not thread.redressal or thread.redressal.action == "REJECT" %}
+					<form action="/thread/{{ thread }}/deselect/">
+						<input type="submit" value="Deselect" title="Deselects this thread for solving">
+					</form>
+				{% endif %}
+			{% elif thread.solving_date != curr_date %}
+				{% if not thread.redressal or thread.redressal.action == 'REJECT' %}
+					<form action="/thread/{{ thread }}/select-to-solve/">
+						<input type="submit" value="Select to solve" title="Selects this thread ">
+					</form>
+				{% endif %}
 			{% endif %}
-			{% if member.role == 'HOD' and thread.redressed or member.role == 'Principal'  and thread.redressed %}
-				{% if thread.action == '' or thread.action == 'REJECT' %}
+			{% if member.role == "HOD" or member.role == "Principal" %}
+				{% if thread.redressal.action == '' or thread.redresssal.action == 'REJECT' %}
 					<form method="post" action="/thread/{{ thread }}/approve/">
 						{% csrf_token %}
 						<input type="submit" value="Approve">
 					</form>
-				{% elif thread.action == '' or thread.action == 'APPROVE' %}
-						<input type="submit" onclick="toggle_rejection_form()" value="Reject">
 				{% endif %}
+				{% if thread.redressal.action == '' or thread.redressal.action == 'APPROVE' %}
+					<input type="submit" onclick="toggle_rejection_form()" value="Reject">
+				{% endif %}
+			{% elif thread.redressal %}
+				No actions
 			{% endif %}
 		</p>
 	<hr>
@@ -119,16 +177,18 @@
 	
 	<!---------			HIDDEN REDRESSAL FORM 			---------->
 	<div class="wrap" id="hidden_redressal_form" style="display : none">
-		<form method="post" action="/thread/{{ thread }}/add-redressal/" enctype="multipart/form-date">
+		<form method="post" action="/thread/{{ thread }}/add-redressal/" enctype="multipart/form-data">
 			{% csrf_token %}
 			<p>
-				&nbsp;&nbsp;Redressal :
-				<textarea name="redressal" required></textarea>
+				&nbsp;&nbsp;Redressal :<br>
+				<textarea name="redressal">{% if thread.redressal %}{{ thread.redressal.text }}{% endif %}</textarea>
 			</p>
 			&nbsp;&nbsp;Upload document : <br>
 			<input type="file" name="redressal_file"> <br><br>
 			<input type="submit" value=" Request for  Approval">
-			</p>
+			<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="button" value="cancel" onclick="cancel_redressal_edit()" id="cancel_redressal_button" style="display : none ">
 		</form>
 	</div>
 	
@@ -141,16 +201,6 @@
 			<input type="submit" value="Reject it">
 		</form>
 	</div>
-	
-	<!---------			 Redressal section 		------------>
-	{% if thread.redressed %}
-		<p> Redressal : {{ thread.redressal }} </p>
-		{% if thread.redressal_file %}
-			<p> Redressal File : <a href="{{ thread.redressal_file.url }}"> {{ thread.redreassal_file }} </a> </p>
-		{% endif %}
-		<p align="right"> Redressed by : {{ thread.redressed_by }} at {{ thread.redressal_at }} </p>
-		<hr><br>
-	{% endif %}
 	
 	<!---------			 Note Section			----------->
 	{% if pinned_note_list %}

@@ -10,29 +10,70 @@ from threads.models import Category, SubCategory, Thread
 from sgr.settings import BASE_DIR
 from user.views import get_object
 
+class Redressal( models.Model ) :
+	''' Redressal Model for Complain / Thread Model with actions for HOD / Principal '''
+	text = models.TextField( null = True, blank = True )
+	file = models.FileField( upload_to = 'complain-redressal/', null = True, blank = True )
+	added_by = models.ForeignKey(
+		Member,
+		related_name = '+',
+		on_delete = models.CASCADE,
+		null = True, 
+		blank = True 
+	)
+	added_at = models.DateTimeField( null = True, blank = True )
+	# action of accept / reject of redressal by HOD / Principal. 
+	action = models.CharField( default = '', max_length = 15 )		# actions - APPROVE / REJECT
+	action_msg = models.TextField( null = True )
+	action_by = models.ForeignKey( 
+		Member, 
+		related_name = 'member_on_ thread+',
+		on_delete = models.CASCADE, 
+		null = True, 
+		blank = True 
+	)
+	action_at = models.DateTimeField( null = True, blank = True )
+	
+	def approve( self, member ):
+		''' Approves the redressal and saves changes for approval in Thread object. ''' 
+		self.action = 'APPROVE'
+		self.action_by = member
+		self.action_at = timezone.now()
+		self.action_msg = ''
+		self.save( update_fields = [
+				'action',
+				'action_at',
+				'action_by',
+				'action_msg',
+			]
+		)
+		
+	def init_for_reject( self, request, member ):
+		''' Initialize the thread object with rejection data received by post method. '''
+		self.action = 'REJECT'
+		self.action_msg = request.POST.get( 'rejection_msg')
+		self.action_at = timezone.now()
+		self.action_by = member
+		
+	def is_reject_valid( self ):
+		''' Checks if rejection message if not blank. '''
+		if self.action_msg == '' or self.action_msg == None or self.action_msg == "Write down the correction to made in Redressal":
+			return False
+		return True
+		
+	def reject( self ):
+		''' Rejects redressal and saves the changes accordingly in Thread model. '''
+		self.save( update_fields = [
+				'action',
+				'action_msg',
+				'action_by',
+				'action_at',
+			]
+		)
+	
+
 class Complain(models.Model):
-
-	### CONSTANTS
-	categories = (
-		('A','Administrative Office'),
-		('I', 'Infrastructure'),
-		('C', 'Committee/Teacher'),
-		('M', 'Management activites'),
-		('O', 'Other' )
-	)
-	sub_categories = ( 
-		( ( 'A', 'Admission' ), ( 'C', 'Concession' ), ( 'S', 'Scholarship/Freeship' ), ( 'O', 'Other' ) ),
-		( ( 'C', 'Canteen' ), ( 'A', 'Classroom' ), ( 'G', 'Gymnasium' ), ( 'L', 'Library' ),
-		  ( 'I', 'Lift' ), ( 'P', 'Parking' ), ( 'Y', 'Playground' ),
-		  ( 'R', 'Practical Lab' ), ( 'T', 'Toilets/Washrooms' ), ( 'W', 'Workshop' ),
-		  ( 'X', 'Xerox Office' ), ( 'O', 'Other' ) ),
-		( ( 'B', 'Branch Committees' ), ( 'E', 'E-Cell' ), ( 'N', 'NSS' ), ( 'W', 'Women Development' ),
-		  ( 'O', 'Other' ) ),
-		( ( 'A', 'Attendance' ), ( 'C', 'Cleanliness' ), ( 'T', 'Timetable' ),
-		  ( 'O', 'Other' ) ),
-		( ( 'O', 'Other' ), )
-	)
-
+	
 	id = models.CharField(max_length = 12, primary_key = True)
 	subject = models.CharField(max_length = 35)
 	category = models.CharField(max_length = 30)
@@ -42,15 +83,7 @@ class Complain(models.Model):
 	complainer = models.ForeignKey(Student, on_delete = models.CASCADE)
 	reg_datetime = models.DateTimeField( default = timezone.now )
 	last_edit_at = models.DateTimeField( null = True, blank = True )
-	sorted = models.BooleanField(default = False)
-	sorted_by = models.ForeignKey( 
-		Member,
-		related_name = "sorted_by_member+",
-		on_delete = models.SET_NULL,
-		null = True,
-		blank = True
-	)
-	sorted_at = models.DateTimeField( null = True, blank = True )
+	# for solving 
 	solver = models.ForeignKey(
 		Member,
 		related_name = 'solving_member+',
@@ -60,10 +93,10 @@ class Complain(models.Model):
 	)
 	solving_date = models.DateField( null = True, blank = True )
 	# rejection of complain by sorter
-	action = models.CharField( max_length = 10, default = '' )		# actions - ACCEPTED / REJECTED 
-	action_msg = models.TextField( null = True, blank = True )
-	actioned_at = models.DateTimeField( null = True, blank = True )
-	actioned_by = models.ForeignKey(
+	action_by_sorter = models.CharField( max_length = 10, default = '' )		# actions - ACCEPTED / REJECTED 
+	sorter_action_msg = models.TextField( null = True, blank = True )
+	sorter_actioned_at = models.DateTimeField( null = True, blank = True )
+	sorter_actioned_by = models.ForeignKey(
 		Member,
 		related_name = 'action_taken_by+',
 		on_delete = models.SET_NULL,
@@ -84,21 +117,37 @@ class Complain(models.Model):
 		blank = True
 	)
 	pinned_at = models.DateTimeField( null = True, blank = True )
+	# redressal
+	redressal = models.OneToOneField( Redressal, on_delete = models.CASCADE, null = True, blank = True )
+	
+	# CONSTANTS
+	
+	search_options = ( 'All', 'ID', 'Subject', 'Category', 'Sub Category', 'Brief' )
+	
+	filter_options = (
+		'All',
+		'Unsorted',
+		'Accepted',
+		'Rejected',
+		'Threaded',
+		'Redressed',
+		'Approved'
+	)
 	
 	def __str__( self ):
 		return self.id
 	
 	def accept( self, member ):
 		''' Make changes in Complain object and saves it. '''
-		self.action = 'ACCEPTED'
-		self.action_msg = ''
-		self.actioned_at = datetime.now()
-		self.actioned_by = member
+		self.action_by_sorter = 'ACCEPTED'
+		self.sorter_action_msg = ''
+		self.sorter_actioned_at = datetime.now()
+		self.sort_actioned_by = member
 		self.save( update_fields = [
-				'action',
-				'action_msg',
-				'actioned_at',
-				'actioned_by',
+				'action_by_sorter',
+				'sorter_action_msg',
+				'sorter_actioned_at',
+				'sorter_actioned_by',
 			]
 		)
 
@@ -169,6 +218,18 @@ class Complain(models.Model):
 		print(generated_id, 'id  id')
 		self.id = generated_id
 		
+	def get_complain( request, id_no ):
+		''' Returns Complain object if present or else adds message and returns None. '''
+		try:
+			complain = Complain.objects.get( id = id_no )
+		except ObjectDoesNotExist:
+			messages.error( f'No Complaint exist with ID { id_no }. ')
+			complain = None
+		return complain
+
+	def get_filename(self):
+		return self.file.name[ 9 : ]
+		
 
 	def init( request ):
 		''' Initializes Complain object with data received by post method. '''
@@ -188,33 +249,56 @@ class Complain(models.Model):
 		self.category = request.POST.get('category')
 		self.sub_category = request.POST.get('sub_category')
 		self.brief = request.POST.get('brief')
-		self.action = ''
+		self.action_by_sorter = ''
 		self.last_edit_at = datetime.now()
 		self.file = request.FILES.get('file')
 		
+	def init_for_redressal( self , request, member ):
+		''' Initializes the Complain object with the redressal data recieved through post method. '''
+		if self.redressal is None :
+			self.redressal = Redressal()
+		self.redressal.text = request.POST.get( 'redressal_text' )
+		self.redressal.file = request.FILES.get( 'redressal_file' )
+		self.redressal.added_by = member
+		self.redressal.added_at = timezone.now()
+		self.redressal.action = ''
+		
 	def init_for_reject( self, request, member ):
 		''' Initializes saved Complain object for rejection. '''
-		self.action = 'REJECTED'
-		self.action_msg = request.POST.get( 'rejection_msg' )
-		self.actioned_at = datetime.now()
-		self.actioned_by = member 
+		self.action_by_sorter = 'REJECTED'
+		self.sorter_action_msg = request.POST.get( 'rejection_msg' )
+		self.sorter_actioned_at = datetime.now()
+		self.sorter_actioned_by = member 
 		
 	def init_for_thread( self, request, member, thread ):
 		''' Initializes the Complain object with thread. '''
 		self.thread = thread
 		self.threaded_at = datetime.now()
 		self.threaded_by = member
-		if self.action != 'REJECTED' :
-			self.action = 'ACCEPTED'
-			self.action_msg = ''
-			self.actioned_at = datetime.now()
-			self.actioned_by = member
+		if self.action_by_sorter != 'REJECTED' :
+			self.action_by_sorter = 'ACCEPTED'
+			self.sorter_action_msg = ''
+			self.sorter_actioned_at = datetime.now()
+			self.sorter_actioned_by = member
 		print( request.POST.get( str( thread ) ), 'thread it pin_it' )
 		if request.POST.get( str(thread) ) == "True":
 			print( 'entered' )
 			self.pinned_in_thread = True
 			self.pinned_at = datetime.now()
 			self.pinned_by = member
+			
+	def is_redress_valid( self ):
+		''' Returns True if initialized redressal data of Thread object is valid or else returns False. '''
+		valid = True
+		if self.redressal == None:
+			valid = False
+		elif self.redressal.text == '' or self.redressal.text == None or self.redressal.text == 'Add your redressal for complaint here...' :
+			valid = False
+		elif self.redressal.added_by is None:
+			valid = False
+		elif self.redressal.added_at is None:
+			valid = False
+		return valid
 	
 	def is_valid(self):
 		valid = True
@@ -250,24 +334,9 @@ class Complain(models.Model):
 		
 	def is_reject_valid( self ) :
 		''' Checks if rejection message is not null. '''
-		if self.action_msg == '' or self.action_msg == None or self.action_msg == 'Add your message for rejection here...' :
+		if self.sorter_action_msg == '' or self.sorter_action_msg == None or self.sorter_action_msg == 'Add your message for rejection here...' :
 			return False
 		return True
-
-	def get_complain( request, id_no ):
-		''' Returns Complain object if present or else adds message and returns None. '''
-		try:
-			complain = Complain.objects.get( id = id_no )
-		except ObjectDoesNotExist:
-			messages.error( f'No Complaint exist with ID { id_no }. ')
-			complain = None
-		return complain
-
-
-	### Searching methods
-
-	def get_filename(self):
-		return self.file.name[ 9 : ]
 		
 	def save_edit( self ):
 		''' Saves content added in Complain object during editing. '''
@@ -277,17 +346,22 @@ class Complain(models.Model):
 				'sub_category',
 				'brief',
 				'last_edit_at',
-				'action',
+				'action_by_sorter',
 			]
 		)
+		
+	def save_redress( self ) :
+		''' Saves redressal object initialized to complain object and updates it. '''
+		self.redressal.save()
+		self.save( update_fields = [ 'redressal' ] )
 		
 	def save_reject( self ):
 		''' Saves changes made for rejection of Complain object. '''
 		self.save( update_fields = [
-				'action',
-				'action_msg',
-				'actioned_at',
-				'actioned_by',
+				'action_by_sorter',
+				'sorter_action_msg',
+				'sorter_actioned_at',
+				'sorter_actioned_by',
 			]
 		)
 
@@ -312,10 +386,10 @@ class Complain(models.Model):
 				'thread',
 				'threaded_at',
 				'threaded_by',
-				'action',
-				'action_msg',
-				'actioned_by',
-				'actioned_at',
+				'action_by_sorter',
+				'sorter_action_msg',
+				'sorter_actioned_by',
+				'sorter_actioned_at',
 				'pinned_in_thread',
 				'pinned_at',
 				'pinned_by'
@@ -343,14 +417,18 @@ class Note(models.Model):
 	
 	def __str__( self ):
 		return str( self.id )
+		
+	def get_filename( self ) :
+		''' Return a valid filename of uploaded file in note. '''
+		return self.file[ 5 : ]
 
-	def init_all(self, request):
+	def init_all(self, request, member, complain ):
 		self.note = request.POST.get('note')
 		self.file = request.FILES.get('file')
+		print(self.file)
 		id = request.POST.get('complain_id')
-		if id != None and id != '':
-			self.complain = Complain.objects.get(id = id)
-		self.solver = Member.objects.get(user = request.user)
+		self.complain = complain
+		self.solver = member
 		
 	def is_none( self ):
 		''' Checks Note object if data is None, then returns True or else returns False. '''
@@ -366,13 +444,22 @@ class Note(models.Model):
 	def is_valid(self):
 		''' Checks Note object is data valid or not, before saving. '''
 		valid = True
-		if self.note == '' or self.note == None:
+		if self.note == '' or self.note == None or self.note == " Track your work on Complaint by adding a note here...":
 			valid = False
 		if self.solver == '' or self.solver == None:
 			valid = False
-		if self.thread is None or self.thread == '' or self.complain is None and self.complain == '':
+		if self.complain is None and self.thread is not None:
 			valid = False
 		return valid
+		
+	def get_list( complain = None, thread = None ) :
+		''' Returns a list of notes '''
+		list_of_note = None
+		if thread is not None :
+			list_of_note = Note.objects.filter( thread = thread )
+		elif complain is not None :
+			list_of_note = Note.objects.filter( complain = complain )
+		return list_of_note
 		
 	def get_note( request, id ):
 		''' Returns Note of id_no if present or else returns None and a error message. '''

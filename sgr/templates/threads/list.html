@@ -4,38 +4,96 @@
 	Thread List
 {% endblock %}
 
+{% block js_script %}
+	function show_search_form(){
+		search_form = document.getElementById( "hidden_search_form" ) ;
+		show_form_button = document.getElementById( "show_form_button" )
+		if ( search_form.style.display == "none" ){
+			search_form.style.display = "block" ;
+			show_form_button.style.display = "none" ;
+		}
+	}
+{% endblock %}
+
 {% block section %}
-	<i>Useful Link : </i>
-	<a href="{% url 'Add Thread' %}"> Add new Thread</a> |
-	<a href="{% url 'Search&Sort Thread' %}"> Search & Sort </a>
+	<form action="{% url 'Add Thread' %}">
+		<input type="submit" value="Add new Thread">
+	</form>
+	
+	{% if not query and not search_by and not filter_option and user.is_staff %}
+		<br>
+		
+		<!-----		SHOW / HIDE SEARCH BUTTON		----->	
+		<input type="button" value="Search" onclick="show_search_form()" id="show_form_button"
+		title="Allows you to search Complain through various options and filters">
+	{% endif %}
+	
+		<!-----		 HIDDEN SEARCH FORM 		----->
+		<div id="hidden_search_form" 
+			{% if not query and not search_by and not filter_option %}
+				style=" display : none "
+			{% endif %}
+		>
+			<form method="post" action="{% url 'Search&Filter Thread' %}">
+				{% csrf_token %}
+				<input type="text" name="query" value="{{ query }}" style="width : 250px"> &nbsp;&nbsp;
+				<input type="submit" value="Search">
+				<br>
+				Search by :
+				<select name = "search_type" style="width : 135px">
+					{% for op in search_types %}
+						<option {% if search_type == op %}selected{% endif %}>
+							{{op}}
+						</option>
+					{% endfor %}
+				</select>&nbsp;&nbsp;&nbsp;&nbsp;
+				Filter : 
+				<select name="filter_option" style="width : 130px">
+					{% for filter in filter_options %}
+						<option {% if filter_option == filter %}selected{% endif %}>
+							{{ filter }}
+						</option>
+					{% endfor %}
+				</select>
+			</form>
+		</div>
+	
+	
 	<br>
-	<h1>Thread List</h1>
-		<table>
-			<tr>
-				<th>ID</th>
-				<th>Title</th>
-				<th>Category</th>
-				<th>Sub Category</th>
-				<th>Status</th>
-			</tr>
-			{% for thread in thread_list %}
+	{% if thread_list %}
+		<h1>Thread List</h1>
+			<table>
 				<tr>
-					<td> <a href="/thread/{{ thread }}/"> {{ thread.id }} </a> </td>
-					<td> {{ thread.title }} </td>
-					<td> {{ thread.category }} </td>
-					<td> {{ thread.sub_category }} </td>
-					<td>
-						{% if thread.action == 'APPROVE' %}
-							Approved
-						{% if thread.action == 'REJECT'}
-							Redressal rejected
-						{% elif thread.redressed %}
-							Redressed
-						{% else %}
-							Unredressed
-						{% endif %}
-					</td>
+					<th>ID</th>
+					<th>Title</th>
+					<th>Category</th>
+					<th>Sub Category</th>
+					<th>Status</th>
 				</tr>
-			{% endfor %}
-		</table>
+				{% for thread in thread_list %}
+					<tr>
+						<td> <a href="/thread/{{ thread }}/"> {{ thread.id }} </a> &nbsp;</td>
+						<td> {{ thread.title }}&nbsp; </td>
+						<td> {{ thread.category }}&nbsp; </td>
+						<td> {{ thread.sub_category }}&nbsp; </td>
+						<td>
+							{% if thread.redressal.action == 'APPROVE' %}
+								Approved
+							{% elif thread.redressal.action == 'REJECT' %}
+								Redressal rejected
+							{% elif thread.redressal %}
+								Redressed
+							{% else %}
+								Unredressed
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% else %}
+			<br>
+			<h3>
+				There No threads in the system currently. Please use 'Add Thread' option to add a new thread.
+			</h3>
+		{% endif %}
 {% endblock %}

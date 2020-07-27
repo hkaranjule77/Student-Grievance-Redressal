@@ -8,10 +8,7 @@ nav {
     height: 80px;
     width: 100%;
 }
-body {
-    margin-top: 0;
-    background: linear-gradient(-45deg,#43cea2,#185a9d);
-}
+
 
     nav ul{
       list-style: none;
@@ -22,7 +19,7 @@ body {
 
 
     nav ul li{
-display: inline-block;
+  display: inline-block;
   padding: 10px 30px;   
   margin: 15px;
   border: 2px solid white;

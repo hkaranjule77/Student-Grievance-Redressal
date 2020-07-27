@@ -1,0 +1,5 @@
+A,Administrative Office;A,Admission;C,Concession;S,Scholarship/Freeship;O,Other;
+I,Infrastructure;C,Canteen;A,Classroom;G,Gymnasium;L,Library;I,Lift;P,Parking;Y,Playground;R,Practical Lab;T,Toilets/Washrooms;W,Workshop;X,Xerox Office;O,Other;
+C,Committee/Teacher;B,Branch Committees;E,E-Cell;N,NSS;W,Women Development;O,Other;
+M,Management activites;A,Attendance;C,Cleanliness;T,Timetable;O,Other;
+O,Other;O,Other;

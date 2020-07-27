@@ -11,7 +11,7 @@
 			{% if curr_mem.role == 'HOD' or curr_mem.role == 'Principal' %}
 				<a href="/user/deactivate/{{ student.sid }}/"> Deactivate </a>
 			{% elif curr_mem.role == 'Sorter' %}
-				<a href="/user/deactivation-request-form/{{ student.sid }}/"> Deactiviation request </a>
+				<a href="/user/deactivation-request-form/{{ student.sid }}/">Add deactiviation request </a>
 			{% endif %}
 		{% endif %}
 	</p>
@@ -37,6 +37,24 @@
         <p> <i>Contact No : </i> {{student.contact_no}}</p>
         <p> <i>Email : </i> {{student.user.email}} </p>
         <br>
+        
+        {% if user.is_staff %}
+			<h3>Account status: </h3></p>
+			<hr width="50%" align="left">
+			<p><i>Current status :</i> {% if student.user.is_active %} Active {% else %} Deactivated {% endif %}</p>
+			{% if student.deactivation_request or not student.user.is_active %}
+				<p><i>Deactivation reqeust :</i> {% if student.deactivation_request %} Yes {% else %} No {% endif %}</p>
+				<p><i>Reason :</i> {{ student.deactivation_reason }}</p>
+			{% endif %}
+			{% if student.deactivation_request %}
+				<p><i>Requested by :</i> {{ student.deact_requested_mem }}</p>
+				<p><i>Requested at :</i> {{ student.deact_req_at }}</p>
+			{% endif %}
+			{% if not student.user.is_active %}
+				<p><i>Deactivated by :</i> {{ student.deactivated_by }}</p>
+				<p><i>Deactivated at :<i> {{ student.deactivated_at }}</p>
+			{% endif %}
+        {% endif %}
         
     </p>
 {% endblock %}

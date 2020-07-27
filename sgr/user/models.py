@@ -16,6 +16,10 @@ questions = ('In which town your mom/dad was born?',
 				'Which sports do you like most?',
              )
              
+search_by_options = ( 'All', 'First Name', 'Last Name', 'Contact Number', 'Email' )
+
+filter_options_for_member =( 'All', 'Active', 'Deactivated' )
+
              
              
 class MemberIDCount (models.Model):
